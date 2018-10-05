@@ -50,6 +50,6 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
-    json.dump(names, open('dataset/synset_names.json', 'w'))
-else:
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
+else:
+    json.dump(names, open('dataset/synset_names.json', 'w'))
