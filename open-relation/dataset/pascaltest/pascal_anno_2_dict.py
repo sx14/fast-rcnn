@@ -1,7 +1,7 @@
 from xml.dom import minidom
 
 
-def pascal_anno_2_dict(anno_path, label2wn_index):
+def pascal_anno_2_dict(anno_path, label2wn):
     org_xml_dom = minidom.parse(anno_path)
     mid_data = dict()
     anno_size = org_xml_dom.getElementsByTagName('size')[0]
@@ -18,7 +18,7 @@ def pascal_anno_2_dict(anno_path, label2wn_index):
         mid_object['xmax'] = anno_object.getElementsByTagName('xmax')[0].childNodes[0].data
         mid_object['ymax'] = anno_object.getElementsByTagName('ymax')[0].childNodes[0].data
         object_label = anno_object.getElementsByTagName('name')[0].childNodes[0].data
-        mid_object['name'] = str(label2wn_index[object_label])
+        mid_object['name'] = label2wn[object_label]
         mid_object['pose'] = anno_object.getElementsByTagName('pose')[0].childNodes[0].data
         mid_object['truncated'] = anno_object.getElementsByTagName('truncated')[0].childNodes[0].data
         mid_object['difficult'] = anno_object.getElementsByTagName('difficult')[0].childNodes[0].data

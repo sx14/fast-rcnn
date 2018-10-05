@@ -111,8 +111,11 @@ __C.TEST.BBOX_REG = True
 # coordinates. If DEDUP_BOXES > 0, then DEDUP_BOXES is used as the scale factor
 # for identifying duplicate boxes.
 # 1/16 is correct for {Alex,Caffe}Net, VGG_CNN_M_1024, and VGG16
-__C.DEDUP_BOXES = 1./16.
 
+# ======== ATTENTION: for feature extraction ========
+# __C.DEDUP_BOXES = 1./16.
+__C.DEDUP_BOXES = 0
+# ======== ATTENTION: for feature extraction ========
 # Pixel mean values (BGR order) as a (1, 1, 3) array
 # We use the same pixel mean for all networks even though it's not exactly what
 # they were trained with

@@ -5,8 +5,8 @@ local method = 'contrastive'
 
 local hdf5 = require 'hdf5'
 
-local f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
--- local f = hdf5.open('dataset/wordnet.h5', 'r')
+--local f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
+local f = hdf5.open('dataset/wordnet.h5', 'r')
 local originalHypernyms = f:read('hypernyms'):all():add(1) -- convert to 1-based indexing
 local numEntities = torch.max(originalHypernyms) 
 f:close()
@@ -62,7 +62,8 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
             f:close()
         end
 
-        torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
+        --torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
+        torch.save('dataset/' .. methodName .. '.t7', datasets)
         write_json('vis/static/' .. methodName .. '/hypernyms', datasets.train.hypernyms:totable())
 end
 
