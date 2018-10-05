@@ -32,8 +32,6 @@ class PascalDataset(Dataset):
         feature_name = self._index[index][0]
         feature_offset = self._index[index][1]
         feature_path = os.path.join(self._raw_data_root, feature_name)
-        if feature_offset == 17:
-            print(feature_name + " " + str(feature_offset))
         with open(feature_path) as feature_file:
             features = pickle.load(feature_file)
         vf_raw = features[feature_offset]

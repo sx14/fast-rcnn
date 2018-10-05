@@ -11,6 +11,7 @@ from nltk.corpus import wordnet as wn
 import _init_paths
 from fast_rcnn.test import im_detect
 import label_map
+import data_config
 
 def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path, image_sum):
     boxes = dict()
@@ -95,28 +96,28 @@ def generate_negative_data(list_path, wn_synset_sum):
 
 
 if __name__ == '__main__':
-    wn_synsets_path = '/media/sunx/Data/linux-workspace/python-workspace/' \
-                      'hierarchical-relationship/open-relation/wordnet-embedding/dataset/synset_names.json'
+    wn_synsets_path = data_config.WN_SYNSETS_PATH
+    voc_root = data_config.VOC_ROOT
+    prototxt = data_config.FAST_PROTOTXT_PATH
+    caffemodel = data_config.FAST_CAFFEMODEL_PATH
     datasets = ['train', 'val', 'test']
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+    net = caffe.Net(prototxt, caffemodel, caffe.TEST)
     for d in datasets:
-        label_save_path = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/prepare/'+d+'_labels.bin'
-        box_save_path = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/prepare/'+d+'_boxes.bin'
-        fc7_save_root = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/fc7/'
-        label_save_root = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/label/'+d+'.txt'
-        anno_root = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/Annotations'
-        anno_list = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/ImageSets/Main/'+d+'.txt'
-        img_root = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/JPEGImages'
+        label_save_path = os.path.join(voc_root, 'feature/prepare/'+d+'_labels.bin')
+        box_save_path = os.path.join(voc_root, 'feature/prepare/'+d+'_boxes.bin')
+        fc7_save_root = os.path.join(voc_root, 'feature/fc7')
+        label_save_root = os.path.join(voc_root, 'feature/label/'+d+'.txt')
+        anno_root = os.path.join(voc_root, 'Annotations')
+        anno_list = os.path.join(voc_root, 'ImageSets/Main/'+d+'.txt')
+        img_root = os.path.join(voc_root, 'JPEGImages')
         prepare_image_sum = 10000000
         prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, prepare_image_sum)
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
             labels = pickle.load(label_file)
-        prototxt = '/media/sunx/Data/linux-workspace/python-workspace/hierarchical-relationship/models/VGG16/test.prototxt'
-        caffemodel = '/media/sunx/Data/linux-workspace/python-workspace/hierarchical-relationship/data/fast_rcnn_models/vgg16_fast_rcnn_iter_40000.caffemodel'
-        caffe.set_mode_gpu()
-        caffe.set_device(0)
-        net = caffe.Net(prototxt, caffemodel, caffe.TEST)
         wn2index = label_map.wn2index(wn_synsets_path)
         extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root, prepare_image_sum, wn2index)
         generate_negative_data(label_save_root, len(wn2index.keys()))

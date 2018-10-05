@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 from dataset.pascaltest.PascalDataset import PascalDataset
 from model import model
-
+import train_config
 
 hyper_params = {
     "visual_d": 4096,
@@ -11,8 +11,8 @@ hyper_params = {
     "epoch": 30,
     "batch_size": 200,
     "eval_freq": 1,
-    "visual_feature_root": "/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/fc7",
-    "list_root": "/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007/feature/label",
+    "visual_feature_root": train_config.VISUAL_FEATURE_ROOT,
+    "list_root": train_config.LIST_ROOT,
     "word_vec_path": "wordnet-embedding/dataset/word_vec_wn.h5"
 }
 
@@ -38,23 +38,24 @@ def train():
             batch_wf = torch.autograd.Variable(wf)
             batch_gt = torch.autograd.Variable(gt)
             E = net(batch_vf, batch_wf)
+            corr = correct(E, batch_gt)
+            acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
+            print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc, l.data.numpy()))
             optim.zero_grad()
             l.backward()
             optim.step()
-            if batch_counter == hyper_params["eval_freq"]:
-                acc = eval(val_dataset, net)
-                print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc, l))
+            # if batch_counter % hyper_params["eval_freq"] == 0:
+            #     acc = eval(val_dataset, net)
+            #     print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc))
 
 
-def correct(model, vf_vec, word_vec, gt):
-    E = model(vf_vec, word_vec)
-    result = torch.eq(E.data, torch.zero())
-    result = result.numpy()
-    pred = result / result
-    pred = torch.mul(pred, 2)
-    pred = torch.add(pred, -1)
-    r = torch.eq(pred, gt)
+def correct(E, gt):
+    pred = torch.eq(E.data, torch.zeros(E.data.size()))
+    pred = pred.numpy()
+    pred = pred * 2
+    pred = pred - 1
+    r = torch.eq(torch.from_numpy(pred).float(), gt.data)
     return torch.sum(r)
 
 
@@ -65,8 +66,9 @@ def eval(dataset, model):
         batch_vf = torch.autograd.Variable(vf)
         batch_wf = torch.autograd.Variable(wf)
         batch_gt = torch.autograd.Variable(gt)
-        corr = correct(model, batch_vf, batch_wf, batch_gt)
-        acc += corr.data
+        E = model(batch_vf, batch_wf)
+        corr = correct(E, batch_gt)
+        acc += corr
     return acc * 1.0 / val_dataloader.__len__()
 
 
