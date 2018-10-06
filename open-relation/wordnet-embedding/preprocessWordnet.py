@@ -47,7 +47,7 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
-    with open('exp_dataset/vs_wn2index.bin') as vs_wn2index_file:
+    with open('exp_dataset/vs_wn2index.bin', 'w') as vs_wn2index_file:
         pickle.dump(id2index, vs_wn2index_file)
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:
