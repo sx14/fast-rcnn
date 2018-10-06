@@ -3,18 +3,9 @@ import torch
 from torch.utils.data import DataLoader
 from dataset.pascaltest.PascalDataset import PascalDataset
 from model import model
-import train_config
+from train_config import hyper_params
 
-hyper_params = {
-    'visual_d': 4096,
-    'embedding_d': 300,
-    'epoch': 30,
-    'batch_size': 200,
-    'eval_freq': 100,
-    'visual_feature_root': train_config.VISUAL_FEATURE_ROOT,
-    'list_root': train_config.LIST_ROOT,
-    'word_vec_path': 'wordnet-embedding/dataset/word_vec_wn.h5'
-}
+
 
 
 def train():
