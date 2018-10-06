@@ -25,7 +25,7 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
         anno_file_id = anno_list[i]
         print('prepare processing[%d/%d] %s' % (len(anno_list), (i + 1), anno_file_id))
         anno = org.vs_anno_2_dict(os.path.join(anno_root, anno_list[i]+'.json'))
-        image_id = anno['filename']
+        image_id = anno['filename'].split('.')[0]
         anno_objects = anno['objects']
         box_list = []
         label_list = []
@@ -167,7 +167,7 @@ if __name__ == '__main__':
         anno_list = os.path.join(vs_root, 'ImageSets/Main/' + d + '.txt')
         img_root = os.path.join(vs_root, 'JPEGImages')
         prepare_image_sum = 10000000
-        prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, prepare_image_sum)
+        # prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, prepare_image_sum)
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
