@@ -16,7 +16,6 @@ hypernyms = []
 for synset in all_nouns:
     for h in synset.hypernyms() + synset.instance_hypernyms():
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
-
 if FOR_VS:
     # ==== append Visual Genome object classes ====
     vs2wn_path = 'exp_dataset/label2wn.json'
@@ -31,12 +30,9 @@ if FOR_VS:
             id2index[vs_object] = next_id2index_id
             wns = vs2wn[vs_object]
             for h in wns:
-                h_parts = h.split('.')
-                if h_parts[0] != vs_object:
-                    hypernyms.append([next_id2index_id, id2index[h]])
+                hypernyms.append([next_id2index_id, id2index[h]])
             next_id2index_id = next_id2index_id + 1
 # ====
-
 hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py

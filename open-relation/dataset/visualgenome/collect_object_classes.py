@@ -1,6 +1,6 @@
 import os
 import json
-
+import data_config
 
 def object_class2wn_leaf(anno_root, output_path):
     label2wn_path = os.path.join(output_path, 'label2wn.json')
@@ -11,11 +11,11 @@ def object_class2wn_leaf(anno_root, output_path):
     counter = 0
     for anno_id in os.listdir(anno_root):
         counter = counter + 1
-        print('processing[%d/%d] : %s\n' % (anno_total, counter, anno_id))
+        print('processing[%d/%d] : %s' % (anno_total, counter, anno_id))
         anno_path = os.path.join(anno_root, anno_id)
         with open(anno_path, 'r') as anno_file:
             anno = json.load(anno_file)
-            objects = anno['objects']['objects']
+            objects = anno['objects']
             for o in objects:
                 o_names = o['names']
                 o_synsets = o['synsets']
@@ -40,6 +40,6 @@ def object_class2wn_leaf(anno_root, output_path):
 
 
 if __name__ == '__main__':
-    anno_path = '/media/sunx/Data/dataset/visual genome/anno'
-    output_path = '/media/sunx/Data/dataset/visual genome/my_output'
+    anno_path = os.path.join(data_config.VS_ROOT, 'anno')
+    output_path = os.path.join(data_config.VS_ROOT, 'feature', 'prepare')
     object_class2wn_leaf(anno_path, output_path)

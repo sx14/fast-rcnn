@@ -13,9 +13,10 @@ from fast_rcnn.test import im_detect
 import label_map
 import data_config
 
+
 def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path, image_sum):
     boxes = dict()
-    labels = dict()
+    wn_labels = dict()
     label2wn = label_map.label2wn()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
@@ -37,14 +38,14 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
             label_list.append(o['name'])
             box_list.append([xmin, ymin, xmax, ymax])
         boxes[image_id] = box_list
-        labels[image_id] = label_list
+        wn_labels[image_id] = label_list
     with open(label_save_path, 'wb') as label_file:
-        pickle.dump(labels, label_file)
+        pickle.dump(wn_labels, label_file)
     with open(box_save_path, 'wb') as boxes_file:
         pickle.dump(boxes, boxes_file)
 
 
-def extract_fc7_features(net, boxes, labels, img_root, list_path, feature_root, label_path, image_sum, wn2index):
+def extract_fc7_features(net, boxes, wn_labels, img_root, list_path, feature_root, label_path, image_sum, wn2index):
     label_list = []
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
@@ -56,7 +57,7 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path, feature_root, 
         if image_id not in boxes:
             continue
         box_list = np.array(boxes[image_id])
-        curr_img_labels = labels[image_id]
+        curr_img_labels = wn_labels[image_id]
         box_num = box_list.shape[0]
         if box_num == 0:
             continue
@@ -117,7 +118,7 @@ if __name__ == '__main__':
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
-            labels = pickle.load(label_file)
+            wn_labels = pickle.load(label_file)
         wn2index = label_map.wn2index(wn_synsets_path)
-        extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root, prepare_image_sum, wn2index)
+        extract_fc7_features(net, boxes, wn_labels, img_root, anno_list, fc7_save_root, label_save_root, prepare_image_sum, wn2index)
         generate_negative_data(label_save_root, len(wn2index.keys()))

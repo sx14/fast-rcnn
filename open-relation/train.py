@@ -1,7 +1,7 @@
 import os
 import torch
 from torch.utils.data import DataLoader
-from dataset.pascaltest.PascalDataset import PascalDataset
+from dataset.MyDataset import MyDataset
 from model import model
 from train_config import hyper_params
 
@@ -13,8 +13,8 @@ def train():
     train_list_path = os.path.join(hyper_params['list_root'], 'train.txt')
     val_list_path = os.path.join(hyper_params['list_root'], 'val.txt')
     word_vec_path = hyper_params['word_vec_path']
-    train_dataset = PascalDataset(visual_feature_root, train_list_path, word_vec_path)
-    val_dataset = PascalDataset(visual_feature_root, val_list_path, word_vec_path)
+    train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path)
+    val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
     train_dataloader = DataLoader(train_dataset, batch_size=hyper_params['batch_size'], shuffle=True)
     net = model.HypernymVisual(hyper_params['visual_d'], hyper_params['embedding_d'])
     model_weights_path = 'model/weights.pkl'

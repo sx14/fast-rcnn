@@ -1,39 +1,25 @@
-import json
 import os
-
-object_json_path = '/home/magus/dataset/visual genome/objects.json'
-image_data_path = '/home/magus/dataset/visual genome/image_data.json'
-relationship_path = '/home/magus/dataset/visual genome/relationships.json'
-output_json_root = '/home/magus/dataset/visual genome/anno'
-
-
-def split_json(json_path, output_json_root, key, has_key):
-    with open(json_path, 'r') as data_file:
-        image_data = json.load(data_file)
-    for i in range(0, len(image_data)):
-        print('processing ' + key + ' : ' + str(i))
-        img_info = image_data[i]
-        img_json_file_path = os.path.join(output_json_root, str(img_info['image_id']) + '.json')
-        if os.path.exists(img_json_file_path):
-            img_json_file = open(img_json_file_path, 'r')
-            img_json_content = json.load(img_json_file)
-        else:
-            f = open(img_json_file_path, 'w')
-            f.close()
-            img_json_content = dict()
-        if key not in img_json_content:
-            if has_key:
-            	img_json_content[key] = img_info[key]
-            else:
-                img_json_content[key] = img_info
-        with open(img_json_file_path, 'w') as img_json_file:
-            json.dump(img_json_content, img_json_file, sort_keys=False, indent=4)
-
-
-
+import random
+import data_config
 
 if __name__ == '__main__':
-    split_json(image_data_path, output_json_root, u'image_info', False)
-    split_json(object_json_path, output_json_root, u'objects', True)
-    split_json(relationship_path, output_json_root, u'relationships', True)
-
+    anno_root = os.path.join(data_config.VS_ROOT, 'anno')
+    anno_sum = len(os.listdir(anno_root))
+    train_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['train'])
+    val_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['val'])
+    testc_capacity = anno_sum - train_capacity - val_capacity
+    anno_list = os.listdir(anno_root)
+    random.shuffle(anno_list)
+    dataset_list = {
+        'train': anno_list[0:train_capacity],
+        'val': anno_list[train_capacity:train_capacity+val_capacity],
+        'test': anno_list[train_capacity+val_capacity:anno_sum]
+    }
+    for d in dataset_list:
+        image_id_list = []
+        ls = dataset_list[d]
+        for l in ls:
+            image_id_list.append(l.split('.')[0]+'\n')
+        list_file_path = os.path.join(data_config.VS_ROOT, 'ImageSets', 'Main', d+'.txt')
+        with open(list_file_path, 'w') as list_file:
+            list_file.writelines(image_id_list)
