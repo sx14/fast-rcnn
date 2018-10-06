@@ -1,11 +1,12 @@
 local argparse = require 'argparse'
 
 
+FOR_VS = true
 
 parser = argparse('Train a WordNet completion model')
 parser:option '--seed' :description 'random seed' : default '1234' :convert(tonumber)
 parser:option '-d' :description 'dimensionality of embedding space' :default "300" :convert(tonumber)
-parser:option '--epochs' :description 'number of epochs to train for ' :default "50" :convert(tonumber)
+parser:option '--epochs' :description 'number of epochs to train for ' :default "30" :convert(tonumber)
 parser:option '--batchsize' :description 'size of minibatch to use' :default "1000" :convert(tonumber)
 parser:option '--eval_freq' :description 'evaluation frequency' :default "100" :convert(tonumber)
 parser:option '--lr' :description 'learning rate' :default "0.01" :convert(tonumber)
@@ -32,12 +33,20 @@ end
 torch.manualSeed(args.seed)
 
 require 'Dataset'
--- local datasets = torch.load('dataset/' .. args.train .. '.t7')
-local datasets = torch.load('exp_dataset/' .. args.train .. '.t7')
+
+if FOR_VS then
+  datasets = torch.load('exp_dataset/' .. args.train .. '.t7')
+else
+  datasets = torch.load('dataset/' .. args.train .. '.t7')
+end
+
 local datasets_eval = {}
 for _, name in ipairs(args.eval) do
-    -- datasets_eval[name] = torch.load('dataset/' .. name .. '.t7')
-    datasets_eval[name] = torch.load('exp_dataset/' .. name .. '.t7')
+    if FOR_VS then
+      datasets_eval[name] = torch.load('exp_dataset/' .. name .. '.t7')
+    else
+      datasets_eval[name] = torch.load('dataset/' .. name .. '.t7')
+    end
 end
 local train = datasets.train
 
@@ -62,8 +71,6 @@ require 'optim'
 require 'HypernymScore'
 local config = { learningRate = args.lr }
 
--- local lookupTableWeights = torch.load('weights.t7')
--- local hypernymNet = nn.HypernymScore(hyperparams, datasets.numEntities, lookupTableWeights)
 local hypernymNet = nn.HypernymScore(hyperparams, datasets.numEntities)
 local criterion = nn.HingeEmbeddingCriterion(args.margin)
 
@@ -163,7 +170,11 @@ print("Best accuracy was at batch #" )
 print(pretty.write(best_counts,""))
 print(pretty.write(best_accuracies,""))
 
-torch.save('word_embedding_weights_vs.t7', saved_weight)
+if FOR_VS then
+  torch.save('word_embedding_weights_vs.t7', saved_weight)
+else
+  torch.save('word_embedding_weights.t7', saved_weight)
+end
 
 if args.vis then
     for name, dataset in pairs(datasets_eval) do

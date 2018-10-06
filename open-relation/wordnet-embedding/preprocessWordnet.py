@@ -4,7 +4,7 @@ from nltk.corpus import wordnet as wn
 all_nouns = list(wn.all_synsets('n'))
 
 
-FOR_VS = False
+FOR_VS = True
 
 # get mapping of synset id to index
 id2index = {}

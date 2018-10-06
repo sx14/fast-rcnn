@@ -3,14 +3,16 @@ require 'dpnn'
 
 local HypernymImage, parent = torch.class('nn.HypernymImage', 'nn.Sequential')
 
-function HypernymImage:__init(fc7Dimension, wordVecDimension, wordVecWeights, wordSum)
+function HypernymImage:__init(fc7Dimension, wordVecDimension, wordSum, wordVecWeights)
     parent.__init(self)
     -- fc7 -> wordVecSpace
     local fc7Linear = nn.Linear(fc7Dimension, wordVecDimension)
     local fc7Embedding = nn.Sequential():add(fc7Linear)
     -- wordVec
     local lookup = nn.LookupTable(wordSum, wordVecDimension)
-    lookup.weight = wordVecWeights:double()
+    if wordVecWeights ~= nil then
+      lookup.weight = wordVecWeights:double()
+    end
     -- fraze lookup table parameters
     lookup:zeroGradParameters()
     local wordEmbedding = nn.Sequential():add(lookup)
@@ -22,6 +24,6 @@ function HypernymImage:__init(fc7Dimension, wordVecDimension, wordVecWeights, wo
     self:add(nn.ReLU()) -- max(0,(x - y))
     self:add(nn.Power(2)) -- 1,1,1,1
     self:add(nn.Sum(2))   -- 4
-    self.visualFeatureModule = fc7Linear
+    self.lookupModule = fc7Linear
 end
 

@@ -4,9 +4,17 @@ require 'dpnn'
 require 'Dataset'
 require 'hdf5'
 
+FOR_VS = true
 featureDimension = 300
-datasetPath = 'dataset/contrastive_trans.t7'
-weights = torch.load('dataset/word_embedding_weights_wn.t7')
+
+if FOR_VS then
+  datasetPath = 'exp_dataset/contrastive_trans.t7'
+  weights = torch.load('word_embedding_weights_vs.t7')
+else
+  datasetPath = 'dataset/contrastive_trans.t7'
+  weights = torch.load('word_embedding_weights_wn.t7')
+end
+
 dataset = torch.load(datasetPath)
 lookup = nn.LookupTable(dataset.numEntities, featureDimension)
 lookup.weight = weights:double()
