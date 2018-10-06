@@ -1,4 +1,5 @@
 import json
+import pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
 all_nouns = list(wn.all_synsets('n'))
@@ -46,6 +47,8 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
+    with open('exp_dataset/vs_wn2index.bin') as vs_wn2index_file:
+        pickle.dump(id2index, vs_wn2index_file)
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:
     json.dump(names, open('dataset/synset_names.json', 'w'))
