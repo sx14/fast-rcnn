@@ -26,22 +26,23 @@ def train():
     val_dataset = PascalDataset(visual_feature_root, val_list_path, word_vec_path)
     train_dataloader = DataLoader(train_dataset, batch_size=hyper_params["batch_size"], shuffle=True)
     net = model.HypernymVisual(hyper_params["visual_d"], hyper_params["embedding_d"])
+    net.cuda()
     print(net)
     params = net.parameters()
-    optim = torch.optim.Adam(params=params, lr=0.01)
+    optim = torch.optim.Adam(params=params, lr=0.0001)
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
     for e in range(0, hyper_params["epoch"]):
         for vf, wf, gt in train_dataloader:
             batch_counter += 1
-            batch_vf = torch.autograd.Variable(vf)
-            batch_wf = torch.autograd.Variable(wf)
-            batch_gt = torch.autograd.Variable(gt)
+            batch_vf = torch.autograd.Variable(vf).cuda()
+            batch_wf = torch.autograd.Variable(wf).cuda()
+            batch_gt = torch.autograd.Variable(gt).cuda()
             E = net(batch_vf, batch_wf)
             corr = correct(E, batch_gt)
             acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
-            print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc, l.data.numpy()))
+            print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc, l.cpu().data.numpy()))
             optim.zero_grad()
             l.backward()
             optim.step()
@@ -51,11 +52,11 @@ def train():
 
 
 def correct(E, gt):
-    pred = torch.eq(E.data, torch.zeros(E.data.size()))
+    pred = torch.eq(E.cpu().data, torch.zeros(E.data.size())).int()
     pred = pred.numpy()
     pred = pred * 2
     pred = pred - 1
-    r = torch.eq(torch.from_numpy(pred).float(), gt.data)
+    r = torch.eq(torch.from_numpy(pred).float(), gt.cpu().data)
     return torch.sum(r)
 
 
