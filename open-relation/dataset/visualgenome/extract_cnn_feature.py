@@ -18,12 +18,12 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
     labels = dict()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
+        a = anno_list[len(anno_list) - 1]
     for i in range(0, len(anno_list)):
         if i == image_sum:
             break
-        i += 1
         anno_file_id = anno_list[i]
-        print('prepare processing[%d/%d] %s' % (len(anno_list), i, anno_file_id))
+        print('prepare processing[%d/%d] %s' % (len(anno_list), (i + 1), anno_file_id))
         anno = org.vs_anno_2_dict(os.path.join(anno_root, anno_list[i]+'.json'))
         image_id = anno['filename']
         anno_objects = anno['objects']
