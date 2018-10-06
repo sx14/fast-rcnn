@@ -4,3 +4,4 @@ utils/*.c
 utils/*.so
 *.bin
 .idea/
+*.pkl

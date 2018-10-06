@@ -6,33 +6,37 @@ from model import model
 import train_config
 
 hyper_params = {
-    "visual_d": 4096,
-    "embedding_d": 300,
-    "epoch": 30,
-    "batch_size": 200,
-    "eval_freq": 1,
-    "visual_feature_root": train_config.VISUAL_FEATURE_ROOT,
-    "list_root": train_config.LIST_ROOT,
-    "word_vec_path": "wordnet-embedding/dataset/word_vec_wn.h5"
+    'visual_d': 4096,
+    'embedding_d': 300,
+    'epoch': 30,
+    'batch_size': 200,
+    'eval_freq': 100,
+    'visual_feature_root': train_config.VISUAL_FEATURE_ROOT,
+    'list_root': train_config.LIST_ROOT,
+    'word_vec_path': 'wordnet-embedding/dataset/word_vec_wn.h5'
 }
 
 
 def train():
-    visual_feature_root = hyper_params["visual_feature_root"]
-    train_list_path = os.path.join(hyper_params["list_root"], "train.txt")
-    val_list_path = os.path.join(hyper_params["list_root"], "val.txt")
-    word_vec_path = hyper_params["word_vec_path"]
+    visual_feature_root = hyper_params['visual_feature_root']
+    train_list_path = os.path.join(hyper_params['list_root'], 'train.txt')
+    val_list_path = os.path.join(hyper_params['list_root'], 'val.txt')
+    word_vec_path = hyper_params['word_vec_path']
     train_dataset = PascalDataset(visual_feature_root, train_list_path, word_vec_path)
     val_dataset = PascalDataset(visual_feature_root, val_list_path, word_vec_path)
-    train_dataloader = DataLoader(train_dataset, batch_size=hyper_params["batch_size"], shuffle=True)
-    net = model.HypernymVisual(hyper_params["visual_d"], hyper_params["embedding_d"])
+    train_dataloader = DataLoader(train_dataset, batch_size=hyper_params['batch_size'], shuffle=True)
+    net = model.HypernymVisual(hyper_params['visual_d'], hyper_params['embedding_d'])
+    model_weights_path = 'model/weights.pkl'
+    if os.path.isfile(model_weights_path):
+        net.load_state_dict(torch.load(model_weights_path))
+        print('Loading weights success.')
     net.cuda()
     print(net)
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=0.0001)
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
-    for e in range(0, hyper_params["epoch"]):
+    for e in range(0, hyper_params['epoch']):
         for vf, wf, gt in train_dataloader:
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
@@ -42,13 +46,16 @@ def train():
             corr = correct(E, batch_gt)
             acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
-            print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc, l.cpu().data.numpy()))
+            print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, acc, l.cpu().data.numpy()))
             optim.zero_grad()
             l.backward()
             optim.step()
-            # if batch_counter % hyper_params["eval_freq"] == 0:
-            #     acc = eval(val_dataset, net)
-            #     print("epoch: %d | batch: %d | acc: %.2f | loss: %.2f" % (e, batch_counter, acc))
+            torch.save(net.state_dict(), 'model/weights.pkl')
+            if batch_counter % hyper_params['eval_freq'] == 0:
+                torch.save(net.state_dict(), model_weights_path)
+                print('Saving weights success.')
+                # acc = eval(val_dataset, net)
+                # print('epoch: %d | batch: %d | acc: %.2f' % (e, batch_counter, acc))
 
 
 def correct(E, gt):
@@ -61,7 +68,7 @@ def correct(E, gt):
 
 
 def eval(dataset, model):
-    val_dataloader = DataLoader(dataset, batch_size=hyper_params["batch_size"])
+    val_dataloader = DataLoader(dataset, batch_size=hyper_params['batch_size'])
     acc = 0
     for vf, wf, gt in val_dataloader:
         batch_vf = torch.autograd.Variable(vf)
