@@ -26,16 +26,16 @@ if FOR_VS:
     # visual genome object labels
     with open(vs2wn_path, 'r') as vs2wn_file:
         vs2wn = json.load(vs2wn_file)
-        next_id2index_id = len(id2index)
-        for vs_object in vs2wn:
-            temp_node = wn.synset('car.n.01')
-            temp_node._name = vs_object
-            all_nouns.append(temp_node)
-            id2index[vs_object] = next_id2index_id
-            wns = vs2wn[vs_object]
-            for h in wns:
-                hypernyms.append([next_id2index_id, id2index[h]])
-            next_id2index_id = next_id2index_id + 1
+    next_id2index_id = len(id2index)
+    for vs_object in vs2wn:
+        temp_node = wn.synset('entity.n.01')
+        temp_node._name = vs_object
+        all_nouns.append(temp_node)
+        id2index[vs_object] = next_id2index_id
+        wns = vs2wn[vs_object]
+        for h in wns:
+            hypernyms.append([next_id2index_id, id2index[h]])
+        next_id2index_id = next_id2index_id + 1
 # ====
 hypernyms = np.array(hypernyms)
 # save hypernyms
