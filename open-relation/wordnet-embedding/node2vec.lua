@@ -25,6 +25,10 @@ for i=1, dataset.numEntities do
   f = embedding:forward(input):clone()
   fs[i] = f
 end
-local myFile = hdf5.open('dataset/word_vec_wn.h5', 'w')
+if FOR_VS then
+  myFile = hdf5.open('word_vec_vs.h5', 'w')
+else
+  myFile = hdf5.open('word_vec_wn.h5', 'w')
+end
 myFile:write('word_vec', torch.Tensor(fs))
 myFile:close()

@@ -1,7 +1,10 @@
+import os
 import json
 import pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
+import path_config
+
 all_nouns = list(wn.all_synsets('n'))
 
 
@@ -19,7 +22,7 @@ for synset in all_nouns:
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 if FOR_VS:
     # ==== append Visual Genome object classes ====
-    vs2wn_path = 'exp_dataset/label2wn.json'
+    vs2wn_path = os.path.join(path_config.SAVE_ROOT, 'label2wn.json')
     # visual genome object labels
     with open(vs2wn_path, 'r') as vs2wn_file:
         vs2wn = json.load(vs2wn_file)
@@ -47,7 +50,8 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
-    with open('exp_dataset/vs_wn2index.bin', 'w') as vs_wn2index_file:
+    wn2index_save_path = os.path.join(path_config.SAVE_ROOT, 'wn2index.bin')
+    with open(wn2index_save_path, 'w') as vs_wn2index_file:
         pickle.dump(id2index, vs_wn2index_file)
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:

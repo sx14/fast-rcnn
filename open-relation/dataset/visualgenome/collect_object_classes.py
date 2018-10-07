@@ -26,14 +26,29 @@ def object_class2wn_leaf(anno_root, output_path):
                     else:
                         wn2label[s] = wn2label[s] | set(o_names)
                 for n in o_names:
-                    if n not in label2wn.keys():
-                        label2wn[n] = set(o_synsets)
+                    if n not in label2wn:
+                        label2wn[n] = dict()
+                        for s in o_synsets:
+                            label2wn[n][s] = 1
                     else:
-                        label2wn[n] = label2wn[n] | set(o_synsets)
+                        existed_syns = label2wn[n]
+                        for s in o_synsets:
+                            # time statistic
+                            if s in existed_syns:
+                                label2wn[n][s] += 1
+                            else:
+                                label2wn[n][s] = 1
     for k in wn2label:
         wn2label[k] = list(wn2label[k])
-    for k in label2wn:
-        label2wn[k] = list(label2wn[k])
+    for n in label2wn:
+        syns = label2wn[n]
+        max_times = 0
+        max_time_syn = ''
+        for s in syns:
+            if syns[s] > max_times:
+                max_times = syns[s]
+                max_time_syn = s
+        label2wn[n] = [max_time_syn]
     with open(wn2label_path, 'w') as out:
         json.dump(wn2label, out, sort_keys=False, indent=4)
     with open(label2wn_path, 'w') as out:
@@ -41,6 +56,6 @@ def object_class2wn_leaf(anno_root, output_path):
 
 
 if __name__ == '__main__':
-    anno_path = os.path.join(data_config.VS_ROOT, 'anno')
-    output_path = os.path.join(data_config.VS_ROOT, 'feature', 'prepare')
-    object_class2wn_leaf(anno_path, output_path)
+    anno_root = os.path.join(data_config.VS_ROOT, 'anno')
+    output_root = os.path.join(data_config.VS_ROOT, 'feature', 'prepare')
+    object_class2wn_leaf(anno_root, output_root)
