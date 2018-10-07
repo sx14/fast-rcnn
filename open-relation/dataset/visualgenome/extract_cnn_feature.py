@@ -13,15 +13,13 @@ import data_config
 import vs_anno_2_dict as org
 
 
-def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path, image_sum):
+def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path, synset_save_path):
     boxes = dict()
     labels = dict()
+    synsets = dict()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
-        a = anno_list[len(anno_list) - 1]
     for i in range(0, len(anno_list)):
-        if i == image_sum:
-            break
         anno_file_id = anno_list[i]
         print('prepare processing[%d/%d] %s' % (len(anno_list), (i + 1), anno_file_id))
         anno = org.vs_anno_2_dict(os.path.join(anno_root, anno_list[i]+'.json'))
@@ -29,50 +27,58 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
         anno_objects = anno['objects']
         box_list = []
         label_list = []
+        synset_list = []
         for o in anno_objects:
             xmin = int(o['xmin'])
             ymin = int(o['ymin'])
             xmax = int(o['xmax'])
             ymax = int(o['ymax'])
+            if len(o['synsets']) > 0:
+                synset = o['synsets'][0]
+            else:
+                synset = None
             label_list.append(o['name'])
             box_list.append([xmin, ymin, xmax, ymax])
+            synset_list.append(synset)
         boxes[image_id] = box_list
         labels[image_id] = label_list
+        synsets[image_id] = synset_list
     with open(label_save_path, 'wb') as label_file:
         pickle.dump(labels, label_file)
     with open(box_save_path, 'wb') as boxes_file:
         pickle.dump(boxes, boxes_file)
+    with open(synset_save_path, 'wb') as synset_file:
+        pickle.dump(synsets, synset_file)
 
 
-def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root, label_path, image_sum, vs_wn2index, label2wn):
+def extract_fc7_features(net, boxes, labels, synsets, img_root, list_path,  feature_root, label_path, vs_wn2index):
     label_list = []
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
     for i in range(0, len(image_list)):
-        if i == image_sum:
-            break
         image_id = image_list[i]
         print('fc7 processing[%d/%d] %s' % (len(image_list), (i + 1), image_id))
         if image_id not in boxes:
             continue
-        box_list = np.array(boxes[image_id])
+        curr_img_boxes = np.array(boxes[image_id])
         curr_img_labels = labels[image_id]
-        box_num = box_list.shape[0]
-        if box_num == 0:
+        curr_img_synsets = synsets[image_id]
+        box_num = curr_img_boxes.shape[0]
+        if box_num == 0:  # no object
             continue
         img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
-        im_detect(net, img, box_list)
+        im_detect(net, img, curr_img_boxes)
         fc7s = np.array(net.blobs['fc7'].data)
         feature_id = image_id + '.bin'
         feature_path = os.path.join(feature_root, feature_id)
-        with open(feature_path, 'w') as feature_file:
+        with open(feature_path, 'w') as feature_file:  # save fc7 feature
             pickle.dump(fc7s, feature_file)
         for f in range(0, len(fc7s)):
-            wn_label = curr_img_labels[f]
-            wn_index = vs_wn2index[wn_label]
+            label = curr_img_labels[f]
+            wn_index = vs_wn2index[label]
             label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-            synsets = label2wn[wn_label]
-            for syn in synsets:
+            syn = curr_img_synsets[f]
+            if syn is not None:
                 synset = wn.synset(syn)
                 hypernym_paths = synset.hypernym_paths()
                 for s in hypernym_paths[0]:
@@ -161,13 +167,13 @@ if __name__ == '__main__':
     for d in datasets:
         label_save_path = os.path.join(vs_root, 'feature/prepare/' + d + '_labels.bin')
         box_save_path = os.path.join(vs_root, 'feature/prepare/' + d + '_boxes.bin')
+        synset_save_path = os.path.join(vs_root, 'feature/prepare/' + d + '_synsets.bin')
         fc7_save_root = os.path.join(vs_root, 'feature/fc7')
         label_save_root = os.path.join(vs_root, 'feature/label/' + d + '.txt')
         anno_root = os.path.join(vs_root, 'anno')
         anno_list = os.path.join(vs_root, 'ImageSets/Main/' + d + '.txt')
         img_root = os.path.join(vs_root, 'JPEGImages')
-        prepare_image_sum = 10000000
-        # prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, prepare_image_sum)
+        prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, synset_save_path)
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
@@ -176,6 +182,6 @@ if __name__ == '__main__':
             vs_wn2index = pickle.load(vs_wn2index_file)
         with open(data_config.LABEL2WN_PATH, 'r') as label2wn_file:
             label2wn = json.load(label2wn_file)
-        extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root, prepare_image_sum,
+        extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
                              vs_wn2index, label2wn)
         generate_negative_data(label_save_root, len(vs_wn2index.keys()))

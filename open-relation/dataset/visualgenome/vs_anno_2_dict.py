@@ -21,6 +21,7 @@ def vs_anno_2_dict(anno_file_path):
             obj['pose'] = 'left'
             obj['truncated'] = '0'
             obj['difficult'] = '0'
+            obj['synsets'] = o['synsets']
             mid_objects.append(obj)
         mid_data['objects'] = mid_objects
     return mid_data

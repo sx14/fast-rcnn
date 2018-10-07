@@ -2,6 +2,7 @@ import os
 import json
 import data_config
 
+
 def object_class2wn_leaf(anno_root, output_path):
     label2wn_path = os.path.join(output_path, 'label2wn.json')
     wn2label_path = os.path.join(output_path, 'wn2label.json')
@@ -9,10 +10,10 @@ def object_class2wn_leaf(anno_root, output_path):
     wn2label = dict()
     anno_total = len(os.listdir(anno_root))
     counter = 0
-    for anno_id in os.listdir(anno_root):
+    for anno_file_name in os.listdir(anno_root):
         counter = counter + 1
-        print('processing[%d/%d] : %s' % (anno_total, counter, anno_id))
-        anno_path = os.path.join(anno_root, anno_id)
+        print('processing[%d/%d] : %s' % (anno_total, counter, anno_file_name))
+        anno_path = os.path.join(anno_root, anno_file_name)
         with open(anno_path, 'r') as anno_file:
             anno = json.load(anno_file)
             objects = anno['objects']
