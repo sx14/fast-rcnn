@@ -50,9 +50,8 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
-    wn2index_save_path = os.path.join(path_config.SAVE_ROOT, 'wn2index.bin')
-    with open(wn2index_save_path, 'w') as vs_wn2index_file:
-        pickle.dump(id2index, vs_wn2index_file)
+    wn2index_save_path = os.path.join(path_config.SAVE_ROOT, 'wn2index.json')
+    json.dump(id2index, open(wn2index_save_path, 'w'))
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:
     json.dump(names, open('dataset/synset_names.json', 'w'))

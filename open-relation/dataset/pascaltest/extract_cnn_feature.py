@@ -14,18 +14,16 @@ import label_map
 import data_config
 
 
-def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path, image_sum):
+def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_path):
     boxes = dict()
     wn_labels = dict()
     label2wn = label_map.label2wn()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
     for i in range(0, len(anno_list)):
-        anno_file_name = anno_list[i]
-        if i == image_sum:
-            break
-        print('prepare processing[%d/%d] %s' % (len(anno_list), (i+1), anno_file_name))
-        anno = org.pascal_anno_2_dict(os.path.join(anno_root, anno_file_name+'.xml'), label2wn)
+        anno_file_id = anno_list[i]
+        print('prepare processing[%d/%d] %s' % (len(anno_list), (i+1), anno_file_id))
+        anno = org.pascal_anno_2_dict(os.path.join(anno_root, anno_file_id+'.xml'), label2wn)
         image_id = anno['filename'].split('.')[0]
         anno_objects = anno['objects']
         box_list = []
@@ -45,13 +43,11 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
         pickle.dump(boxes, boxes_file)
 
 
-def extract_fc7_features(net, boxes, wn_labels, img_root, list_path, feature_root, label_path, image_sum, wn2index):
+def extract_fc7_features(net, boxes, wn_labels, img_root, list_path, feature_root, label_path, wn2index):
     label_list = []
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
     for i in range(0, len(image_list)):
-        if i == image_sum:
-            break
         image_id = image_list[i]
         print('fc7 processing[%d/%d] %s' % (len(image_list), (i + 1), image_id))
         if image_id not in boxes:
@@ -113,12 +109,11 @@ if __name__ == '__main__':
         anno_root = os.path.join(voc_root, 'Annotations')
         anno_list = os.path.join(voc_root, 'ImageSets/Main/'+d+'.txt')
         img_root = os.path.join(voc_root, 'JPEGImages')
-        prepare_image_sum = 10000000
-        prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path, prepare_image_sum)
+        prepare_boxes_labels(anno_root, anno_list, box_save_path, label_save_path)
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
             wn_labels = pickle.load(label_file)
         wn2index = label_map.wn2index(wn_synsets_path)
-        extract_fc7_features(net, boxes, wn_labels, img_root, anno_list, fc7_save_root, label_save_root, prepare_image_sum, wn2index)
+        extract_fc7_features(net, boxes, wn_labels, img_root, anno_list, fc7_save_root, label_save_root, wn2index)
         generate_negative_data(label_save_root, len(wn2index.keys()))

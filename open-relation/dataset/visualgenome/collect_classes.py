@@ -3,6 +3,10 @@ import json
 import data_config
 
 
+def relation_class2wn_leaf(anno_root, output_path):
+    pass
+
+
 def object_class2wn_leaf(anno_root, output_path):
     label2wn_path = os.path.join(output_path, 'label2wn.json')
     label2wn = dict()
@@ -37,7 +41,7 @@ def object_class2wn_leaf(anno_root, output_path):
             if syns[s] > max_times:
                 max_times = syns[s]
                 max_time_syn = s
-        label2wn[n] = [max_time_syn]
+        label2wn[n] = max_time_syn
     with open(label2wn_path, 'w') as out:
         json.dump(label2wn, out, sort_keys=False, indent=4)
 

@@ -6,18 +6,17 @@ from model import model
 from train_config import hyper_params
 
 
-
-
 def train():
-    visual_feature_root = hyper_params['visual_feature_root']
-    train_list_path = os.path.join(hyper_params['list_root'], 'train.txt')
-    val_list_path = os.path.join(hyper_params['list_root'], 'val.txt')
-    word_vec_path = hyper_params['word_vec_path']
+    params = hyper_params['visual genome']
+    visual_feature_root = params['visual_feature_root']
+    train_list_path = os.path.join(params['list_root'], 'train.txt')
+    val_list_path = os.path.join(params['list_root'], 'val.txt')
+    word_vec_path = params['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path)
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
-    train_dataloader = DataLoader(train_dataset, batch_size=hyper_params['batch_size'], shuffle=True)
-    net = model.HypernymVisual(hyper_params['visual_d'], hyper_params['embedding_d'])
-    model_weights_path = 'model/weights.pkl'
+    train_dataloader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
+    net = model.HypernymVisual(params['visual_d'], params['embedding_d'])
+    model_weights_path = 'model/vs_weights.pkl'
     if os.path.isfile(model_weights_path):
         net.load_state_dict(torch.load(model_weights_path))
         print('Loading weights success.')
@@ -27,7 +26,7 @@ def train():
     optim = torch.optim.Adam(params=params, lr=0.0001)
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
-    for e in range(0, hyper_params['epoch']):
+    for e in range(0, params['epoch']):
         for vf, wf, gt in train_dataloader:
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
@@ -42,7 +41,7 @@ def train():
             l.backward()
             optim.step()
             torch.save(net.state_dict(), 'model/weights.pkl')
-            if batch_counter % hyper_params['eval_freq'] == 0:
+            if batch_counter % params['eval_freq'] == 0:
                 torch.save(net.state_dict(), model_weights_path)
                 print('Saving weights success.')
                 # acc = eval(val_dataset, net)
