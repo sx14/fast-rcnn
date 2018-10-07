@@ -22,7 +22,7 @@ def prepare_boxes_labels(anno_root, anno_list_path, box_save_path, label_save_pa
         anno_file_id = anno_list[i]
         print('prepare processing[%d/%d] %s' % (len(anno_list), (i + 1), anno_file_id))
         anno = org.vs_anno_2_dict(os.path.join(anno_root, anno_list[i]+'.json'))
-        image_id = anno['filename']
+        image_id = anno['filename'].split('.')[0]
         anno_objects = anno['objects']
         box_list = []
         label_list = []
