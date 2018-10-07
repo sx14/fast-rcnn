@@ -178,10 +178,10 @@ if __name__ == '__main__':
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
             labels = pickle.load(label_file)
+        with open(synset_save_path, 'rb') as synset_file:
+            synsets = json.load(synset_file)
         with open(data_config.VS_WN2INDEX_PATH, 'rb') as vs_wn2index_file:
             vs_wn2index = pickle.load(vs_wn2index_file)
-        with open(data_config.LABEL2WN_PATH, 'r') as label2wn_file:
-            label2wn = json.load(label2wn_file)
-        extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
-                             vs_wn2index, label2wn)
+        extract_fc7_features(net, boxes, labels, synsets, img_root, anno_list, fc7_save_root, label_save_root,
+                             vs_wn2index)
         generate_negative_data(label_save_root, len(vs_wn2index.keys()))
