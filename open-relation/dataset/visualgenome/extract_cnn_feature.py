@@ -83,13 +83,13 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
         box_num = box_list.shape[0]
         if box_num == 0:
             continue
-        img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
-        im_detect(net, img, box_list)
-        fc7s = np.array(net.blobs['fc7'].data)
+        # img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
+        # im_detect(net, img, box_list)
+        # fc7s = np.array(net.blobs['fc7'].data)
         feature_id = image_id + '.bin'
-        feature_path = os.path.join(feature_root, feature_id)
-        with open(feature_path, 'w') as feature_file:
-            pickle.dump(fc7s, feature_file)
+        # feature_path = os.path.join(feature_root, feature_id)
+        # with open(feature_path, 'w') as feature_file:
+        #     pickle.dump(fc7s, feature_file)
         for f in range(0, len(box_list)):
             wn_label = curr_img_labels[f]
             wn_index = wn2index[wn_label]
@@ -122,8 +122,8 @@ if __name__ == '__main__':
     vs_root = data_config.VS_ROOT
     prototxt = data_config.FAST_PROTOTXT_PATH
     caffemodel = data_config.FAST_CAFFEMODEL_PATH
-    datasets = ['train', 'val', 'test']
-    datasets = ['val']
+    # datasets = ['train', 'val', 'test']
+    datasets = ['train']
     target = 'object'  # relation
     caffe.set_mode_gpu()
     caffe.set_device(0)
@@ -136,10 +136,10 @@ if __name__ == '__main__':
         anno_root = os.path.join(vs_root, 'anno')
         anno_list = os.path.join(vs_root, 'ImageSets', 'Main', d + '.txt')
         img_root = os.path.join(vs_root, 'JPEGImages')
-        if target == 'object':
-            prepare_object_boxes_labels(anno_root, anno_list, box_save_path, label_save_path)
-        else:
-            prepare_relation_boxes_labels(anno_root, anno_list, box_save_path, label_save_path)
+        # if target == 'object':
+        #     prepare_object_boxes_labels(anno_root, anno_list, box_save_path, label_save_path)
+        # else:
+        #     prepare_relation_boxes_labels(anno_root, anno_list, box_save_path, label_save_path)
         with open(box_save_path, 'rb') as box_file:
             boxes = pickle.load(box_file)
         with open(label_save_path, 'rb') as label_file:
@@ -152,4 +152,4 @@ if __name__ == '__main__':
             label2wn = json.load(label2wn_file)
         extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
                               wn2index, label2wn)
-        generate_negative_data(label_save_root, len(wn2index.keys()))
+        # generate_negative_data(label_save_root, len(wn2index.keys()))
