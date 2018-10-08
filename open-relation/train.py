@@ -28,6 +28,7 @@ def train():
     batch_counter = 0
     for e in range(0, config['epoch']):
         for vf, wf, gt in train_dataloader:
+            p,n = count_p_n(gt)
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_wf = torch.autograd.Variable(wf).cuda()
@@ -36,7 +37,7 @@ def train():
             corr = correct(E, batch_gt)
             acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
-            print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, acc, l.cpu().data.numpy()))
+            print('epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, acc, l.cpu().data.numpy()))
             optim.zero_grad()
             l.backward()
             optim.step()
@@ -68,6 +69,17 @@ def eval(dataset, model):
         corr = correct(E, batch_gt)
         acc += corr
     return acc * 1.0 / val_dataloader.__len__()
+
+
+def count_p_n(gts):
+    p = 0
+    n = 0
+    for gt in gts:
+        if gt > 0:
+            p += 1
+        else:
+            n += 1
+    return p, n
 
 
 if __name__ == '__main__':
