@@ -7,15 +7,15 @@ from train_config import hyper_params
 
 
 def train():
-    params = hyper_params['visual genome']
-    visual_feature_root = params['visual_feature_root']
-    train_list_path = os.path.join(params['list_root'], 'train.txt')
-    val_list_path = os.path.join(params['list_root'], 'val.txt')
-    word_vec_path = params['word_vec_path']
+    config = hyper_params['visual genome']
+    visual_feature_root = config['visual_feature_root']
+    train_list_path = os.path.join(config['list_root'], 'train.txt')
+    val_list_path = os.path.join(config['list_root'], 'val.txt')
+    word_vec_path = config['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path)
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
-    train_dataloader = DataLoader(train_dataset, batch_size=params['batch_size'], shuffle=True)
-    net = model.HypernymVisual(params['visual_d'], params['embedding_d'])
+    train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
+    net = model.HypernymVisual(config['visual_d'], config['embedding_d'])
     model_weights_path = 'model/vs_weights.pkl'
     if os.path.isfile(model_weights_path):
         net.load_state_dict(torch.load(model_weights_path))
@@ -26,7 +26,7 @@ def train():
     optim = torch.optim.Adam(params=params, lr=0.0001)
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
-    for e in range(0, params['epoch']):
+    for e in range(0, config['epoch']):
         for vf, wf, gt in train_dataloader:
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
@@ -41,7 +41,7 @@ def train():
             l.backward()
             optim.step()
             torch.save(net.state_dict(), 'model/weights.pkl')
-            if batch_counter % params['eval_freq'] == 0:
+            if batch_counter % config['eval_freq'] == 0:
                 torch.save(net.state_dict(), model_weights_path)
                 print('Saving weights success.')
                 # acc = eval(val_dataset, net)
