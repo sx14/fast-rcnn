@@ -48,5 +48,5 @@ def object_class2wn_leaf(anno_root, output_path):
 
 if __name__ == '__main__':
     anno_root = os.path.join(data_config.VS_ROOT, 'anno')
-    output_root = os.path.join(data_config.VS_ROOT, 'feature', 'prepare')
+    output_root = os.path.join(data_config.VS_ROOT, 'feature', 'object', 'prepare')
     object_class2wn_leaf(anno_root, output_root)
