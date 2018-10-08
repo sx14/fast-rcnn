@@ -15,3 +15,8 @@
 #         n += 1
 #
 # print('positive: %d | negative: %d' % (p,n))
+
+import torch
+gt = torch.FloatTensor(1)
+gt[0] = 1
+print(gt[0])

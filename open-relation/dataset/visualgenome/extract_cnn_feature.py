@@ -94,12 +94,13 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             wn_label = curr_img_labels[f]
             wn_index = wn2index[wn_label]
             label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-            syn = label2wn[wn_label]
-            synset = wn.synset(syn)
-            hypernym_paths = synset.hypernym_paths()
-            for s in hypernym_paths[0]:
-                wn_index = wn2index[s.name()]
-                label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
+            syns = label2wn[wn_label]
+            for syn in syns:
+                synset = wn.synset(syn)
+                hypernym_paths = synset.hypernym_paths()
+                for s in hypernym_paths[0]:
+                    wn_index = wn2index[s.name()]
+                    label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
     with open(label_list_path, 'w') as label_file:
         label_file.writelines(label_list)
 

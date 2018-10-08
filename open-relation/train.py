@@ -75,7 +75,7 @@ def count_p_n(gts):
     p = 0
     n = 0
     for gt in gts:
-        if gt.data > 0:
+        if gt[0] > 0:
             p += 1
         else:
             n += 1

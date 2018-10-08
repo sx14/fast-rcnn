@@ -5,13 +5,7 @@ local method = 'contrastive'
 
 local hdf5 = require 'hdf5'
 
-FOR_VS = true
-
-if FOR_VS then
-  f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
-else
-  f = hdf5.open('dataset/wordnet.h5', 'r')
-end
+f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
 
 local originalHypernyms = f:read('hypernyms'):all():add(1) -- convert to 1-based indexing
 local numEntities = torch.max(originalHypernyms) 
@@ -36,11 +30,7 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
 
         local N_hypernyms = hypernyms:size(1)
         
-        if FOR_VS then
-          splitSize = 8000
-        else
-          splitSize = 4000
-        end
+        splitSize = 4000
         
 
         -- shuffle randomly
@@ -72,12 +62,7 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
             f:write(json.encode(t))
             f:close()
         end
-        if FOR_VS then
-          torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
-        else
-          torch.save('dataset/' .. methodName .. '.t7', datasets)
-        end
-        write_json('vis/static/' .. methodName .. '/hypernyms', datasets.train.hypernyms:totable())
+        torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
 end
 
 

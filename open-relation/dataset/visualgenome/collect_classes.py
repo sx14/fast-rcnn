@@ -1,26 +1,28 @@
 import os
 import json
 import data_config
+import wash_relation_wn
 
 
-def relation_class2wn_leaf(anno_root, output_path):
-    pass
-
-
-def object_class2wn_leaf(anno_root, output_path):
-    label2wn_path = os.path.join(output_path, 'label2wn.json')
-    label2wn = dict()
-    anno_total = len(os.listdir(anno_root))
-    counter = 0
-    for anno_file_name in os.listdir(anno_root):
-        counter = counter + 1
-        print('processing[%d/%d] : %s' % (anno_total, counter, anno_file_name))
+def vs_label2wn_leaf(anno_root, label2wn_path, target_key, stub_wn):
+    label2wn = dict()  # vs_object_label: [wn]
+    anno_list = os.listdir(anno_root)
+    anno_total = len(anno_list)
+    for i in range(0, anno_total):  # collect
+        anno_file_name = anno_list[i]
+        print('processing[%d/%d] : %s' % (anno_total, (i+1), anno_file_name))
         anno_path = os.path.join(anno_root, anno_file_name)
         with open(anno_path, 'r') as anno_file:
             anno = json.load(anno_file)
-        objects = anno['objects']
+        objects = anno[target_key]
         for o in objects:
-            o_name = o['names'][0]
+            if target_key == 'objects':
+                o_name = o['names'][0]
+            elif target_key == 'relationships':
+                o_name = o['predicate']
+            else:
+                print('target_key is expected to be "objects" or "relationships"')
+                return
             o_synsets = o['synsets']
             if o_name not in label2wn:
                 label2wn[o_name] = dict()
@@ -35,18 +37,29 @@ def object_class2wn_leaf(anno_root, output_path):
                         label2wn[o_name][s] = 1
     for n in label2wn:
         syns = label2wn[n]
-        max_times = 0
-        max_time_syn = 'entity.n.01'  # for object with no wn synset label
-        for s in syns:
-            if syns[s] > max_times:
-                max_times = syns[s]
-                max_time_syn = s
-        label2wn[n] = max_time_syn
+        if target_key == 'objects':
+            max_times = 0
+            max_time_syn = stub_wn  # for objects with no wn synset label
+            for s in syns:
+                if syns[s] > max_times:
+                    max_times = syns[s]
+                    max_time_syn = s
+            label2wn[n] = [max_time_syn]   # 1 - 1
+        elif target_key == 'relationships':
+            label2wn[n] = syns.keys()      # 1 - n
+        else:
+            print('target_key is expected to be "objects" or "relationships"')
+            return
     with open(label2wn_path, 'w') as out:
         json.dump(label2wn, out, sort_keys=False, indent=4)
 
 
 if __name__ == '__main__':
     anno_root = os.path.join(data_config.VS_ROOT, 'anno')
-    output_root = os.path.join(data_config.VS_ROOT, 'feature', 'object', 'prepare')
-    object_class2wn_leaf(anno_root, output_root)
+    obj_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'object', 'prepare', 'label2wn.json')
+    rlt_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'relation', 'prepare', 'label2wn.json')
+    stub_wn_object = 'entity.n.01'
+    vs_label2wn_leaf(anno_root, obj_output_path, 'objects', stub_wn_object)
+    vs_label2wn_leaf(anno_root, rlt_output_path, 'relationships', None)
+    wash_relation_wn.wash_relation_wn(rlt_output_path)
+

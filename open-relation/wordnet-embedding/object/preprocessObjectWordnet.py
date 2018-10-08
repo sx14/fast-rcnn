@@ -1,6 +1,5 @@
 import os
 import json
-import pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
 import path_config
@@ -22,7 +21,7 @@ for synset in all_nouns:
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 if FOR_VS:
     # ==== append Visual Genome object classes ====
-    vs2wn_path = os.path.join(path_config.SAVE_ROOT, 'label2wn.json')
+    vs2wn_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'label2wn.json')
     # visual genome object labels
     with open(vs2wn_path, 'r') as vs2wn_file:
         vs2wn = json.load(vs2wn_file)
@@ -41,7 +40,7 @@ hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py
 if FOR_VS:
-    f = h5py.File('exp_dataset/wordnet_with_VS.h5', 'w')
+    f = h5py.File('exp_dataset/object_wordnet_with_VS.h5', 'w')
 else:
     f = h5py.File('dataset/wordnet.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
@@ -50,8 +49,8 @@ f.close()
 names = map(lambda s: s.name(), all_nouns)
 import json
 if FOR_VS:
-    wn2index_save_path = os.path.join(path_config.SAVE_ROOT, 'wn2index.json')
+    wn2index_save_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'wn2index.json')
     json.dump(id2index, open(wn2index_save_path, 'w'))
-    json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
+    json.dump(names, open('exp_dataset/object_synset_names_with_VS.json', 'w'))
 else:
     json.dump(names, open('dataset/synset_names.json', 'w'))
