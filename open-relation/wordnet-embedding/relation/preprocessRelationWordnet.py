@@ -1,7 +1,7 @@
 import os
 import json
 import numpy as np
-from nltk.corpus import wordnet as wn
+from nltk.corpus import wordnet
 import path_config
 
 label2wn_path = os.path.join(path_config.RELATION_SAVE_ROOT, 'label2wn.json')
@@ -17,7 +17,7 @@ for label in label2wn.keys():
         if wn.split('.')[1] == 'x':  # stub wn
             continue
         else:
-            synset = wn.synset(wn)
+            synset = wordnet.synset(wn)
             for p in synset.hypernym_paths():
                 for w in p:
                     all_nouns.add(w.name())
@@ -39,7 +39,7 @@ for label in label2wn.keys():
 for n in all_nouns:
     n_split = n.split('.')
     if len(n_split) > 1 and n_split[1] != 'x':
-        synset = wn.synset(n)
+        synset = wordnet.synset(n)
         for h in synset.hypernyms() + synset.instance_hypernyms():
             hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 hypernyms = np.array(hypernyms)
