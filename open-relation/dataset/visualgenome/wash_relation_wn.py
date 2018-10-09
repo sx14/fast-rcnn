@@ -27,7 +27,7 @@ def wash_relation_wn(relation_label2wn_path):
                 org_word = lemmatizer.lemmatize(word)  # reshape word to original
                 synsets = wn.synsets(org_word)
                 if len(synsets) > 0:
-                    wns.append(synsets[0])
+                    wns.append(synsets[0].name())
         if len(wns) == 0:
             wns.append(wn_stub)
         label2wn[label] = wns
