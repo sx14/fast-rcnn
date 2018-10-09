@@ -59,7 +59,7 @@ if __name__ == '__main__':
     obj_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'object', 'prepare', 'label2wn.json')
     rlt_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'relation', 'prepare', 'label2wn.json')
     stub_wn_object = 'entity.n.01'
-    vs_label2wn_leaf(anno_root, obj_output_path, 'objects', stub_wn_object)
+    # vs_label2wn_leaf(anno_root, obj_output_path, 'objects', stub_wn_object)
     vs_label2wn_leaf(anno_root, rlt_output_path, 'relationships', None)
     wash_relation_wn.wash_relation_wn(rlt_output_path)
 

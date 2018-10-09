@@ -11,16 +11,20 @@ with open(label2wn_path, 'r') as label2wn_file:
 
 all_nouns = set()
 for label in label2wn.keys():
+    # add all labels
     all_nouns.add(label)
     wns = label2wn[label]
     for wn in wns:
+        # add all directly linked wn, include stub
         all_nouns.add(wn)
+        wn_parts = wn.split('.')
         if wn.split('.')[1] == 'x':  # stub wn
             continue
         else:
             synset = wordnet.synset(wn)
             for p in synset.hypernym_paths():
                 for w in p:
+                    # add wn on hypernym paths
                     all_nouns.add(w.name())
 all_nouns = list(all_nouns)
 
@@ -39,7 +43,7 @@ for label in label2wn.keys():
         hypernyms.append([id2index[label], id2index[wn]]) # label -> wn
 for n in all_nouns:
     n_split = re.match(r'(\w+).(\w+).(\d+)', n)
-    if n_split is not None and n_split.group(2) == 'x':
+    if n_split is not None and n_split.group(2) != 'x':
         synset = wordnet.synset(n)
         for h in synset.hypernyms() + synset.instance_hypernyms():
             hypernyms.append([id2index[synset.name()], id2index[h.name()]])
