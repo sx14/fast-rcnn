@@ -40,7 +40,7 @@ hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py
 if FOR_VS:
-    f = h5py.File('exp_dataset/object_wordnet_with_VS.h5', 'w')
+    f = h5py.File('exp_dataset/wordnet_with_VS.h5', 'w')
 else:
     f = h5py.File('dataset/wordnet.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
@@ -51,6 +51,6 @@ import json
 if FOR_VS:
     wn2index_save_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'wn2index.json')
     json.dump(id2index, open(wn2index_save_path, 'w'))
-    json.dump(names, open('exp_dataset/object_synset_names_with_VS.json', 'w'))
+    json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:
     json.dump(names, open('dataset/synset_names.json', 'w'))

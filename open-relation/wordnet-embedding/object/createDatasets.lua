@@ -8,7 +8,7 @@ local hdf5 = require 'hdf5'
 FOR_VS = true
 
 if FOR_VS then
-  f = hdf5.open('exp_dataset/object_wordnet_with_VS.h5', 'r')
+  f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
 else
   f = hdf5.open('dataset/wordnet.h5', 'r')
 end

@@ -1,0 +1,4 @@
+label2wn.json:      dataset_root/feature/object(relation)/
+wn2index.json:      dataset_root/feature/object(relation)/
+word_embedding_weights_vs.t7:   order-embedding/object(relation)/
+word_vec_vs.h5:     order-embedding/object(relation)/
