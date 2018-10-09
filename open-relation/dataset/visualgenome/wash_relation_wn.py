@@ -32,7 +32,7 @@ def wash_relation_wn(relation_label2wn_path):
             wns.append(wn_stub)
         label2wn[label] = wns
     with open(relation_label2wn_path, 'w') as label2wn_file:
-        json.dump(label2wn, relation_label2wn_path)
+        json.dump(label2wn, label2wn_file)
 
 
 
