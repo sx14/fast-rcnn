@@ -38,7 +38,7 @@ for label in label2wn.keys():
         hypernyms.append([id2index[label], id2index[wn]]) # label -> wn
 for n in all_nouns:
     n_split = n.split('.')
-    if len(n_split) > 1 and n_split[1] != 'x':
+    if len(n_split) == 3 and n_split[1] != 'x':
         synset = wordnet.synset(n)
         for h in synset.hypernyms() + synset.instance_hypernyms():
             hypernyms.append([id2index[synset.name()], id2index[h.name()]])
