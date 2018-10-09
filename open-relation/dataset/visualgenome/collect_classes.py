@@ -44,9 +44,9 @@ def vs_label2wn_leaf(anno_root, label2wn_path, target_key, stub_wn):
                 if syns[s] > max_times:
                     max_times = syns[s]
                     max_time_syn = s
-            label2wn[n] = [max_time_syn]   # 1 - 1
+            label2wn[n] = [max_time_syn]   # 1 - [1]
         elif target_key == 'relationships':
-            label2wn[n] = syns.keys()      # 1 - n
+            label2wn[n] = syns.keys()      # 1 - [n]
         else:
             print('target_key is expected to be "objects" or "relationships"')
             return

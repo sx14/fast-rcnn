@@ -46,7 +46,7 @@ hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py
 
-f = h5py.File('exp_dataset/relation_wordnet_with_VS.h5', 'w')
+f = h5py.File('exp_dataset/wordnet_with_VS.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
 f.close()
 # save list of synset names
