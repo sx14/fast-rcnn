@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from dataset.MyDataset import MyDataset
@@ -36,7 +37,7 @@ def train():
             batch_wf = torch.autograd.Variable(wf).cuda()
             batch_gt = torch.autograd.Variable(gt).cuda()
             E = net(batch_vf, batch_wf)
-            corr = correct(E, batch_gt)
+            corr = cal_acc(E, batch_gt)
             t_acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
             print('epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy()))
@@ -44,37 +45,42 @@ def train():
             l.backward()
             optim.step()
             if batch_counter % config['eval_freq'] == 0:
-                e_acc = eval(val_dataset, net)
-                print('eval acc: %.2f' % (e_acc))
+                best_threshold, e_acc = eval(val_dataset, net)
+                print('eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold))
                 if e_acc > best_acc:
                     torch.save(net.state_dict(), model_weights_path)
                     print('Updating weights success.')
                     best_acc = e_acc
 
 
-
-def correct(E, gt):
-    pred = torch.eq(E.cpu().data, torch.zeros(E.data.size())).int()
-    pred = pred.numpy()
-    pred = pred * 2
-    pred = pred - 1
-    r = torch.eq(torch.from_numpy(pred).float(), gt.cpu().data)
-    return torch.sum(r)
+def cal_acc(E, gt):
+    gt = torch.eq(gt, torch.ones(gt.size())).int()  # 1/-1 -> 1/0
+    sorted_indexes = np.argsort(E)
+    sorted_E = E[sorted_indexes]
+    sorted_gt = gt[sorted_indexes]
+    tp = torch.cumsum(sorted_gt, 0)
+    inv_sorted_gt = torch.eq(sorted_gt, torch.zeros(sorted_gt.size())).int()
+    neg_sum = torch.sum(inv_sorted_gt)
+    fp = torch.cumsum(inv_sorted_gt, 0)
+    tn = fp * (-1) + neg_sum
+    acc = (tp + tn) / gt.size()
+    best_acc_index = np.argmax(acc)
+    return sorted_E[best_acc_index], acc[best_acc_index]
 
 
 def eval(dataset, model):
     model.eval()
-    val_dataloader = DataLoader(dataset, batch_size=hyper_params['batch_size'])
-    acc = 0
+    val_dataloader = DataLoader(dataset, batch_size=dataset.__len__())
+    acc_sum = 0
+    best_threhold = 0
     for vf, wf, gt in val_dataloader:
         batch_vf = torch.autograd.Variable(vf)
         batch_wf = torch.autograd.Variable(wf)
-        batch_gt = torch.autograd.Variable(gt)
         E = model(batch_vf, batch_wf)
-        corr = correct(E, batch_gt)
-        acc += corr
-    acc = acc * 1.0 / val_dataloader.__len__()
-    return acc
+        best_threhold, batch_acc = cal_acc(E.cpu().data, gt)
+        acc_sum += batch_acc
+    acc_sum = acc_sum / len(val_dataloader)
+    return best_threhold, acc_sum
 
 
 def count_p_n(gts):
