@@ -83,13 +83,14 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
         box_num = box_list.shape[0]
         if box_num == 0:
             continue
-        # img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
-        # im_detect(net, img, box_list)
-        # fc7s = np.array(net.blobs['fc7'].data)
         feature_id = image_id + '.bin'
-        # feature_path = os.path.join(feature_root, feature_id)
-        # with open(feature_path, 'w') as feature_file:
-        #     pickle.dump(fc7s, feature_file)
+        feature_path = os.path.join(feature_root, feature_id)
+        if not os.path.exists(feature_path): # extract fc7
+            img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
+            im_detect(net, img, box_list)
+            fc7s = np.array(net.blobs['fc7'].data)
+            with open(feature_path, 'w') as feature_file:
+                pickle.dump(fc7s, feature_file)
         for f in range(0, len(box_list)):
             wn_label = curr_img_labels[f]
             wn_index = wn2index[wn_label]
@@ -98,7 +99,11 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             for syn in syns:
                 synset = wn.synset(syn)
                 hypernym_paths = synset.hypernym_paths()
+                h_counter = 0
                 for s in hypernym_paths[0]:
+                    if h_counter == 3:
+                        break
+                    h_counter += 1
                     wn_index = wn2index[s.name()]
                     label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
     with open(label_list_path, 'w') as label_file:
@@ -117,6 +122,18 @@ def generate_negative_data(list_path, wn_synset_sum):
         new_data_list.append(new_line)
     with open(list_path, 'w') as list_file:
         list_file.writelines(new_data_list)
+
+
+def split_a_small_val(val_list_path, length, small_val_path):
+    small_val = []
+    with open(val_list_path, 'r') as val_list_file:
+        val_list = val_list_file.readlines()
+        val_list_length = len(val_list)
+    for i in range(0, length):
+        ind = random.randint(0, val_list_length - 1)
+        small_val.append(val_list[ind])
+    with open(small_val_path, 'w') as small_val_file:
+        small_val_file.writelines(small_val)
 
 
 if __name__ == '__main__':
@@ -154,3 +171,6 @@ if __name__ == '__main__':
         extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
                               wn2index, label2wn)
         generate_negative_data(label_save_root, len(wn2index.keys()))
+    small_val_list_path = os.path.join(vs_root, 'feature', target, 'label',datasets[1] + '_small.txt')
+    val_list_path = os.path.join(vs_root, 'feature', target, 'label', datasets[1] + '.txt')
+    split_a_small_val(val_list_path, 1000, small_val_list_path)
