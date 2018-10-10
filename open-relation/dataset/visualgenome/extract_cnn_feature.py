@@ -153,4 +153,4 @@ if __name__ == '__main__':
             label2wn = json.load(label2wn_file)
         extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
                               wn2index, label2wn)
-        # generate_negative_data(label_save_root, len(wn2index.keys()))
+        generate_negative_data(label_save_root, len(wn2index.keys()))
