@@ -37,7 +37,7 @@ def train():
             batch_wf = torch.autograd.Variable(wf).cuda()
             batch_gt = torch.autograd.Variable(gt).cuda()
             E = net(batch_vf, batch_wf)
-            corr = cal_acc(E.cpu().data, gt)
+            _, corr = cal_acc(E.cpu().data, gt)
             t_acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
             print('epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy()))
