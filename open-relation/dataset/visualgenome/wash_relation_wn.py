@@ -31,7 +31,14 @@ def wash_relation_label(org_anno_root, output_anno_root):
                 word = word_pos[0]
                 pos = word_pos[1]
                 if pos in legal_pos_list:   # legal predicate words
-                    org_word = lemmatizer.lemmatize(word)  # reshape word to original
+                    if pos.startswith('VB'):
+                        org_word = lemmatizer.lemmatize(word, pos='v')  # reshape word to original
+                    elif pos.startswith('JJ'):
+                        org_word = lemmatizer.lemmatize(word, pos='a')  # reshape word to original
+                    elif pos.startswith('R'):
+                        org_word = lemmatizer.lemmatize(word, pos='r')  # reshape word to original
+                    else:
+                        org_word = word
                     new_label_words.append(org_word)
             # merge word list to new predicate
             new_predicate = ' '.join(new_label_words)
