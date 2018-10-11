@@ -5,8 +5,8 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
 
-legal_pos_list = ['IN', 'JJR', 'JJS', 'RP', 'TO',           # 介词，比较级，最高级，虚词，to
-                  'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']  # 动词，过去式，现在分词，过去分词，现在非三单，现在三单
+legal_pos_list = ['IN', 'JJ', 'JJR', 'JJS', 'RP', 'TO', 'NN',   # 介词，形容词，比较级，最高级，虚词，to，名词
+                  'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']      # 动词，过去式，现在分词，过去分词，现在非三单，现在三单
 
 
 def wash_relation_label(org_anno_root, output_anno_root):
@@ -39,7 +39,8 @@ def wash_relation_label(org_anno_root, output_anno_root):
                     new_label_words.append(org_word)
             # merge word list to new predicate
             new_predicate = ' '.join(new_label_words)
-            label_map.append(predicate + '||' + new_predicate)
+            if predicate != new_predicate:
+                label_map.append(predicate + '|' + new_predicate+'\n')
             relations[i]['predicate'] = new_predicate
         anno['relationships'] = relations
         output_anno_path = os.path.join(output_anno_root, anno_file_name)
