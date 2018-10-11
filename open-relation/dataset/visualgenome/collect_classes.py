@@ -57,7 +57,7 @@ def vs_label2wn_leaf(anno_root, label2wn_path, target_key, stub_wn):
 
 if __name__ == '__main__':
     org_anno_root = os.path.join(data_config.VS_ROOT, 'anno')
-    washed_anno_root = os.path.join(data_config.VS_ROOT, 'wash_anno')
+    washed_anno_root = os.path.join(data_config.VS_ROOT, 'washed_anno')
     obj_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'object', 'prepare', 'label2wn.json')
     rlt_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'relation', 'prepare', 'label2wn.json')
     # object

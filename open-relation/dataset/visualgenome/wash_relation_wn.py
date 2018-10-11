@@ -19,7 +19,7 @@ def wash_relation_label(org_anno_root, output_anno_root):
         org_anno_path = os.path.join(org_anno_root, anno_file_name)
         with open(org_anno_path, 'r') as anno_file:
             anno = json.load(anno_file)
-        relations = anno['relations']
+        relations = anno['relationships']
         for i in range(0, len(relations)):
             r = relations[i]
             predicate = r['predicate']
@@ -39,7 +39,7 @@ def wash_relation_label(org_anno_root, output_anno_root):
         anno['relations'] = relations
         output_anno_path = os.path.join(output_anno_root, anno_file_name)
         with open(output_anno_path, 'w') as anno_file:
-            json.dump(anno, anno_file)
+            json.dump(anno, anno_file, sort_keys=False, indent=4)
 
 
 def wash_relation_wn(relation_label2wn_path):
