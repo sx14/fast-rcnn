@@ -5,8 +5,8 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
 
-legal_pos_list = ['IN', 'JJ', 'JJR', 'JJS', 'RP', 'TO', 'NN',   # 介词，形容词，比较级，最高级，虚词，to，名词
-                  'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']      # 动词，过去式，现在分词，过去分词，现在非三单，现在三单
+legal_pos_list = ['IN', 'JJ', 'JJR', 'JJS', 'RP', 'TO', 'NN', 'NNS',    # 介词，形容词，比较级，最高级，虚词，to，名词，名词复数
+                  'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']              # 动词，过去式，现在分词，过去分词，现在非三单，现在三单
 
 
 def wash_relation_label(org_anno_root, output_anno_root):
@@ -60,6 +60,8 @@ def wash_relation_label(org_anno_root, output_anno_root):
                     if pos in legal_pos_list:   # legal predicate words
                         if pos.startswith('VB'):
                             org_word = lemmatizer.lemmatize(word, pos='v')  # reshape word to original
+                        elif pos.startswith('NN'):
+                            org_word = lemmatizer.lemmatize(word, pos='n')  # reshape word to original
                         else:
                             org_word = word
                         new_label_words.append(org_word)

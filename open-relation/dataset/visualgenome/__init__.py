@@ -1,6 +1,6 @@
 # import nltk
 # from nltk.corpus import wordnet as wn
-# word_pos_list = nltk.pos_tag(['underneath'])  # [(word, pos)]
+# word_pos_list = nltk.pos_tag(['sits'])  # [(word, pos)]
 # print(word_pos_list)
 #
 # try:
