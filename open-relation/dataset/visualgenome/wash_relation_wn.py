@@ -27,7 +27,7 @@ def wash_relation_label(org_anno_root, output_anno_root):
             # wash wn
             org_syns = r['synsets']
             syns = []
-            for s in syns:
+            for s in org_syns:
                 try:
                     # legal wordnet synset
                     wn.synset(s)
