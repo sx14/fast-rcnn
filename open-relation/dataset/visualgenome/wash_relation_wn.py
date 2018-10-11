@@ -39,7 +39,7 @@ def wash_relation_label(org_anno_root, output_anno_root):
             # merge word list to new predicate
             new_predicate = ' '.join(new_label_words)
             relations[i]['predicate'] = new_predicate
-        anno['relations'] = relations
+        anno['relationships'] = relations
         output_anno_path = os.path.join(output_anno_root, anno_file_name)
         with open(output_anno_path, 'w') as anno_file:
             json.dump(anno, anno_file, sort_keys=False, indent=4)
@@ -63,8 +63,8 @@ def wash_relation_wn(relation_label2wn_path):
         words = nltk.word_tokenize(label)  # split by spaces
         word_pos_list = nltk.pos_tag(words)  # [(word, pos)]
         for word_pos in word_pos_list:
-            pos = word_pos[1]
             word = word_pos[0]
+            pos = word_pos[1]
             if pos in legal_pos_list:
                 synsets = wn.synsets(word)
                 if len(synsets) > 0:
@@ -73,7 +73,7 @@ def wash_relation_wn(relation_label2wn_path):
             wns.append(wn_stub)
         label2wn[label] = wns
     with open(relation_label2wn_path, 'w') as label2wn_file:
-        json.dump(label2wn, label2wn_file)
+        json.dump(label2wn, label2wn_file,  sort_keys=False, indent=4)
 
 
 
