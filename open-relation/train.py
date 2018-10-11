@@ -37,8 +37,7 @@ def train():
             batch_wf = torch.autograd.Variable(wf).cuda()
             batch_gt = torch.autograd.Variable(gt).cuda()
             E = net(batch_vf, batch_wf)
-            _, corr = cal_acc(E.cpu().data, gt)
-            t_acc = corr * 1.0 / vf.size()[0]
+            _, t_acc = cal_acc(E.cpu().data, gt)
             l = loss(E, batch_gt)
             print('epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy()))
             optim.zero_grad()
@@ -78,8 +77,8 @@ def eval(dataset, model):
     acc_sum = 0
     best_threhold = 0
     for vf, wf, gt in val_dataloader:
-        batch_vf = torch.autograd.Variable(vf)
-        batch_wf = torch.autograd.Variable(wf)
+        batch_vf = torch.autograd.Variable(vf).cuda()
+        batch_wf = torch.autograd.Variable(wf).cuda()
         E = model(batch_vf, batch_wf)
         best_threhold, batch_acc = cal_acc(E.cpu().data, gt)
         acc_sum += batch_acc
@@ -104,8 +103,8 @@ def t_acc():
 
 
 if __name__ == '__main__':
-    t_acc()
-    # train()
+    # t_acc()
+    train()
 
 
 
