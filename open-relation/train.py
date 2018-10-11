@@ -37,7 +37,7 @@ def train():
             batch_wf = torch.autograd.Variable(wf).cuda()
             batch_gt = torch.autograd.Variable(gt).cuda()
             E = net(batch_vf, batch_wf)
-            corr = cal_acc(E, batch_gt)
+            corr = cal_acc(E.cpu().data, gt)
             t_acc = corr * 1.0 / vf.size()[0]
             l = loss(E, batch_gt)
             print('epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy()))
@@ -54,16 +54,18 @@ def train():
 
 
 def cal_acc(E, gt):
-    gt = torch.eq(gt, torch.ones(gt.size())).int()  # 1/-1 -> 1/0
+    E = E.numpy()
+    gt = gt.numpy()
+    gt = (gt == np.ones(gt.size)) + 0  # 1/-1 -> 1/0
     sorted_indexes = np.argsort(E)
     sorted_E = E[sorted_indexes]
     sorted_gt = gt[sorted_indexes]
-    tp = torch.cumsum(sorted_gt, 0)
-    inv_sorted_gt = torch.eq(sorted_gt, torch.zeros(sorted_gt.size())).int()
-    neg_sum = torch.sum(inv_sorted_gt)
-    fp = torch.cumsum(inv_sorted_gt, 0)
+    tp = np.cumsum(sorted_gt, 0)
+    inv_sorted_gt = (sorted_gt == np.zeros(sorted_gt.size)) + 0
+    neg_sum = np.sum(inv_sorted_gt)
+    fp = np.cumsum(inv_sorted_gt, 0)
     tn = fp * (-1) + neg_sum
-    acc = (tp + tn) / gt.size()
+    acc = (tp + tn) * 1.0 / gt.size
     best_acc_index = np.argmax(acc)
     return sorted_E[best_acc_index], acc[best_acc_index]
 
@@ -93,6 +95,14 @@ def count_p_n(gts):
             n += 1
     return p, n
 
+def t_acc():
+    E = torch.FloatTensor([0.1,0.1,0.2,0.3,10])
+    gt = torch.FloatTensor([1,1,0,1,0])
+    cal_acc(E,gt)
+
 
 if __name__ == '__main__':
     train()
+
+
+

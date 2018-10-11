@@ -1,5 +1,3 @@
-import torch
 import numpy as np
-a = np.array([2,3,1])
-t = torch.max(torch.FloatTensor(a))
-print(t)
+a = np.array([1,2,3])
+print(a / 2)
