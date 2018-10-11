@@ -20,28 +20,55 @@ def wash_relation_label(org_anno_root, output_anno_root):
         org_anno_path = os.path.join(org_anno_root, anno_file_name)
         with open(org_anno_path, 'r') as anno_file:
             anno = json.load(anno_file)
-        relations = anno['relationships']
-        for i in range(0, len(relations)):
-            r = relations[i]
+        org_relations = anno['relationships']
+        relations = []
+        for i in range(0, len(org_relations)):
+            r = org_relations[i]
+            # wash wn
+            org_syns = r['synsets']
+            syns = []
+            for s in syns:
+                try:
+                    # legal wordnet synset
+                    wn.synset(s)
+                    syns.append(s)
+                except ValueError as e:
+                    # illegal wordnet synset
+                    # abort current synset
+                    continue
+            r['synsets'] = syns
+            # wash label
             predicate = r['predicate']
-            new_label_words = []
-            label_lower = predicate.lower()
-            words = nltk.word_tokenize(label_lower)  # split by spaces
-            word_pos_list = nltk.pos_tag(words)  # [(word, pos)]
-            for word_pos in word_pos_list:
-                word = word_pos[0]
-                pos = word_pos[1]
-                if pos in legal_pos_list:   # legal predicate words
-                    if pos.startswith('VB'):
-                        org_word = lemmatizer.lemmatize(word, pos='v')  # reshape word to original
-                    else:
-                        org_word = word
-                    new_label_words.append(org_word)
-            # merge word list to new predicate
-            new_predicate = ' '.join(new_label_words)
-            if predicate != new_predicate:
-                label_map.append(predicate + '|' + new_predicate+'\n')
-            relations[i]['predicate'] = new_predicate
+            if len(predicate) == 0:  # predicate=''
+                # try to generate predicate from synsets
+                if len(syns) > 0:
+                    predicate = syns[0].split['.'][0]
+                    r['predicate'] = predicate
+                else:
+                    # predicate='' and synsets=[]
+                    # abort current relation
+                    continue
+            else:
+                # handle predicate
+                new_label_words = []
+                label_lower = predicate.lower()
+                words = nltk.word_tokenize(label_lower)  # split by spaces
+                word_pos_list = nltk.pos_tag(words)  # [(word, pos)]
+                for word_pos in word_pos_list:
+                    word = word_pos[0]
+                    pos = word_pos[1]
+                    if pos in legal_pos_list:   # legal predicate words
+                        if pos.startswith('VB'):
+                            org_word = lemmatizer.lemmatize(word, pos='v')  # reshape word to original
+                        else:
+                            org_word = word
+                        new_label_words.append(org_word)
+                # merge word list to new predicate
+                new_predicate = ' '.join(new_label_words)
+                if predicate != new_predicate:
+                    label_map.append(predicate + '|' + new_predicate+'\n')
+                r['predicate'] = new_predicate
+            relations.append(r)
         anno['relationships'] = relations
         output_anno_path = os.path.join(output_anno_root, anno_file_name)
         with open(output_anno_path, 'w') as anno_file:

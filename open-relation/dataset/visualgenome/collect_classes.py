@@ -4,7 +4,6 @@ import data_config
 import wash_relation_wn
 
 
-
 def vs_label2wn_leaf(anno_root, label2wn_path, target_key, stub_wn):
     label2wn = dict()  # vs_object_label: [wn]
     anno_list = os.listdir(anno_root)
@@ -62,9 +61,9 @@ if __name__ == '__main__':
     rlt_output_path = os.path.join(data_config.VS_ROOT, 'feature', 'relation', 'prepare', 'label2wn.json')
     # object
     stub_wn_object = 'entity.n.01'
-    # vs_label2wn_leaf(org_anno_root, obj_output_path, 'objects', stub_wn_object)
+    vs_label2wn_leaf(org_anno_root, obj_output_path, 'objects', stub_wn_object)
     # relation
     wash_relation_wn.wash_relation_label(org_anno_root, washed_anno_root)
-    # vs_label2wn_leaf(washed_anno_root, rlt_output_path, 'relationships', None)
-    # wash_relation_wn.wash_relation_wn(rlt_output_path)
+    vs_label2wn_leaf(washed_anno_root, rlt_output_path, 'relationships', None)
+    wash_relation_wn.wash_relation_wn(rlt_output_path)
 
