@@ -10,6 +10,7 @@ legal_pos_list = ['IN', 'JJR', 'JJS', 'RP', 'TO',           # 介词，比较级
 
 
 def wash_relation_label(org_anno_root, output_anno_root):
+    label_map = dict()
     anno_list = os.listdir(org_anno_root)
     anno_total = len(anno_list)
     lemmatizer = WordNetLemmatizer()
@@ -38,6 +39,7 @@ def wash_relation_label(org_anno_root, output_anno_root):
                     new_label_words.append(org_word)
             # merge word list to new predicate
             new_predicate = ' '.join(new_label_words)
+            label_map[predicate] = new_predicate
             relations[i]['predicate'] = new_predicate
         anno['relationships'] = relations
         output_anno_path = os.path.join(output_anno_root, anno_file_name)
