@@ -65,6 +65,6 @@ if __name__ == '__main__':
     # vs_label2wn_leaf(org_anno_root, obj_output_path, 'objects', stub_wn_object)
     # relation
     wash_relation_wn.wash_relation_label(org_anno_root, washed_anno_root)
-    vs_label2wn_leaf(washed_anno_root, rlt_output_path, 'relationships', None)
-    wash_relation_wn.wash_relation_wn(rlt_output_path)
+    # vs_label2wn_leaf(washed_anno_root, rlt_output_path, 'relationships', None)
+    # wash_relation_wn.wash_relation_wn(rlt_output_path)
 
