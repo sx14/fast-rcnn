@@ -18,9 +18,10 @@ def train():
     train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
     net = model.HypernymVisual(config['visual_d'], config['embedding_d'])
-    model_weights_path = config['weight_path']
-    if os.path.isfile(model_weights_path):
-        net.load_state_dict(torch.load(model_weights_path))
+    latest_weights_path = config['latest_weight_path']
+    best_weights_path = config['best_weight_path']
+    if os.path.isfile(latest_weights_path):
+        net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
     net.cuda()
     print(net)
@@ -46,9 +47,11 @@ def train():
             if batch_counter % config['eval_freq'] == 0:
                 best_threshold, e_acc = eval(val_dataset, net)
                 print('eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold))
+                torch.save(net.state_dict(), latest_weights_path)
+                print('Updating weights success.')
                 if e_acc > best_acc:
-                    torch.save(net.state_dict(), model_weights_path)
-                    print('Updating weights success.')
+                    torch.save(net.state_dict(), best_weights_path)
+                    print('Updating best weights success.')
                     best_acc = e_acc
 
 
@@ -96,14 +99,8 @@ def count_p_n(gts):
             n += 1
     return p, n
 
-def t_acc():
-    E = torch.FloatTensor([[0.1],[0.1],[0.2],[0.3],[10]])
-    gt = torch.FloatTensor([[1],[1],[0],[1],[0]])
-    cal_acc(E,gt)
-
 
 if __name__ == '__main__':
-    # t_acc()
     train()
 
 
