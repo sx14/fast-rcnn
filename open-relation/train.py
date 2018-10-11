@@ -54,18 +54,20 @@ def train():
 
 
 def cal_acc(E, gt):
-    E = E.numpy()
-    gt = gt.numpy()
-    gt = (gt == np.ones(gt.size)) + 0  # 1/-1 -> 1/0
-    sorted_indexes = np.argsort(E)
-    sorted_E = E[sorted_indexes]
-    sorted_gt = gt[sorted_indexes]
+    tmp_E = E.numpy()
+    tmp_E = np.reshape(tmp_E, (tmp_E.size))
+    tmp_gt = gt.numpy()
+    tmp_gt = np.reshape(tmp_gt, (tmp_gt.size))
+    tmp_gt = (tmp_gt == np.ones(tmp_gt.size)) + 0  # 1/-1 -> 1/0
+    sorted_indexes = np.argsort(tmp_E)
+    sorted_E = tmp_E[sorted_indexes]
+    sorted_gt = tmp_gt[sorted_indexes]
     tp = np.cumsum(sorted_gt, 0)
     inv_sorted_gt = (sorted_gt == np.zeros(sorted_gt.size)) + 0
     neg_sum = np.sum(inv_sorted_gt)
     fp = np.cumsum(inv_sorted_gt, 0)
     tn = fp * (-1) + neg_sum
-    acc = (tp + tn) * 1.0 / gt.size
+    acc = (tp + tn) * 1.0 / tmp_gt.size
     best_acc_index = np.argmax(acc)
     return sorted_E[best_acc_index], acc[best_acc_index]
 
@@ -96,13 +98,14 @@ def count_p_n(gts):
     return p, n
 
 def t_acc():
-    E = torch.FloatTensor([0.1,0.1,0.2,0.3,10])
-    gt = torch.FloatTensor([1,1,0,1,0])
+    E = torch.FloatTensor([[0.1],[0.1],[0.2],[0.3],[10]])
+    gt = torch.FloatTensor([[1],[1],[0],[1],[0]])
     cal_acc(E,gt)
 
 
 if __name__ == '__main__':
-    train()
+    t_acc()
+    # train()
 
 
 
