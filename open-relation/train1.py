@@ -8,23 +8,21 @@ from train_config import hyper_params
 
 
 def train():
-    config = hyper_params['visual genome']
+    config = hyper_params['pascal']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val_small.txt')
+    val_list_path = os.path.join(config['list_root'], 'val.txt')
     word_vec_path = config['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path)
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
     train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
-    net = model.HypernymVisual(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     if os.path.isfile(latest_weights_path):
         net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
-    if os.path.isfile(config['log_path']):
-        os.remove(config['log_path'])
     net.cuda()
     print(net)
     params = net.parameters()
