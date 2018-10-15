@@ -35,35 +35,35 @@ def train():
     for e in range(0, config['epoch']):
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            for vf, wf, gt in train_dataset.minibatch():
-                p, n = count_p_n(gt)
-                batch_counter += 1
-                batch_vf = torch.autograd.Variable(vf).cuda()
-                batch_wf = torch.autograd.Variable(wf).cuda()
-                batch_gt = torch.autograd.Variable(gt).cuda()
-                E = net(batch_vf, batch_wf)
-                _, t_acc = cal_acc(E.cpu().data, gt)
-                l = loss(E, batch_gt)
-                if batch_counter % config['print_freq'] == 0:
-                    info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
-                    print(info)
-                    with open(config['log_path'], 'a') as log:
-                        log.write(info+'\n')
-                optim.zero_grad()
-                l.backward()
-                optim.step()
-                if batch_counter % config['eval_freq'] == 0:
-                    best_threshold, e_acc = eval(val_dataset, net)
-                    info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
-                    print(info)
-                    with open(config['log_path'], 'a') as log:
-                        log.write(info+'\n')
-                    torch.save(net.state_dict(), latest_weights_path)
-                    print('Updating weights success.')
-                    if e_acc > best_acc:
-                        torch.save(net.state_dict(), best_weights_path)
-                        print('Updating best weights success.')
-                        best_acc = e_acc
+            vf, wf, gt = train_dataset.minibatch()
+            p, n = count_p_n(gt)
+            batch_counter += 1
+            batch_vf = torch.autograd.Variable(vf).cuda()
+            batch_wf = torch.autograd.Variable(wf).cuda()
+            batch_gt = torch.autograd.Variable(gt).cuda()
+            E = net(batch_vf, batch_wf)
+            _, t_acc = cal_acc(E.cpu().data, gt)
+            l = loss(E, batch_gt)
+            if batch_counter % config['print_freq'] == 0:
+                info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
+                print(info)
+                with open(config['log_path'], 'a') as log:
+                    log.write(info+'\n')
+            optim.zero_grad()
+            l.backward()
+            optim.step()
+            if batch_counter % config['eval_freq'] == 0:
+                best_threshold, e_acc = eval(val_dataset, net)
+                info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
+                print(info)
+                with open(config['log_path'], 'a') as log:
+                    log.write(info+'\n')
+                torch.save(net.state_dict(), latest_weights_path)
+                print('Updating weights success.')
+                if e_acc > best_acc:
+                    torch.save(net.state_dict(), best_weights_path)
+                    print('Updating best weights success.')
+                    best_acc = e_acc
 
 
 def cal_acc(E, gt):
