@@ -96,8 +96,9 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
         for f in range(0, len(box_list)):
             wn_label = curr_img_labels[f]
             wn_index = wn2index[wn_label]
-            label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-            label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum-1)) + ' -1\n')
+            for t in range(0, 3):
+                label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
+                label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum-1)) + ' -1\n')
             syns = label2wn[wn_label]
             syn_max = 3
             syn_counter = 0
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     prototxt = data_config.FAST_PROTOTXT_PATH
     caffemodel = data_config.FAST_CAFFEMODEL_PATH
     # datasets = ['train', 'val', 'test']
-    datasets = ['train']
+    datasets = ['train', 'val']
     target = 'object'  # relation
     caffe.set_mode_gpu()
     caffe.set_device(0)
