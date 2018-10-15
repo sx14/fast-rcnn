@@ -99,7 +99,12 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
             label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum-1)) + ' -1\n')
             syns = label2wn[wn_label]
+            syn_max = 3
+            syn_counter = 0
             for syn in syns:
+                if syn_counter == syn_max:
+                    break
+                syn_counter += 1
                 synset = wn.synset(syn)
                 hypernym_paths = synset.hypernym_paths()
                 for s in hypernym_paths[0]:
