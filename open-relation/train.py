@@ -17,7 +17,7 @@ def train():
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
-    net = model.HypernymVisual(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     if os.path.isfile(latest_weights_path):

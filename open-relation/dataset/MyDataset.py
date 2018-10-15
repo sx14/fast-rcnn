@@ -25,7 +25,7 @@ class MyDataset(Dataset):
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
         wn_embedding_file = h5py.File(wn_embedding_path, 'r')
-        # word 2 vec
+        # word2vec
         self._wn_embedding = wn_embedding_file['word_vec']
         with open(list_path, 'r') as list_file:
             list = list_file.read().splitlines()
@@ -105,9 +105,9 @@ class MyDataset(Dataset):
             wfs.append(wf)
             gts.append(self._gt[fid])
         self._curr_package_cursor = batch_end_index
-        vfs = torch.from_numpy(np.array(vfs))
-        wfs = torch.from_numpy(np.array(wfs))
-        gts = torch.from_numpy(np.array(gts))
+        vfs = torch.from_numpy(np.array(vfs)).float()
+        wfs = torch.from_numpy(np.array(wfs)).float()
+        gts = torch.from_numpy(np.array(gts)).float()
         return vfs, wfs, gts
 
     def has_next_minibatch(self):
