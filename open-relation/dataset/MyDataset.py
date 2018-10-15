@@ -23,7 +23,7 @@ class MyDataset(Dataset):
         # _curr_package_cursor indexes _package_random_feature_list
         self._curr_package_cursor = 0
         # random current package feature indexes of the whole feature list
-        self._package_random_feature_list = []
+        self._curr_package_feature_indexes = []
         wn_embedding_file = h5py.File(wn_embedding_path, 'r')
         # word 2 vec
         self._wn_embedding = wn_embedding_file['word_vec']
@@ -47,7 +47,7 @@ class MyDataset(Dataset):
         self._next_package_start_fid = 0
         self._curr_package_start_fid = 0
         self._curr_package_cursor = 0
-        self._package_random_feature_list = []
+        self._curr_package_feature_indexes = []
 
     def __getitem__(self, index):
         feature_name = self._index[index][0]
@@ -81,8 +81,8 @@ class MyDataset(Dataset):
                     features = pickle.load(feature_file)
                     self._curr_package[next_feature_file] = features
             self._next_package_start_fid += 1
-        curr_package_feature_index_list = np.arange(self._curr_package_start_fid, self._next_package_start_fid)
-        self._package_random_feature_list = random.shuffle(curr_package_feature_index_list)
+        self._curr_package_feature_indexes = np.arange(self._curr_package_start_fid, self._next_package_start_fid)
+        random.shuffle(self._curr_package_feature_indexes)
         self._curr_package_cursor = self._curr_package_start_fid
 
     def minibatch(self):
@@ -91,12 +91,12 @@ class MyDataset(Dataset):
             # load another 2000 feature files
             self.__load_next_feature_package()
         batch_start_index = self._curr_package_cursor
-        batch_end_index = min(batch_start_index + self._minibatch_size, len(self._package_random_feature_list))
+        batch_end_index = min(batch_start_index + self._minibatch_size, len(self._curr_package_feature_indexes))
         vfs = []
         wfs = []
         gts = []
         for i in range(batch_start_index, batch_end_index):
-            fid = self._package_random_feature_list[i]
+            fid = self._curr_package_feature_indexes[i]
             feature_file, offset = self._index[fid]
             vf = self._curr_package[feature_file][offset]
             vfs.append(vf)
@@ -113,7 +113,7 @@ class MyDataset(Dataset):
     def has_next_minibatch(self):
         if self._next_package_start_fid == len(self._index):
             # the last package
-            if self._curr_package_cursor == len(self._package_random_feature_list):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 return False
         return True
 
