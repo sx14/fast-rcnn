@@ -12,14 +12,15 @@ class MyDataset(Dataset):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._raw_data_root = raw_data_root
-        self._index = []
-        self._word_indexes = []
-        self._gt = []
+        self._index = []            # index feature: [image_id, offset]
+        self._word_indexes = []     # label index
+        self._gt = []               # gt [1/-1]
         # cached feature package
         self._curr_package = dict()
         self._curr_package_capacity = 2000
-        self._next_package_start_fid = 0
+        # package bounds
         self._curr_package_start_fid = 0
+        self._next_package_start_fid = 0
         # _curr_package_cursor indexes _package_random_feature_list
         self._curr_package_cursor = 0
         # random current package feature indexes of the whole feature list
@@ -69,8 +70,8 @@ class MyDataset(Dataset):
         return len(self._index)
 
     def __load_next_feature_package(self):
-        del self._curr_package
-        self._curr_package = dict()  # feature_file -> [f1,f2,f3,...]
+        del self._curr_package          # release memory
+        self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
         self._curr_package_start_fid = self._next_package_start_fid
         while len(self._curr_package.keys()) < self._curr_package_capacity:
             # fill feature package
@@ -82,12 +83,15 @@ class MyDataset(Dataset):
                     self._curr_package[next_feature_file] = features
             self._next_package_start_fid += 1
         self._curr_package_feature_indexes = np.arange(self._curr_package_start_fid, self._next_package_start_fid)
+        # shuffle the feature indexes of current feature package
         random.shuffle(self._curr_package_feature_indexes)
-        self._curr_package_cursor = self._curr_package_start_fid
+        # init package index cursor
+        self._curr_package_cursor = 0
 
     def minibatch(self):
         # generate minibatch from current feature package
-        if self._curr_package_cursor == self._next_package_start_fid:
+        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+            # current package finished
             # load another 2000 feature files
             self.__load_next_feature_package()
         batch_start_index = self._curr_package_cursor

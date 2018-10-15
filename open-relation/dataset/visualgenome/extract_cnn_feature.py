@@ -168,7 +168,7 @@ if __name__ == '__main__':
         with open(label_save_path, 'rb') as label_file:
             labels = pickle.load(label_file)
         wn2index_path = os.path.join(vs_root, 'feature', target, 'prepare', 'wn2index.json')
-        with open(wn2index_path, 'rb') as wn2index_file:
+        with open(wn2index_path, 'r') as wn2index_file:
             wn2index = json.load(wn2index_file)
         label2wn_path = os.path.join(vs_root, 'feature', target, 'prepare', 'label2wn.json')
         with open(label2wn_path, 'r') as label2wn_file:
