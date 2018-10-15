@@ -7,7 +7,7 @@ if __name__ == '__main__':
     anno_sum = len(os.listdir(anno_root))
     train_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['train'])
     val_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['val'])
-    testc_capacity = anno_sum - train_capacity - val_capacity
+    test_capacity = anno_sum - train_capacity - val_capacity
     anno_list = os.listdir(anno_root)
     random.shuffle(anno_list)
     dataset_list = {
