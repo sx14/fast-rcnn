@@ -70,6 +70,7 @@ class MyDataset(Dataset):
         return len(self._index)
 
     def __load_next_feature_package(self):
+        print('Loading features into memory ......')
         del self._curr_package          # release memory
         self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
         self._curr_package_start_fid = self._next_package_start_fid
