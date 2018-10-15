@@ -103,7 +103,7 @@ class MyDataset(Dataset):
             word_index = self._word_indexes[fid]
             wf = self._wn_embedding[word_index]
             wfs.append(wf)
-            gts.append(self._gt[fid])
+            gts.append([self._gt[fid]])
         self._curr_package_cursor = batch_end_index
         vfs = torch.from_numpy(np.array(vfs)).float()
         wfs = torch.from_numpy(np.array(wfs)).float()

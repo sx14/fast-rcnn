@@ -33,6 +33,7 @@ def train():
     batch_counter = 0
     best_acc = 0
     for e in range(0, config['epoch']):
+        # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             vf, wf, gt = train_dataset.minibatch()
