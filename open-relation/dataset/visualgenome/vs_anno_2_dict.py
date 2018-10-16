@@ -44,4 +44,5 @@ def vs_anno_2_dict(anno_file_path):
             mid_relationship['subject'] = mid_subject
             mid_relationship['object'] = mid_object
             mid_relationships.append(mid_relationship)
+        mid_data['relationships'] = mid_relationships
     return mid_data
