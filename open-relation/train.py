@@ -1,4 +1,6 @@
 import os
+import shutil
+import pickle
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -8,13 +10,14 @@ from train_config import hyper_params
 
 
 def train():
+    output_log_name = 'vs_training.txt'
     config = hyper_params['visual genome']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'val_small.txt')
     word_vec_path = config['word_vec_path']
-    train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path)
-    val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path)
+    train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, config['batch_size'])
+    val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, config['batch_size'])
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
     net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
@@ -23,8 +26,9 @@ def train():
     if os.path.isfile(latest_weights_path):
         net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
-    if os.path.isfile(config['log_path']):
-        os.remove(config['log_path'])
+    if os.path.isdir(config['log_root']):
+        shutil.rmtree(config['log_root'])
+        os.mkdir(config['log_root'])
     net.cuda()
     print(net)
     params = net.parameters()
@@ -35,6 +39,7 @@ def train():
     for e in range(0, config['epoch']):
         # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
+        loss_list = []
         while train_dataset.has_next_minibatch():
             vf, wf, gt = train_dataset.minibatch()
             p, n = count_p_n(gt)
@@ -45,11 +50,16 @@ def train():
             E = net(batch_vf, batch_wf)
             _, t_acc = cal_acc(E.cpu().data, gt)
             l = loss(E, batch_gt)
+            training_loss = []
+            training_acc = []
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
                 print(info)
-                with open(config['log_path'], 'a') as log:
+                log_path = config['log_path']
+                with open(log_path, 'a') as log:
                     log.write(info+'\n')
+                training_loss.append(l.cpu().data.numpy())
+                training_acc.append(t_acc)
             optim.zero_grad()
             l.backward()
             optim.step()
@@ -57,8 +67,19 @@ def train():
                 best_threshold, e_acc = eval(val_dataset, net)
                 info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
                 print(info)
-                with open(config['log_path'], 'a') as log:
+                log_path = config['log_path']
+                with open(log_path, 'a') as log:
                     log.write(info+'\n')
+                loss_log_path = config['log_loss_path']
+                with open(loss_log_path, 'ab') as loss_file:
+                    history_loss = pickle.load(loss_file)
+                    history_loss = history_loss + training_loss
+                    pickle.dump(history_loss, loss_file)
+                acc_log_path = config['log_acc_path']
+                with open(acc_log_path, 'ab') as acc_file:
+                    history_acc = pickle.load(acc_file)
+                    history_acc = history_acc + training_acc
+                    pickle.dump(history_acc, acc_file)
                 torch.save(net.state_dict(), latest_weights_path)
                 print('Updating weights success.')
                 if e_acc > best_acc:
