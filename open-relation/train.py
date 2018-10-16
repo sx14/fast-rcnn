@@ -11,10 +11,10 @@ from train_config import hyper_params
 
 def train():
     output_log_name = 'vs_training.txt'
-    config = hyper_params['visual genome']
+    config = hyper_params['pascal']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val_small.txt')
+    val_list_path = os.path.join(config['list_root'], 'val.txt')
     word_vec_path = config['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, config['batch_size'])
@@ -51,7 +51,6 @@ def train():
             E = net(batch_vf, batch_wf)
             _, t_acc = cal_acc(E.cpu().data, gt)
             l = loss(E, batch_gt)
-
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
                 print(info)
@@ -117,16 +116,20 @@ def cal_acc(E, gt):
 
 def eval(dataset, model):
     model.eval()
-    val_dataloader = DataLoader(dataset, batch_size=dataset.__len__())
     acc_sum = 0
     best_threhold = 0
-    for vf, wf, gt in val_dataloader:
+    dataset.init_package()
+    while dataset.has_next_minibatch():
+        vf, wf, gt = dataset.minibatch()
+    # val_dataloader = DataLoader(dataset, batch_size=dataset.__len__())
+    # for vf, wf, gt in val_dataloader:
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_wf = torch.autograd.Variable(wf).cuda()
         E = model(batch_vf, batch_wf)
         best_threhold, batch_acc = cal_acc(E.cpu().data, gt)
         acc_sum += batch_acc
-    acc_sum = acc_sum / len(val_dataloader)
+    acc_sum = acc_sum / dataset.__len__()
+    # acc_sum = acc_sum / len(val_dataloader)
     return best_threhold, acc_sum
 
 
