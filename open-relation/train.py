@@ -64,22 +64,10 @@ def train():
             optim.step()
             if batch_counter % config['eval_freq'] == 0:
                 loss_log_path = config['log_loss_path']
-                with open(loss_log_path, 'ab+') as loss_file:
-                    if os.path.getsize(loss_log_path) == 0:
-                        pickle.dump(training_loss, loss_file)
-                    else:
-                        history_loss = pickle.load(loss_file)
-                        history_loss = history_loss + training_loss
-                        pickle.dump(history_loss, loss_file)
+                save_log_data(loss_log_path, training_loss)
                 training_loss = []
                 acc_log_path = config['log_acc_path']
-                with open(acc_log_path, 'ab+') as acc_file:
-                    if os.path.getsize(acc_log_path) == 0:
-                        pickle.dump(training_acc, acc_file)
-                    else:
-                        history_acc = pickle.load(acc_file)
-                        history_acc = history_acc + training_acc
-                        pickle.dump(history_acc, acc_file)
+                save_log_data(acc_log_path, training_acc)
                 training_acc = []
                 best_threshold, e_acc = eval(val_dataset, net)
                 info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
@@ -93,6 +81,17 @@ def train():
                     torch.save(net.state_dict(), best_weights_path)
                     print('Updating best weights success.')
                     best_acc = e_acc
+
+
+def save_log_data(file_path, data):
+    if not os.path.exists(file_path):
+        with open(file_path, 'wb') as f:
+            pickle.dump(data, f)
+    else:
+        with open(file_path, 'wb+') as f:
+            history_data = pickle.load(f)
+            history_data = history_data + data
+            pickle.dump(history_data, f)
 
 
 def cal_acc(E, gt):
@@ -119,6 +118,7 @@ def eval(dataset, model):
     acc_sum = 0
     best_threhold = 0
     dataset.init_package()
+    batch_sum = 0
     while dataset.has_next_minibatch():
         vf, wf, gt = dataset.minibatch()
     # val_dataloader = DataLoader(dataset, batch_size=dataset.__len__())
@@ -128,7 +128,8 @@ def eval(dataset, model):
         E = model(batch_vf, batch_wf)
         best_threhold, batch_acc = cal_acc(E.cpu().data, gt)
         acc_sum += batch_acc
-    acc_sum = acc_sum / dataset.__len__()
+        batch_sum += 1
+    acc_sum = acc_sum / batch_sum
     # acc_sum = acc_sum / len(val_dataloader)
     return best_threhold, acc_sum
 
