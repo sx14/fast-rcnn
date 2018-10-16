@@ -71,15 +71,23 @@ def train():
                 with open(log_path, 'a') as log:
                     log.write(info+'\n')
                 loss_log_path = config['log_loss_path']
-                with open(loss_log_path, 'ab') as loss_file:
-                    history_loss = pickle.load(loss_file)
-                    history_loss = history_loss + training_loss
-                    pickle.dump(history_loss, loss_file)
+                with open(loss_log_path, 'ab+') as loss_file:
+                    if os.path.getsize(loss_log_path) == 0:
+                        pickle.dump(training_loss, loss_file)
+                    else:
+                        history_loss = pickle.load(loss_file)
+                        history_loss = history_loss + training_loss
+                        pickle.dump(history_loss, loss_file)
+                training_loss = []
                 acc_log_path = config['log_acc_path']
-                with open(acc_log_path, 'ab') as acc_file:
-                    history_acc = pickle.load(acc_file)
-                    history_acc = history_acc + training_acc
-                    pickle.dump(history_acc, acc_file)
+                with open(acc_log_path, 'ab+') as acc_file:
+                    if os.path.getsize(acc_log_path) == 0:
+                        pickle.dump(training_acc, acc_file)
+                    else:
+                        history_acc = pickle.load(acc_file)
+                        history_acc = history_acc + training_acc
+                        pickle.dump(history_acc, acc_file)
+                training_acc = []
                 torch.save(net.state_dict(), latest_weights_path)
                 print('Updating weights success.')
                 if e_acc > best_acc:
