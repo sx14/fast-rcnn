@@ -36,10 +36,11 @@ def train():
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
     best_acc = 0
+    training_loss = []
+    training_acc = []
     for e in range(0, config['epoch']):
         # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
-        loss_list = []
         while train_dataset.has_next_minibatch():
             vf, wf, gt = train_dataset.minibatch()
             p, n = count_p_n(gt)
@@ -50,8 +51,7 @@ def train():
             E = net(batch_vf, batch_wf)
             _, t_acc = cal_acc(E.cpu().data, gt)
             l = loss(E, batch_gt)
-            training_loss = []
-            training_acc = []
+
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
                 print(info)
@@ -64,12 +64,6 @@ def train():
             l.backward()
             optim.step()
             if batch_counter % config['eval_freq'] == 0:
-                best_threshold, e_acc = eval(val_dataset, net)
-                info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
-                print(info)
-                log_path = config['log_path']
-                with open(log_path, 'a') as log:
-                    log.write(info+'\n')
                 loss_log_path = config['log_loss_path']
                 with open(loss_log_path, 'ab+') as loss_file:
                     if os.path.getsize(loss_log_path) == 0:
@@ -88,6 +82,12 @@ def train():
                         history_acc = history_acc + training_acc
                         pickle.dump(history_acc, acc_file)
                 training_acc = []
+                best_threshold, e_acc = eval(val_dataset, net)
+                info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
+                print(info)
+                log_path = config['log_path']
+                with open(log_path, 'a') as log:
+                    log.write(info+'\n')
                 torch.save(net.state_dict(), latest_weights_path)
                 print('Updating weights success.')
                 if e_acc > best_acc:
