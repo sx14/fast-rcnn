@@ -17,7 +17,7 @@ class MyDataset(Dataset):
         self._gt = []               # gt [1/-1]
         # cached feature package
         self._curr_package = dict()
-        self._curr_package_capacity = 2000
+        self._curr_package_capacity = 2
         # package bounds
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
@@ -30,6 +30,7 @@ class MyDataset(Dataset):
         self._wn_embedding = wn_embedding_file['word_vec']
         with open(list_path, 'r') as list_file:
             list = list_file.read().splitlines()
+            list = list[0:10]
         for item in list:
             item_info = item.split(' ')
             feature_file = item_info[0]
@@ -75,6 +76,8 @@ class MyDataset(Dataset):
         self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
         self._curr_package_start_fid = self._next_package_start_fid
         while len(self._curr_package.keys()) < self._curr_package_capacity:
+            if self._next_package_start_fid == len(self._index):
+                break
             # fill feature package
             next_feature_file, _ = self._index[self._next_package_start_fid]
             if next_feature_file not in self._curr_package.keys():
