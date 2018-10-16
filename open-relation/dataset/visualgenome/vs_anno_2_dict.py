@@ -24,4 +24,24 @@ def vs_anno_2_dict(anno_file_path):
             obj['synsets'] = o['synsets']
             mid_objects.append(obj)
         mid_data['objects'] = mid_objects
+        anno_relationships = anno['relationships']
+        mid_relationships = []
+        for r in anno_relationships:
+            mid_relationship = dict()
+            mid_relationship['predicate'] = r['predicate']
+            mid_subject = dict()
+            mid_object = dict()
+            subject = r['subject']
+            object = r['object']
+            mid_subject['xmin'] = str(subject['x'])
+            mid_subject['ymin'] = str(subject['y'])
+            mid_subject['xmax'] = str(int(subject['x']) + int(subject['w']) - 1)
+            mid_subject['ymax'] = str(int(subject['y']) + int(subject['h']) - 1)
+            mid_object['xmin'] = str(object['x'])
+            mid_object['ymin'] = str(object['y'])
+            mid_object['xmax'] = str(int(object['x']) + int(object['w']) - 1)
+            mid_object['ymax'] = str(int(object['y']) + int(object['h']) - 1)
+            mid_relationship['subject'] = subject
+            mid_relationship['object'] = object
+            mid_relationships.append(mid_relationship)
     return mid_data
