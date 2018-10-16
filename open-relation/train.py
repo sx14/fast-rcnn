@@ -51,13 +51,14 @@ def train():
             E = net(batch_vf, batch_wf)
             _, t_acc = cal_acc(E.cpu().data, gt)
             l = loss(E, batch_gt)
+            l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l.cpu().data.numpy())
+                info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l_raw)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
                     log.write(info+'\n')
-                training_loss.append(l.cpu().data.numpy())
+                training_loss.append(l_raw)
                 training_acc.append(t_acc)
             optim.zero_grad()
             l.backward()
