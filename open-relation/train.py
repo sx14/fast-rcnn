@@ -89,8 +89,9 @@ def save_log_data(file_path, data):
         with open(file_path, 'wb') as f:
             pickle.dump(data, f)
     else:
-        with open(file_path, 'wb+') as f:
+        with open(file_path, 'rb') as f:
             history_data = pickle.load(f)
+        with open(file_path, 'wb') as f:
             history_data = history_data + data
             pickle.dump(history_data, f)
 
