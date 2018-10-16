@@ -41,7 +41,7 @@ def vs_anno_2_dict(anno_file_path):
             mid_object['ymin'] = str(object['y'])
             mid_object['xmax'] = str(int(object['x']) + int(object['w']) - 1)
             mid_object['ymax'] = str(int(object['y']) + int(object['h']) - 1)
-            mid_relationship['subject'] = subject
-            mid_relationship['object'] = object
+            mid_relationship['subject'] = mid_subject
+            mid_relationship['object'] = mid_object
             mid_relationships.append(mid_relationship)
     return mid_data
