@@ -9,11 +9,17 @@ from model import model
 from train_config import hyper_params
 
 
+def adjust_lr(optimizer, epoch, org_lr):
+    lr = org_lr * (0.1 ** epoch)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
 def train():
-    config = hyper_params['pascal']
+    config = hyper_params['visual genome']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val.txt')
+    val_list_path = os.path.join(config['list_root'], 'val_small.txt')
     word_vec_path = config['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, config['batch_size'])
@@ -31,13 +37,14 @@ def train():
     net.cuda()
     print(net)
     params = net.parameters()
-    optim = torch.optim.Adam(params=params, lr=config['lr'])
+    optim = torch.optim.SGD(params=params, lr=config['lr'])
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
     best_acc = 0
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
+        adjust_lr(optim, e, config['lr'])
         # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():

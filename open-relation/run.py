@@ -1,9 +1,9 @@
 import os
 import numpy as np
-import json
 import pickle
 import h5py
 import torch
+from nltk.corpus import wordnet as wn
 from model import model
 from train_config import hyper_params
 from dataset.pascaltest import label_map
@@ -29,7 +29,8 @@ print('Preparing word feature vectors ...')
 wn_embedding_file = h5py.File(word_vec_path, 'r')
 word_embedding = wn_embedding_file['word_vec']
 wfs = []
-wns = label2wn.values()
+# wns = label2wn.values()
+wns = wn2index.keys()
 for wn in wns:
     wn_index = wn2index[wn]
     wfs.append(word_embedding[wn_index])
@@ -55,7 +56,7 @@ for img_id in img_labels:
         E = net(train_vfs, train_wfs)
         E = E.data.numpy()
         E = np.reshape(E, (E.size))
-        pred_label_index = np.argmin(E)
+        pred_label_index = np.where(E < 0.1)[0]
         pred_wn = wns[pred_label_index]
         output_info = img_id+'.jpg ' + str(i+1) + ' ' + label + ' | ' + pred_wn
         print(output_info)
@@ -71,4 +72,29 @@ with open('p_result.txt', 'w') as p_result_file:
     p_result_file.writelines(p_result)
 
 
+def predict_path(predict_wns):
+    pred_paths = []
+    tail2path = dict()
+    tails = set()
+    for i in range(0, len(predict_wns)):
+        for j in range(0, len(predict_wns)):
+            if isHypo(predict_wns[i], predict_wns[j]):
+                if i in tail2path:
+                    path = pred_paths[tail2path[i]]
+                    path.add(j)
+                    pred_paths[tail2path[i]] = path
+                else:
+                    tail2path[i] = len(pred_paths)
+                    pred_paths.append(set([i, j]))
+                    tails.add(i)
 
+
+def isHypo(i,j):
+    #  i is j's hypo ?
+    syn_i = wn.synset(i)
+    syn_j = wn.synset(j)
+    i_hyper_paths = syn_i.hypernym_paths()
+    i_hyper_syns = set()
+    for p in i_hyper_paths:
+        i_hyper_syns = i_hyper_syns | set(p)
+    return syn_j in i_hyper_syns
