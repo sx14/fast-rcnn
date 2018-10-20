@@ -4,10 +4,23 @@ import numpy as np
 from nltk.corpus import wordnet as wn
 import path_config
 
-all_nouns = list(wn.all_synsets('n'))
-
-
 FOR_VS = True
+if FOR_VS:
+    vs2wn_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'label2wn.json')
+    # all_nouns: wordnet nodes mapped by visual genome object labels
+    with open(vs2wn_path, 'r') as vs2wn_file:
+        vs2wn = json.load(vs2wn_file)
+    vs_wns = vs2wn.values()
+    all_nouns = set()
+    for wn_names in vs_wns:
+        for wn_name in wn_names:
+            wn_synset = wn.synset(wn_name)
+            for p in wn_synset.hypernym_paths():
+                for w in p:
+                    all_nouns.add(w)
+    all_nouns = list(all_nouns)
+else:
+    all_nouns = list(wn.all_synsets('n'))
 
 # get mapping of synset id to index
 id2index = {}
@@ -21,10 +34,6 @@ for synset in all_nouns:
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 if FOR_VS:
     # ==== append Visual Genome object classes ====
-    vs2wn_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'label2wn.json')
-    # visual genome object labels
-    with open(vs2wn_path, 'r') as vs2wn_file:
-        vs2wn = json.load(vs2wn_file)
     next_id2index_id = len(id2index)
     for vs_object in vs2wn:
         temp_node = wn.synset('entity.n.01')
@@ -35,7 +44,7 @@ if FOR_VS:
         for h in wns:
             hypernyms.append([next_id2index_id, id2index[h]])
         next_id2index_id = next_id2index_id + 1
-# ====
+    # ====
 hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py
