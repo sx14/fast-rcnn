@@ -72,7 +72,6 @@ def prepare_object_boxes_labels(anno_root, anno_list_path, box_save_path, label_
 
 def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root, label_list_path, wn2index, label2wn):
     label_list = []
-    wn_synset_sum = len(wn2index.keys())
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
     for i in range(0, len(image_list)):
@@ -87,7 +86,8 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             continue
         feature_id = image_id + '.bin'
         feature_path = os.path.join(feature_root, feature_id)
-        if not os.path.exists(feature_path): # extract fc7
+        if not os.path.exists(feature_path):
+            # extract fc7
             img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
             im_detect(net, img, box_list)
             fc7s = np.array(net.blobs['fc7'].data)
@@ -106,8 +106,11 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
                 else:
                     synset = wn.synset(syn)
                     hypernym_paths = synset.hypernym_paths()
-                    # from specific to general
-                    for h in random.sample(range(0, len(hypernym_paths[0])), 2):
+                    if len(hypernym_paths[0]) > 2:
+                        h_list = random.sample(range(0, len(hypernym_paths[0])), 2)
+                    else:
+                        h_list = range(0, len(hypernym_paths[0]))
+                    for h in h_list:
                         s = hypernym_paths[0][h]
                         wn_index = wn2index[s.name()]
                         label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
