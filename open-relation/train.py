@@ -23,6 +23,7 @@ def train():
     word_vec_path = config['word_vec_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, config['batch_size'])
+    val_dataset.init_package()
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
     # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
     net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
@@ -37,7 +38,7 @@ def train():
     net.cuda()
     print(net)
     params = net.parameters()
-    optim = torch.optim.SGD(params=params, lr=config['lr'])
+    optim = torch.optim.Adam(params=params, lr=config['lr'])
     loss = torch.nn.HingeEmbeddingLoss()
     batch_counter = 0
     best_acc = 0
@@ -125,7 +126,6 @@ def eval(dataset, model):
     model.eval()
     acc_sum = 0
     best_threhold = 0
-    dataset.init_package()
     batch_sum = 0
     while dataset.has_next_minibatch():
         vf, wf, gt = dataset.minibatch()

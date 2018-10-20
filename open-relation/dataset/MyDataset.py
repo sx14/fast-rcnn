@@ -1,20 +1,19 @@
 import os
 import random
 import pickle
+import json
 import numpy as np
 import h5py
-from torch.utils.data import Dataset
 import torch
 
 
-class MyDataset(Dataset):
-    def __init__(self, raw_data_root, list_path, wn_embedding_path, minibatch_size=128):
+class MyDataset():
+    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=128):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._raw_data_root = raw_data_root
-        self._index = []            # index feature: [image_id, offset]
-        self._word_indexes = []     # label index
-        self._gt = []               # gt [1/-1]
+        self._feature_indexes = []      # index feature: [feature file name, offset]
+        self._word_indexes = []         # label index
         # cached feature package
         self._curr_package = dict()
         self._curr_package_capacity = 4000
@@ -25,34 +24,36 @@ class MyDataset(Dataset):
         self._curr_package_cursor = 0
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
-        wn_embedding_file = h5py.File(wn_embedding_path, 'r')
         # word2vec
+        wn_embedding_file = h5py.File(wn_embedding_path, 'r')
         self._wn_embedding = wn_embedding_file['word_vec']
+        # label2path
+        with open(label2path_path, 'r') as label2path_file:
+            self._label2path = json.load(label2path_file)
         with open(list_path, 'r') as list_file:
-            list = list_file.read().splitlines()
-        for item in list:
+            f_list = list_file.read().splitlines()
+        for item in f_list:
+            # image id, offset, hier_label_index, vs_label_index
             item_info = item.split(' ')
             feature_file = item_info[0]
             item_id = int(item_info[1])
             item_word_index = int(item_info[2])
-            item_gt = int(item_info[3])
-            # image id, offset, hyper, gt(1,-1)
-            # label numbers
-            self._word_indexes.append(item_word_index)
-            # feature indexes
-            self._index.append([feature_file, item_id])
-            # gts
-            self._gt.append(item_gt)
+            item_label_index = int(item_info[3])
+            # label numbers [hier_label_index, vs_label_index]
+            self._word_indexes.append([item_word_index, item_label_index])
+            # feature indexes [feature file name, offset]
+            self._feature_indexes.append([feature_file, item_id])
 
     def init_package(self):
         self._next_package_start_fid = 0
         self._curr_package_start_fid = 0
         self._curr_package_cursor = 0
         self._curr_package_feature_indexes = []
+        self.load_next_feature_package()
 
     def __getitem__(self, index):
-        feature_name = self._index[index][0]
-        feature_offset = self._index[index][1]
+        feature_name = self._feature_indexes[index][0]
+        feature_offset = self._feature_indexes[index][1]
         feature_path = os.path.join(self._raw_data_root, feature_name)
         with open(feature_path) as feature_file:
             features = pickle.load(feature_file)
@@ -67,18 +68,18 @@ class MyDataset(Dataset):
         return vf, wf, gt
 
     def __len__(self):
-        return len(self._index)
+        return len(self._feature_indexes)
 
-    def __load_next_feature_package(self):
+    def load_next_feature_package(self):
         print('Loading features into memory ......')
         del self._curr_package          # release memory
         self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
         self._curr_package_start_fid = self._next_package_start_fid
         while len(self._curr_package.keys()) < self._curr_package_capacity:
-            if self._next_package_start_fid == len(self._index):
+            if self._next_package_start_fid == len(self._feature_indexes):
                 break
             # fill feature package
-            next_feature_file, _ = self._index[self._next_package_start_fid]
+            next_feature_file, _ = self._feature_indexes[self._next_package_start_fid]
             if next_feature_file not in self._curr_package.keys():
                 feature_path = os.path.join(self._raw_data_root, next_feature_file)
                 with open(feature_path, 'rb') as feature_file:
@@ -93,24 +94,33 @@ class MyDataset(Dataset):
 
     def minibatch(self):
         # generate minibatch from current feature package
-        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+        if self._curr_package_cursor == len(self._curr_package_feature_indexes) \
+                and len(self._curr_package_feature_indexes) != 0:
             # current package finished
             # load another 2000 feature files
-            self.__load_next_feature_package()
+            self.load_next_feature_package()
         batch_start_index = self._curr_package_cursor
         batch_end_index = min(batch_start_index + self._minibatch_size, len(self._curr_package_feature_indexes))
         vfs = []
         wfs = []
         gts = []
-        for i in range(batch_start_index, batch_end_index):
-            fid = self._curr_package_feature_indexes[i]
-            feature_file, offset = self._index[fid]
-            vf = self._curr_package[feature_file][offset]
+        # positive item x1
+        fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+        feature_file, offset = self._feature_indexes[fid]
+        vf = self._curr_package[feature_file][offset]
+        vfs.append(vf)
+        positive_label_index = self._word_indexes[fid]
+        wf = self._wn_embedding[positive_label_index]
+        wfs.append(wf)
+        gts.append([1])
+        self._curr_package_cursor += 1
+        # negative items x(minibatch_size-1) | random version
+        for i in range(0, self._minibatch_size-1):
             vfs.append(vf)
-            word_index = self._word_indexes[fid]
-            wf = self._wn_embedding[word_index]
+            negative_label_index = random.randint(0, len(self._wn_embedding)-1)
+            wf = self._wn_embedding[negative_label_index]
             wfs.append(wf)
-            gts.append([self._gt[fid]])
+            gts.append([-1])
         self._curr_package_cursor = batch_end_index
         vfs = torch.from_numpy(np.array(vfs)).float()
         wfs = torch.from_numpy(np.array(wfs)).float()
@@ -118,7 +128,7 @@ class MyDataset(Dataset):
         return vfs, wfs, gts
 
     def has_next_minibatch(self):
-        if self._next_package_start_fid == len(self._index):
+        if self._next_package_start_fid == len(self._feature_indexes):
             # the last package
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 return False

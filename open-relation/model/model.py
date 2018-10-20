@@ -26,6 +26,8 @@ class HypernymVisual1(nn.Module):
         self.activate = nn.ReLU()
 
     def forward(self, vf, wf):
+        # preserve values of vf positive
+        vf = self.activate(vf)
         hidden_out = self.hidden.forward(vf)
         vf_embedding = self.embedding.forward(hidden_out)
         sub = wf - vf_embedding
@@ -33,6 +35,7 @@ class HypernymVisual1(nn.Module):
         act_pow = act * act
         e = act_pow.sum(1)
         return e.view(len(e.data), 1)
+
 
 class HypernymVisual2(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):

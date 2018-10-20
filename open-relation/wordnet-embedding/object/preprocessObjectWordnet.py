@@ -54,12 +54,31 @@ else:
     f = h5py.File('dataset/wordnet.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
 f.close()
+
+# index2path_index_list
+label2path = dict()
+vs_labels = vs2wn.keys()
+for vs_label in vs_labels:
+    path_indexes = list([id2index[vs_label]])
+    wn_name = vs2wn[vs_label]
+    syn = wn.synset(wn_name)
+    hyper_paths = syn.hypernym_paths()
+    hyper_indexes = []
+    for p in hyper_paths:
+        for w in p:
+            w_index = id2index[w.name()]
+            hyper_indexes.append(w_index)
+    path_indexes = path_indexes + hyper_indexes
+    label2path[id2index[vs_label]] = path_indexes
+
+
 # save list of synset names
 names = map(lambda s: s.name(), all_nouns)
-import json
 if FOR_VS:
     wn2index_save_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'wn2index.json')
     json.dump(id2index, open(wn2index_save_path, 'w'))
+    label2path_save_path = os.path.join(path_config.OBJECT_SAVE_ROOT, 'label2path.json')
+    json.dump(label2path, open(label2path_save_path, 'w'))
     json.dump(names, open('exp_dataset/synset_names_with_VS.json', 'w'))
 else:
     json.dump(names, open('dataset/synset_names.json', 'w'))

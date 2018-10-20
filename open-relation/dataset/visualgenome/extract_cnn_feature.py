@@ -94,23 +94,23 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             with open(feature_path, 'w') as feature_file:
                 pickle.dump(fc7s, feature_file)
         for f in range(0, len(box_list)):
-            wn_label = curr_img_labels[f]
-            wn_index = wn2index[wn_label]
-            label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-            label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum-1)) + ' -1\n')
-            syns = label2wn[wn_label]
+            label = curr_img_labels[f]
+            label_index = wn2index[label]
+            # img_id.bin offset hier_gt vs_gt
+            label_list.append(feature_id + ' ' + str(f) + ' ' + str(label_index) + ' ' + str(label_index) + '\n')
+            syns = label2wn[label]
             for syn in syns:
                 if syn.split('.')[1] == 'x':
                     wn_index = wn2index[syn]
-                    label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-                    label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum - 1)) + ' -1\n')
+                    label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
                 else:
                     synset = wn.synset(syn)
                     hypernym_paths = synset.hypernym_paths()
-                    for s in hypernym_paths[0]:
+                    # from specific to general
+                    for h in random.sample(range(0, len(hypernym_paths[0])), 2):
+                        s = hypernym_paths[0][h]
                         wn_index = wn2index[s.name()]
-                        label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' 1\n')
-                        label_list.append(feature_id + ' ' + str(f) + ' ' + str(random.randint(0, wn_synset_sum-1)) + ' -1\n')
+                        label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
         with open(label_list_path, 'w') as label_file:
             label_file.writelines(label_list)
 
@@ -175,7 +175,6 @@ if __name__ == '__main__':
             label2wn = json.load(label2wn_file)
         extract_fc7_features(net, boxes, labels, img_root, anno_list, fc7_save_root, label_save_root,
                               wn2index, label2wn)
-        # generate_negative_data(label_save_root, len(wn2index.keys()))
     small_val_list_path = os.path.join(vs_root, 'feature', target, 'label', 'val_small.txt')
     val_list_path = os.path.join(vs_root, 'feature', target, 'label', 'val.txt')
     split_a_small_val(val_list_path, 1000, small_val_list_path)
