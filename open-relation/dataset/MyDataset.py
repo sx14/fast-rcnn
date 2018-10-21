@@ -69,7 +69,7 @@ class MyDataset():
                 with open(feature_path, 'rb') as feature_file:
                     features = pickle.load(feature_file)
                     self._curr_package[next_feature_file] = features
-            self._next_package_start_fid += 1
+                    self._next_package_start_fid += len(features)
         self._curr_package_feature_indexes = np.arange(self._curr_package_start_fid, self._next_package_start_fid)
         # shuffle the feature indexes of current feature package
         random.shuffle(self._curr_package_feature_indexes)
