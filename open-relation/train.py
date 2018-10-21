@@ -3,7 +3,6 @@ import shutil
 import pickle
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
 from dataset.MyDataset import MyDataset
 from model import model
 from train_config import hyper_params
@@ -24,9 +23,7 @@ def train():
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, config['batch_size'])
     val_dataset.init_package()
-    # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'])
-    # train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True)
-    net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual3(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     if os.path.isfile(latest_weights_path):
@@ -39,7 +36,7 @@ def train():
     print(net)
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.HingeEmbeddingLoss()
+    loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
     batch_counter = 0
     best_acc = 0
     training_loss = []
@@ -49,18 +46,19 @@ def train():
         # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            vf, wf, gt = train_dataset.minibatch()
-            p, n = count_p_n(gt)
+            vf, p_wfs, n_wfs, gts = train_dataset.minibatch()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
-            batch_wf = torch.autograd.Variable(wf).cuda()
-            batch_gt = torch.autograd.Variable(gt).cuda()
-            E = net(batch_vf, batch_wf)
-            _, t_acc = cal_acc(E.cpu().data, gt)
-            l = loss(E, batch_gt)
+            batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
+            batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
+            gts = torch.autograd.Variable(gts).cuda()
+            p_E, n_E = net(batch_vf, batch_p_wfs, batch_n_wfs)
+            _, t_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
+            # expect n_E > p_E
+            l = loss(n_E, p_E, gts)
             l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d[%d/%d] | acc: %.2f | loss: %.2f' % (e, batch_counter, p, n, t_acc, l_raw)
+                info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -103,23 +101,16 @@ def save_log_data(file_path, data):
             pickle.dump(history_data, f)
 
 
-def cal_acc(E, gt):
-    tmp_E = E.numpy()
-    tmp_E = np.reshape(tmp_E, (tmp_E.size))
-    tmp_gt = gt.numpy()
-    tmp_gt = np.reshape(tmp_gt, (tmp_gt.size))
-    tmp_gt = (tmp_gt == np.ones(tmp_gt.size)) + 0  # 1/-1 -> 1/0
-    sorted_indexes = np.argsort(tmp_E)
-    sorted_E = tmp_E[sorted_indexes]
-    sorted_gt = tmp_gt[sorted_indexes]
-    tp = np.cumsum(sorted_gt, 0)
-    inv_sorted_gt = (sorted_gt == np.zeros(sorted_gt.size)) + 0
-    neg_sum = np.sum(inv_sorted_gt)
-    fp = np.cumsum(inv_sorted_gt, 0)
-    tn = fp * (-1) + neg_sum
-    acc = (tp + tn) * 1.0 / tmp_gt.size
-    best_acc_index = np.argmax(acc)
-    return sorted_E[best_acc_index], acc[best_acc_index]
+def cal_acc(p_E, n_E):
+    tmp_p_E = p_E.numpy()
+    tmp_p_E = np.reshape(tmp_p_E, (tmp_p_E.size))
+    tmp_n_E = n_E.numpy()
+    tmp_n_E = np.reshape(tmp_n_E, (tmp_n_E.size))
+    sub = tmp_n_E - tmp_p_E
+    t = np.where(sub > 0)[0]
+    acc = len(t) * 1.0 / len(sub)
+    best_threshold = tmp_p_E[0]
+    return best_threshold, acc
 
 
 def eval(dataset, model):
@@ -128,29 +119,16 @@ def eval(dataset, model):
     best_threhold = 0
     batch_sum = 0
     while dataset.has_next_minibatch():
-        vf, wf, gt = dataset.minibatch()
-    # val_dataloader = DataLoader(dataset, batch_size=dataset.__len__())
-    # for vf, wf, gt in val_dataloader:
+        vf, p_wf, n_wf, gt = dataset.minibatch()
         batch_vf = torch.autograd.Variable(vf).cuda()
-        batch_wf = torch.autograd.Variable(wf).cuda()
-        E = model(batch_vf, batch_wf)
-        best_threhold, batch_acc = cal_acc(E.cpu().data, gt)
+        batch_p_wf = torch.autograd.Variable(p_wf).cuda()
+        batch_n_wf = torch.autograd.Variable(n_wf).cuda()
+        p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
+        best_threhold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
         acc_sum += batch_acc
         batch_sum += 1
     acc_sum = acc_sum / batch_sum
-    # acc_sum = acc_sum / len(val_dataloader)
     return best_threhold, acc_sum
-
-
-def count_p_n(gts):
-    p = 0
-    n = 0
-    for gt in gts:
-        if gt[0] > 0:
-            p += 1
-        else:
-            n += 1
-    return p, n
 
 
 if __name__ == '__main__':
