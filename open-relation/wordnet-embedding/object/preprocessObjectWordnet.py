@@ -60,16 +60,17 @@ label2path = dict()
 vs_labels = vs2wn.keys()
 for vs_label in vs_labels:
     path_indexes = list([id2index[vs_label]])
-    wn_name = vs2wn[vs_label]
-    syn = wn.synset(wn_name)
-    hyper_paths = syn.hypernym_paths()
-    hyper_indexes = []
-    for p in hyper_paths:
-        for w in p:
-            w_index = id2index[w.name()]
-            hyper_indexes.append(w_index)
-    path_indexes = path_indexes + hyper_indexes
-    label2path[id2index[vs_label]] = path_indexes
+    wn_names = vs2wn[vs_label]
+    for wn_name in wn_names:
+        syn = wn.synset(wn_names)
+        hyper_paths = syn.hypernym_paths()
+        hyper_indexes = []
+        for p in hyper_paths:
+            for w in p:
+                w_index = id2index[w.name()]
+                hyper_indexes.append(w_index)
+        path_indexes = path_indexes + hyper_indexes
+        label2path[id2index[vs_label]] = path_indexes
 
 
 # save list of synset names
