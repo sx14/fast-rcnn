@@ -62,7 +62,7 @@ for vs_label in vs_labels:
     path_indexes = list([id2index[vs_label]])
     wn_names = vs2wn[vs_label]
     for wn_name in wn_names:
-        syn = wn.synset(wn_names)
+        syn = wn.synset(wn_name)
         hyper_paths = syn.hypernym_paths()
         hyper_indexes = []
         for p in hyper_paths:
