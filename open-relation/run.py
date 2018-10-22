@@ -46,7 +46,7 @@ img_list_path = os.path.join(config['list_root'], 'val_small.txt')  # val image 
 with open(img_list_path, 'r') as img_list_file:
     img_list = img_list_file.read().splitlines()
 for line in img_list:
-    img_id = line.split(' ')[0]
+    img_id = line.split(' ')[0].replace('.bin', '')
     img_feature_path = os.path.join(feature_root, img_id+'.bin')
     with open(img_feature_path, 'r') as img_feature_file:
         img_features = pickle.load(img_feature_file)
