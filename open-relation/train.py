@@ -8,8 +8,8 @@ from model import model
 from train_config import hyper_params
 
 
-def adjust_lr(optimizer, batch, org_lr):
-    lr = org_lr * (0.1 ** (batch / 100000))
+def adjust_lr(optimizer, epoch, org_lr):
+    lr = max(org_lr * (0.1 ** epoch), 1e-6)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -36,19 +36,17 @@ def train():
     print(net)
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
+    loss = torch.nn.MarginRankingLoss(margin=1, size_average=False)
     batch_counter = 0
     best_acc = 0
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
-        # for vf, wf, gt in train_dataloader:
+        adjust_lr(optim, e, config['lr'])
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             vf, p_wfs, n_wfs, gts = train_dataset.minibatch()
             batch_counter += 1
-            if batch_counter % config['lr_adjust_freq'] == 0:
-                adjust_lr(optim, e, config['lr'])
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
             batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
@@ -129,6 +127,7 @@ def eval(dataset, model):
         batch_threshold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
         acc_sum += batch_acc
         threshold_sum += batch_threshold
+        batch_sum += 1
     acc = acc_sum / batch_sum
     threshold = threshold_sum / batch_sum
     return threshold, acc
