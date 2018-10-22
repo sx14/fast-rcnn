@@ -93,13 +93,14 @@ class MyDataset():
         fid = self._curr_package_feature_indexes[self._curr_package_cursor]
         feature_file, offset = self._feature_indexes[fid]
         vf = self._curr_package[feature_file][offset]
-        positive_label_index = self._word_indexes[fid]
+        positive_label_index = self._word_indexes[fid][0]
         p_wf = self._wn_embedding[positive_label_index]
-        # negative items x(minibatch_size-1) | random version
+        # negative items x(minibatch_size) | random version
+        negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
         for i in range(0, self._minibatch_size):
             vfs.append(vf)
             p_wfs.append(p_wf)
-            negative_label_index = random.randint(0, len(self._wn_embedding)-1)
+            negative_label_index = negative_labels[i]
             n_wf = self._wn_embedding[negative_label_index]
             n_wfs.append(n_wf)
             gts.append([1])

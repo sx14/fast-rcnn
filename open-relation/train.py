@@ -8,8 +8,8 @@ from model import model
 from train_config import hyper_params
 
 
-def adjust_lr(optimizer, epoch, org_lr):
-    lr = org_lr * (0.1 ** epoch)
+def adjust_lr(optimizer, batch, org_lr):
+    lr = org_lr * (0.1 ** (batch / 100000))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -43,12 +43,13 @@ def train():
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
-        adjust_lr(optim, e, config['lr'])
         # for vf, wf, gt in train_dataloader:
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             vf, p_wfs, n_wfs, gts = train_dataset.minibatch()
             batch_counter += 1
+            if batch_counter % config['lr_adjust_freq'] == 0:
+                adjust_lr(optim, e, config['lr'])
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
             batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
@@ -117,19 +118,23 @@ def cal_acc(p_E, n_E):
 def eval(dataset, model):
     model.eval()
     acc_sum = 0
-    best_threhold = 0
+    best_threshold = 0
     batch_sum = 0
+    best_acc = 0
     while dataset.has_next_minibatch():
         vf, p_wf, n_wf, gt = dataset.minibatch()
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
-        best_threhold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
+        batch_threhold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
         acc_sum += batch_acc
         batch_sum += 1
+        if batch_acc > best_acc:
+            best_acc = batch_acc
+            best_threshold = batch_threhold
     acc_sum = acc_sum / batch_sum
-    return best_threhold, acc_sum
+    return best_threshold, acc_sum
 
 
 if __name__ == '__main__':
