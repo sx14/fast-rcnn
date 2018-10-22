@@ -23,7 +23,6 @@ def train():
     label2path_path = config['label2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, label2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, label2path_path, config['batch_size'])
-    val_dataset.init_package()
     net = model.HypernymVisual3(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
@@ -121,6 +120,7 @@ def eval(dataset, model):
     best_threshold = 0
     batch_sum = 0
     best_acc = 0
+    dataset.init_package()
     while dataset.has_next_minibatch():
         vf, p_wf, n_wf, gt = dataset.minibatch()
         batch_vf = torch.autograd.Variable(vf).cuda()

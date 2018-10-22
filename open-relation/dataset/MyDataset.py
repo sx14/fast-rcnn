@@ -49,7 +49,6 @@ class MyDataset():
         self._curr_package_start_fid = 0
         self._curr_package_cursor = 0
         self._curr_package_feature_indexes = []
-        self.load_next_feature_package()
 
     def __len__(self):
         return len(self._feature_indexes)
@@ -69,7 +68,7 @@ class MyDataset():
                 with open(feature_path, 'rb') as feature_file:
                     features = pickle.load(feature_file)
                     self._curr_package[next_feature_file] = features
-                    self._next_package_start_fid += len(features)
+            self._next_package_start_fid += 1
         self._curr_package_feature_indexes = np.arange(self._curr_package_start_fid, self._next_package_start_fid)
         # shuffle the feature indexes of current feature package
         random.shuffle(self._curr_package_feature_indexes)
@@ -79,12 +78,9 @@ class MyDataset():
     def minibatch(self):
         # generate minibatch from current feature package
         if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-            if len(self._curr_package_feature_indexes) != 0:
-                # current package finished
-                # load another 2000 feature files
-                self.load_next_feature_package()
-            else:
-                print('call init_package() first')
+            # current package finished
+            # load another 2000 feature files
+            self.load_next_feature_package()
         vfs = []
         p_wfs = []
         n_wfs = []
