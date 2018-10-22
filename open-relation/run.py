@@ -17,7 +17,7 @@ net.load_state_dict(torch.load(model_weight_path))
 net.eval()
 
 print('Loading label map ...')
-label_list_path = os.path.join(config['dataset_root'], 'feature', 'object', 'prepare', 'val_labels.bin')  # img,offset -> label
+label_list_path = config['label_path']  # img,offset -> label
 wn_synsets_path = os.path.join('wordnet-embedding', 'object', 'exp-dataset', 'synset_names_with_VS.json')   # all labels
 label2path_path = config['label2path_path']
 word_vec_path = config['word_vec_path']  # label embedding
