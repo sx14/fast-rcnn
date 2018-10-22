@@ -7,6 +7,7 @@ import torch
 from model import model
 from train_config import hyper_params
 from dataset.pascaltest import label_map
+
 config = hyper_params['visual genome']
 print('Loading model ...')
 model_weight_path = config['best_weight_path']
@@ -16,16 +17,12 @@ net.load_state_dict(torch.load(model_weight_path))
 net.eval()
 
 print('Loading label map ...')
-feature_root = config['visual_feature_root']    # get visual feature
-img_list_path = os.path.join(config['list_root'], 'small_val.txt')  # val image list
 label_list_path = os.path.join(config['dataset_root'], 'feature', 'prepare', 'val_labels.bin')  # img,offset -> label
 wn_synsets_path = os.path.join('wordnet-embedding', 'object', 'exp-dataset', 'synset_names_with_VS.json')   # all labels
 label2path_path = config['label2path_path']
 word_vec_path = config['word_vec_path']  # label embedding
 with open(label_list_path, 'r') as label_list_file:
     img_labels = pickle.load(label_list_file)
-with open(img_list_path, 'r') as img_list_file:
-    img_list = json.load(img_list_file)
 with open(label2path_path, 'r') as label2path_file:
     label2path = json.load(label2path_file)
 p_result = []
@@ -38,13 +35,16 @@ print('Preparing word feature vectors ...')
 wn_embedding_file = h5py.File(word_vec_path, 'r')
 word_embedding = wn_embedding_file['word_vec']
 wfs = []
-for wn in wns:
-    wn_index = wn2index[wn]
-    wfs.append(word_embedding[wn_index])
+for w in range(0, len(wns)):
+    wfs.append(word_embedding[w])
 wfs = np.array(wfs)
 wfs = torch.from_numpy(wfs).float()
 
 print('Predicting ...')
+feature_root = config['visual_feature_root']    # get visual feature
+img_list_path = os.path.join(config['list_root'], 'small_val.txt')  # val image list
+with open(img_list_path, 'r') as img_list_file:
+    img_list = img_list_file.read().splitlines()
 for img_id in img_list:
     img_feature_path = os.path.join(feature_root, img_id+'.bin')
     with open(img_feature_path, 'r') as img_feature_file:
