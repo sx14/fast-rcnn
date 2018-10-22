@@ -98,6 +98,8 @@ class MyDataset():
         negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
         for i in range(0, self._minibatch_size):
             # ==== 128 p-n ====
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vf = self._curr_package[feature_file][offset]
