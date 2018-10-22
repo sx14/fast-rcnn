@@ -117,9 +117,8 @@ def cal_acc(p_E, n_E):
 def eval(dataset, model):
     model.eval()
     acc_sum = 0
-    best_threshold = 0
+    threshold_sum = 0
     batch_sum = 0
-    best_acc = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
         vf, p_wf, n_wf, gt = dataset.minibatch()
@@ -127,14 +126,12 @@ def eval(dataset, model):
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
-        batch_threhold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
+        batch_threshold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
         acc_sum += batch_acc
-        batch_sum += 1
-        if batch_acc > best_acc:
-            best_acc = batch_acc
-            best_threshold = batch_threhold
-    acc_sum = acc_sum / batch_sum
-    return best_threshold, acc_sum
+        threshold_sum += batch_threshold
+    acc = acc_sum / batch_sum
+    threshold = threshold_sum / batch_sum
+    return threshold, acc
 
 
 if __name__ == '__main__':

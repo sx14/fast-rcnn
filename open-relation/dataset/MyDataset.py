@@ -86,24 +86,34 @@ class MyDataset():
         n_wfs = []
         gts = []
         # positive item x1
-        fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-        feature_file, offset = self._feature_indexes[fid]
-        vf = self._curr_package[feature_file][offset]
-        positive_label_index = self._word_indexes[fid][0]
-        p_wf = self._wn_embedding[positive_label_index]
+        # ==== p-128n ====
+        # fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+        # feature_file, offset = self._feature_indexes[fid]
+        # vf = self._curr_package[feature_file][offset]
+        # positive_label_index = self._word_indexes[fid][0]
+        # p_wf = self._wn_embedding[positive_label_index]
+        # self._curr_package_cursor += 1
+        # ==== p-128n ====
         # negative items x(minibatch_size) | random version
         negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
         for i in range(0, self._minibatch_size):
+            # ==== 128 p-n ====
+            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            feature_file, offset = self._feature_indexes[fid]
+            vf = self._curr_package[feature_file][offset]
+            positive_label_index = self._word_indexes[fid][0]
+            p_wf = self._wn_embedding[positive_label_index]
+            self._curr_package_cursor += 1
+            # ==== 128 p-n ====
             vfs.append(vf)
             p_wfs.append(p_wf)
             negative_label_index = negative_labels[i]
             n_wf = self._wn_embedding[negative_label_index]
             n_wfs.append(n_wf)
             gts.append([1])
-        self._curr_package_cursor += 1
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
-        n_wfs = torch.from_numpy(np.array(p_wfs)).float()
+        n_wfs = torch.from_numpy(np.array(n_wfs)).float()
         gts = torch.from_numpy(np.array(gts)).float()
         return vfs, p_wfs, n_wfs, gts
 
