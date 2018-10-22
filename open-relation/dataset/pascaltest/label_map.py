@@ -47,4 +47,4 @@ def wn2index(wn_synset_path):
         wn_synsets = json.load(wn_synset_file)
     for i in range(0, len(wn_synsets)):
         wn2index_dict[wn_synsets[i]] = i
-    return wn2index_dict
+    return wn2index_dict, wn_synsets

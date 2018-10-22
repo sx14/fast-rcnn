@@ -5,7 +5,7 @@ FOR_VS = true
 
 parser = argparse('Train a WordNet completion model')
 parser:option '--seed' :description 'random seed' : default '1234' :convert(tonumber)
-parser:option '-d' :description 'dimensionality of embedding space' :default "300" :convert(tonumber)
+parser:option '-d' :description 'dimensionality of embedding space' :default "600" :convert(tonumber)
 parser:option '--epochs' :description 'number of epochs to train for ' :default "30" :convert(tonumber)
 parser:option '--batchsize' :description 'size of minibatch to use' :default "1000" :convert(tonumber)
 parser:option '--eval_freq' :description 'evaluation frequency' :default "100" :convert(tonumber)
