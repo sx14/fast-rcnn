@@ -18,7 +18,7 @@ net.eval()
 
 print('Loading label map ...')
 label_list_path = config['label_path']  # img,offset -> label
-wn_synsets_path = os.path.join('wordnet-embedding', 'object', 'exp-dataset', 'synset_names_with_VS.json')   # all labels
+wn_synsets_path = os.path.join('wordnet-embedding', 'object', 'exp_dataset', 'synset_names_with_VS.json')   # all labels
 label2path_path = config['label2path_path']
 word_vec_path = config['word_vec_path']  # label embedding
 with open(label_list_path, 'r') as label_list_file:
@@ -42,10 +42,11 @@ wfs = torch.from_numpy(wfs).float()
 
 print('Predicting ...')
 feature_root = config['visual_feature_root']    # get visual feature
-img_list_path = os.path.join(config['list_root'], 'small_val.txt')  # val image list
+img_list_path = os.path.join(config['list_root'], 'val_small.txt')  # val image list
 with open(img_list_path, 'r') as img_list_file:
     img_list = img_list_file.read().splitlines()
-for img_id in img_list:
+for line in img_list:
+    img_id = line.split(' ')[0]
     img_feature_path = os.path.join(feature_root, img_id+'.bin')
     with open(img_feature_path, 'r') as img_feature_file:
         img_features = pickle.load(img_feature_file)
