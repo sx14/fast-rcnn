@@ -9,7 +9,7 @@ from train_config import hyper_params
 
 
 def adjust_lr(optimizer, epoch, org_lr):
-    lr = max(org_lr * (0.1 ** epoch), 1e-6)
+    lr = org_lr * (0.66 ** epoch)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -45,7 +45,7 @@ def train():
         adjust_lr(optim, e, config['lr'])
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            vf, p_wfs, n_wfs, gts = train_dataset.minibatch()
+            vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
@@ -119,7 +119,7 @@ def eval(dataset, model):
     batch_sum = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
-        vf, p_wf, n_wf, gt = dataset.minibatch()
+        vf, p_wf, n_wf, gt = dataset.minibatch1()
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()

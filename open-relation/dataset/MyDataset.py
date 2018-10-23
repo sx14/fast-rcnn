@@ -75,6 +75,41 @@ class MyDataset():
         # init package index cursor
         self._curr_package_cursor = 0
 
+    def minibatch1(self):
+        # generate minibatch from current feature package
+        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+            # current package finished
+            # load another 4000 feature files
+            self.load_next_feature_package()
+        vfs = []
+        p_wfs = []
+        n_wfs = []
+        gts = []
+        vf_num = 4
+        negative_label_num = self._minibatch_size / vf_num
+        for v in range(0, vf_num):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                break
+            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            feature_file, offset = self._feature_indexes[fid]
+            vf = self._curr_package[feature_file][offset]
+            positive_label_index = self._word_indexes[fid][0]
+            p_wf = self._wn_embedding[positive_label_index]
+            self._curr_package_cursor += 1
+            negative_labels = random.sample(range(0, len(self._wn_embedding)), negative_label_num)
+            for n in range(0, negative_label_num):
+                vfs.append(vf)
+                p_wfs.append(p_wf)
+                negative_label_index = negative_labels[n]
+                n_wf = self._wn_embedding[negative_label_index]
+                n_wfs.append(n_wf)
+                gts.append([1])
+        vfs = torch.from_numpy(np.array(vfs)).float()
+        p_wfs = torch.from_numpy(np.array(p_wfs)).float()
+        n_wfs = torch.from_numpy(np.array(n_wfs)).float()
+        gts = torch.from_numpy(np.array(gts)).float()
+        return vfs, p_wfs, n_wfs, gts
+
     def minibatch(self):
         # generate minibatch from current feature package
         if self._curr_package_cursor == len(self._curr_package_feature_indexes):
@@ -87,26 +122,26 @@ class MyDataset():
         gts = []
         # positive item x1
         # ==== p-128n ====
-        # fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-        # feature_file, offset = self._feature_indexes[fid]
-        # vf = self._curr_package[feature_file][offset]
-        # positive_label_index = self._word_indexes[fid][0]
-        # p_wf = self._wn_embedding[positive_label_index]
-        # self._curr_package_cursor += 1
+        fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+        feature_file, offset = self._feature_indexes[fid]
+        vf = self._curr_package[feature_file][offset]
+        positive_label_index = self._word_indexes[fid][0]
+        p_wf = self._wn_embedding[positive_label_index]
+        self._curr_package_cursor += 1
         # ==== p-128n ====
-        
+
         # negative items x(minibatch_size) | random version
         negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
         for i in range(0, self._minibatch_size):
             # ==== 128 p-n ====
-            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-                break
-            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-            feature_file, offset = self._feature_indexes[fid]
-            vf = self._curr_package[feature_file][offset]
-            positive_label_index = self._word_indexes[fid][0]
-            p_wf = self._wn_embedding[positive_label_index]
-            self._curr_package_cursor += 1
+            # if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+            #     break
+            # fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            # feature_file, offset = self._feature_indexes[fid]
+            # vf = self._curr_package[feature_file][offset]
+            # positive_label_index = self._word_indexes[fid][0]
+            # p_wf = self._wn_embedding[positive_label_index]
+            # self._curr_package_cursor += 1
             # ==== 128 p-n ====
             vfs.append(vf)
             p_wfs.append(p_wf)
