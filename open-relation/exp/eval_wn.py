@@ -10,7 +10,7 @@ wn_synsets_path = '/media/sunx/Data/linux-workspace/python-workspace/' \
 wn2index = label_map.wn2index(wn_synsets_path)
 
 
-hypers = ['animal.n.01']
+hypers = ['object.n.01']
 
 hypos = ['cat.n.01']
 
@@ -19,11 +19,20 @@ for h in range(0, len(hypers)):
     hypo = wn2index[hypos[h]]
     hyper_v = np.array(wn_embedding[hyper])
     hypo_v = np.array(wn_embedding[hypo])
+
+    h_zero = np.stack((hyper_v, np.zeros(hyper_v.shape)), axis=1)
+    relu = np.max(h_zero, axis=1)
+    relu = relu * relu
+    E = np.sum(relu)
+    print('word norm' + str(E))
+
     sub = hyper_v - hypo_v
     sub_zero = np.stack((sub, np.zeros(sub.shape)), axis=1)
     relu = np.max(sub_zero, axis=1)
     relu = relu * relu
     E = np.sum(relu)
+    print('sub norm' + str(E))
+
     if E < 0.01:
         print(hypers[h]+'->'+hypos[h]+'| yes')
     else:

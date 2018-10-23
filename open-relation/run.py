@@ -63,7 +63,7 @@ for line in img_list:
         E = net(train_vfs, train_wfs)
         E = E.data.numpy()
         E = np.reshape(E, (E.size))
-        pred_label_indexes = np.argsort(E)[0][:3]
+        pred_label_indexes = np.argsort(E)[:3]
         for pred_label_index in pred_label_indexes:
             pred_wn = wns[pred_label_index]
             label_index = wn2index[label]

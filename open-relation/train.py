@@ -8,8 +8,8 @@ from model import model
 from train_config import hyper_params
 
 
-def adjust_lr(optimizer, epoch, org_lr):
-    lr = org_lr * (0.66 ** epoch)
+def adjust_lr(optimizer, batch, org_lr):
+    lr = org_lr * (0.66 ** (batch / 100000))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
@@ -42,9 +42,10 @@ def train():
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
-        adjust_lr(optim, e, config['lr'])
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
+            if batch_counter % config['lr_adjust_freq'] == 0:
+                adjust_lr(optim, e, config['lr'])
             vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
@@ -108,7 +109,7 @@ def cal_acc(p_E, n_E):
     sub = tmp_n_E - tmp_p_E
     t = np.where(sub > 0)[0]
     acc = len(t) * 1.0 / len(sub)
-    best_threshold = tmp_p_E[0]
+    best_threshold = np.mean(tmp_p_E)
     return best_threshold, acc
 
 

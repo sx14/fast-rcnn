@@ -8,7 +8,7 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=128):
+    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=256):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._raw_data_root = raw_data_root
@@ -85,7 +85,7 @@ class MyDataset():
         p_wfs = []
         n_wfs = []
         gts = []
-        vf_num = 4
+        vf_num = 8
         negative_label_num = self._minibatch_size / vf_num
         for v in range(0, vf_num):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
