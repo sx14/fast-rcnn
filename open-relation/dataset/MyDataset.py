@@ -94,6 +94,7 @@ class MyDataset():
         # p_wf = self._wn_embedding[positive_label_index]
         # self._curr_package_cursor += 1
         # ==== p-128n ====
+        
         # negative items x(minibatch_size) | random version
         negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
         for i in range(0, self._minibatch_size):
