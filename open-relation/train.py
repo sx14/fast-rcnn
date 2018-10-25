@@ -8,17 +8,21 @@ from model import model
 from train_config import hyper_params
 
 
-def adjust_lr(optimizer, batch, org_lr):
-    lr = org_lr * (0.66 ** (batch / 100000))
+def adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
+    lr = org_lr * (0.66 ** (curr_batch / adjust_freq))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+    print('==== adjust lr ====')
+    for param_group in optimizer.param_groups:
+        print(param_group['lr'])
+    print('===================')
 
 
 def train():
     config = hyper_params['visual genome']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val_small.txt')
+    val_list_path = os.path.join(config['list_root'], 'val.txt')
     word_vec_path = config['word_vec_path']
     label2path_path = config['label2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, label2path_path, config['batch_size'])
@@ -45,7 +49,7 @@ def train():
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             if batch_counter % config['lr_adjust_freq'] == 0:
-                adjust_lr(optim, e, config['lr'])
+                adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
             vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()

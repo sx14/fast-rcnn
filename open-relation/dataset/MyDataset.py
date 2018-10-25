@@ -16,11 +16,12 @@ class MyDataset():
         self._word_indexes = []         # label index
         # cached feature package
         self._curr_package = dict()
+        # number of image_feature file
         self._curr_package_capacity = 4000
         # package bounds
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
-        # _curr_package_cursor indexes _package_random_feature_list
+        # _curr_package_cursor indexes _curr_package_feature_indexes
         self._curr_package_cursor = 0
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
@@ -77,10 +78,6 @@ class MyDataset():
 
     def minibatch1(self):
         # generate minibatch from current feature package
-        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-            # current package finished
-            # load another 4000 feature files
-            self.load_next_feature_package()
         vfs = []
         p_wfs = []
         n_wfs = []
@@ -88,6 +85,9 @@ class MyDataset():
         vf_num = 8
         negative_label_num = self._minibatch_size / vf_num
         for v in range(0, vf_num):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                # current package finished, load another 4000 feature files
+                self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]

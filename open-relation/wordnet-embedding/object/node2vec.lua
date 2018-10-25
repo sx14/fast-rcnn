@@ -5,7 +5,7 @@ require 'Dataset'
 require 'hdf5'
 
 FOR_VS = true
-featureDimension = 300
+featureDimension = 600
 
 if FOR_VS then
   datasetPath = 'exp_dataset/contrastive_trans.t7'

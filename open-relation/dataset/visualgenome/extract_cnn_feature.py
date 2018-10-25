@@ -107,7 +107,7 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
                     synset = wn.synset(syn)
                     hypernym_paths = synset.hypernym_paths()
                     if len(hypernym_paths[0]) > 2:
-                        h_list = list(random.randint(0, len(hypernym_paths[0])-2))   # randomly get one
+                        h_list = list([random.randint(0, len(hypernym_paths[0])-2)])   # randomly get one
                         h_list.append(len(hypernym_paths[0])-1)  # nearest wordnet label to vs label
                     else:
                         h_list = range(0, len(hypernym_paths[0]))
@@ -149,8 +149,7 @@ if __name__ == '__main__':
     vs_root = data_config.VS_ROOT
     prototxt = data_config.FAST_PROTOTXT_PATH
     caffemodel = data_config.FAST_CAFFEMODEL_PATH
-    # datasets = ['train', 'val', 'test']
-    datasets = ['train', 'val']
+    datasets = ['train', 'val', 'test']
     target = 'object'  # relation
     caffe.set_mode_gpu()
     caffe.set_device(0)
