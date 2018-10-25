@@ -1,4 +1,5 @@
 import os
+import copy
 import json
 import numpy as np
 from nltk.corpus import wordnet as wn
@@ -34,9 +35,10 @@ for synset in all_nouns:
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 if FOR_VS:
     # ==== append Visual Genome object classes ====
+    stub_node = wn.synset('entity.n.01')
     next_id2index_id = len(id2index)
     for vs_object in vs2wn:
-        temp_node = wn.synset('entity.n.01')
+        temp_node = copy.deepcopy(stub_node)
         temp_node._name = vs_object
         all_nouns.append(temp_node)
         id2index[vs_object] = next_id2index_id
@@ -50,27 +52,26 @@ hypernyms = np.array(hypernyms)
 import h5py
 if FOR_VS:
     f = h5py.File('exp_dataset/wordnet_with_VS.h5', 'w')
+    # index2path_index_list
+    label2path = dict()
+    vs_labels = vs2wn.keys()
+    for vs_label in vs_labels:
+        path_indexes = list([id2index[vs_label]])
+        wn_names = vs2wn[vs_label]
+        for wn_name in wn_names:
+            syn = wn.synset(wn_name)
+            hyper_paths = syn.hypernym_paths()
+            hyper_indexes = []
+            for p in hyper_paths:
+                for w in p:
+                    w_index = id2index[w.name()]
+                    hyper_indexes.append(w_index)
+            path_indexes = path_indexes + hyper_indexes
+            label2path[id2index[vs_label]] = path_indexes
 else:
     f = h5py.File('dataset/wordnet.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
 f.close()
-
-# index2path_index_list
-label2path = dict()
-vs_labels = vs2wn.keys()
-for vs_label in vs_labels:
-    path_indexes = list([id2index[vs_label]])
-    wn_names = vs2wn[vs_label]
-    for wn_name in wn_names:
-        syn = wn.synset(wn_name)
-        hyper_paths = syn.hypernym_paths()
-        hyper_indexes = []
-        for p in hyper_paths:
-            for w in p:
-                w_index = id2index[w.name()]
-                hyper_indexes.append(w_index)
-        path_indexes = path_indexes + hyper_indexes
-        label2path[id2index[vs_label]] = path_indexes
 
 
 # save list of synset names

@@ -109,7 +109,7 @@ def cal_acc(p_E, n_E):
     sub = tmp_n_E - tmp_p_E
     t = np.where(sub > 0)[0]
     acc = len(t) * 1.0 / len(sub)
-    best_threshold = np.mean(tmp_p_E)
+    best_threshold = np.max(tmp_p_E)
     return best_threshold, acc
 
 
