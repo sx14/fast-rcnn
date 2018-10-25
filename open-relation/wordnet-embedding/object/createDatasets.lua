@@ -36,11 +36,9 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
 
         local N_hypernyms = hypernyms:size(1)
         
-        if FOR_VS then
-          splitSize = 8000
-        else
-          splitSize = 4000
-        end
+
+        splitSize = 4000
+
         
 
         -- shuffle randomly

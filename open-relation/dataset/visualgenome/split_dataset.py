@@ -5,9 +5,10 @@ import data_config
 if __name__ == '__main__':
     anno_root = os.path.join(data_config.VS_ROOT, 'anno')
     anno_sum = len(os.listdir(anno_root))
-    train_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['train'])
-    val_capacity = int(anno_sum * data_config.DATASET_SPLIT_CONFIG['val'])
-    test_capacity = anno_sum - train_capacity - val_capacity
+
+    val_capacity = data_config.DATASET_SPLIT_CONFIG['val']
+    test_capacity = data_config.DATASET_SPLIT_CONFIG['test']
+    train_capacity = anno_sum - val_capacity - test_capacity
     anno_list = os.listdir(anno_root)
     random.shuffle(anno_list)
     dataset_list = {
