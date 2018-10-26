@@ -32,7 +32,7 @@ for synset in wn_nouns:
     for h in synset.hypernyms() + synset.instance_hypernyms():
         hypernyms.append([id2index[synset.name()], id2index[h.name()]])
 if FOR_VS:
-    # ==== append Visual Genome object classes ====
+    # ==== append Visual Genome object labels ====
     vs_nouns = []
     next_id2index_id = len(id2index)
     for vs_label in vs2wn:

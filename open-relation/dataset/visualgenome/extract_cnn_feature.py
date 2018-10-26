@@ -115,8 +115,12 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
                         s = hypernym_paths[0][h]
                         wn_index = wn2index[s.name()]
                         label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
-        with open(label_list_path, 'w') as label_file:
-            label_file.writelines(label_list)
+            if (i+1) % 10000 == 0 or (i+1) == len(box_list):
+                with open(label_list_path, 'a') as label_file:
+                    label_file.writelines(label_list)
+                del label_list
+                label_list = []
+
 
 
 # def generate_negative_data(list_path, wn_synset_sum):
