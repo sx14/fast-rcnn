@@ -54,6 +54,7 @@ for line in img_list:
     sample_sum += len(img_features)
     # for each object
     for i in range(0, len(img_features)):
+        print('------------------')
         label = labels[i]
         raw_vf = img_features[i]
         raw_vfs = np.tile(raw_vf, (len(index2label), 1))
@@ -67,15 +68,15 @@ for line in img_list:
         for pred_label_index in pred_label_indexes:
             pred_wn = index2label[pred_label_index]
             label_index = wn2index[label]
-            label_path = label2path[label_index]
+            label_path = label2path[str(label_index)]
             output_info = img_id+'.jpg ' + str(i+1) + ' ' + label + ' | ' + pred_wn
             print(output_info)
             hit = 0
             if pred_label_index in label_path:
-                p_result.append(output_info + '\n')
+                p_result.append(output_info + ' | y\n')
                 hit = 1
             else:
-                n_result.append(output_info + '\n')
+                n_result.append(output_info + ' | n\n')
             corr += hit
 print(corr * 1.0 / sample_sum)
 with open('n_result.txt', 'w') as n_result_file:
