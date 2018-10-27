@@ -30,12 +30,12 @@ n_result = []
 sample_sum = 0
 corr = 0
 
-wn2index, wns = label_map.wn2index(wn_synsets_path)
+wn2index, index2label = label_map.wn2index(wn_synsets_path)
 print('Preparing word feature vectors ...')
 wn_embedding_file = h5py.File(word_vec_path, 'r')
 word_embedding = wn_embedding_file['word_vec']
 wfs = []
-for w in range(0, len(wns)):
+for w in range(0, len(index2label)):
     wfs.append(word_embedding[w])
 wfs = np.array(wfs)
 wfs = torch.from_numpy(wfs).float()
@@ -56,16 +56,16 @@ for line in img_list:
     for i in range(0, len(img_features)):
         label = labels[i]
         raw_vf = img_features[i]
-        raw_vfs = np.tile(raw_vf, (len(wns), 1))
+        raw_vfs = np.tile(raw_vf, (len(index2label), 1))
         vfs = torch.from_numpy(raw_vfs)
         train_vfs = torch.autograd.Variable(vfs)
         train_wfs = torch.autograd.Variable(wfs)
         E = net(train_vfs, train_wfs)
         E = E.data.numpy()
         E = np.reshape(E, (E.size))
-        pred_label_indexes = np.argsort(E)[:3]
+        pred_label_indexes = np.where(E < 1)[0]
         for pred_label_index in pred_label_indexes:
-            pred_wn = wns[pred_label_index]
+            pred_wn = index2label[pred_label_index]
             label_index = wn2index[label]
             label_path = label2path[label_index]
             output_info = img_id+'.jpg ' + str(i+1) + ' ' + label + ' | ' + pred_wn
