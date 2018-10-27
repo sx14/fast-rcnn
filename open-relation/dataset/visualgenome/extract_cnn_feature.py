@@ -71,6 +71,8 @@ def prepare_object_boxes_labels(anno_root, anno_list_path, box_save_path, label_
 
 
 def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root, label_list_path, wn2index, label2wn):
+    if os.path.exists(label_list_path):
+        os.remove(label_list_path)
     label_list = []
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
@@ -115,26 +117,11 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
                         s = hypernym_paths[0][h]
                         wn_index = wn2index[s.name()]
                         label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
-            if (i+1) % 10000 == 0 or (i+1) == len(box_list):
+            if (i+1) % 10000 == 0 or (i+1) == len(image_list):
                 with open(label_list_path, 'a') as label_file:
                     label_file.writelines(label_list)
                 del label_list
                 label_list = []
-
-
-
-# def generate_negative_data(list_path, wn_synset_sum):
-#     print('generating negative items ......')
-#     with open(list_path, 'r') as list_file:
-#         data_list = list_file.readlines()
-#     new_data_list = copy.copy(data_list)
-#     for line in data_list:
-#         item = line.split(' ')
-#         negative_label = random.randint(0, wn_synset_sum - 1)
-#         new_line = item[0]+' '+item[1]+' '+str(negative_label)+' -1\n'
-#         new_data_list.append(new_line)
-#     with open(list_path, 'w') as list_file:
-#         list_file.writelines(new_data_list)
 
 
 def split_a_small_val(val_list_path, length, small_val_path):
