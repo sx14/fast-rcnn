@@ -92,7 +92,8 @@ class MyDataset():
             positive_label_index = self._word_indexes[fid][0]
             p_wf = self._wn_embedding[positive_label_index]
             self._curr_package_cursor += 1
-            negative_labels = range(0, len(self._wn_embedding)) - self._label2path[self._word_indexes[fid][1]]
+            negative_labels = list(set(range(0, len(self._wn_embedding))) -
+                                   set(self._label2path[self._word_indexes[fid][1]]))
             for n in range(0, len(negative_labels)):
                 vfs.append(vf)
                 p_wfs.append(p_wf)
