@@ -131,14 +131,15 @@ class MyDataset():
             all_negative_labels = list(set(range(0, len(self._wn_embedding))) -
                                    set(self._label2path[unicode(self._word_indexes[fid][1])]))
             negative_labels = random.sample(all_negative_labels, negative_label_num)
+            negative_labels.sort()
             part_vfs = np.tile(vf, (len(negative_labels), 1))
             part_n_wfs = self._wn_embedding[negative_labels]
             part_p_wfs = np.tile(p_wf, (len(negative_labels), 1))
             part_gts = np.tile([1], (len(negative_labels), 1))
-            vfs.append(part_vfs)
-            p_wfs.append(part_p_wfs)
-            n_wfs.append(part_n_wfs)
-            gts.append(part_gts)
+            vfs += part_vfs
+            p_wfs += part_p_wfs
+            n_wfs += part_n_wfs
+            gts += part_gts
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
