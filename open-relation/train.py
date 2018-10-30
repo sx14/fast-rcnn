@@ -50,7 +50,7 @@ def train():
         while train_dataset.has_next_minibatch():
             if batch_counter % config['lr_adjust_freq'] == 0:
                 adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
-            vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
+            vf, p_wfs, n_wfs, gts = train_dataset.minibatch2()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
