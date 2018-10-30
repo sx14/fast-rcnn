@@ -109,10 +109,10 @@ class MyDataset():
 
     def minibatch1(self):
         # generate minibatch from current feature package
-        vfs = []
-        p_wfs = []
-        n_wfs = []
-        gts = []
+        vfs = None
+        p_wfs = None
+        n_wfs = None
+        gts = None
         vf_num = 10
         # negative_label_num = self._minibatch_size / vf_num
         negative_label_num = 4000
@@ -136,10 +136,16 @@ class MyDataset():
             part_n_wfs = self._wn_embedding[negative_labels]
             part_p_wfs = np.tile(p_wf, (len(negative_labels), 1))
             part_gts = np.tile([1], (len(negative_labels), 1))
-            vfs += part_vfs
-            p_wfs += part_p_wfs
-            n_wfs += part_n_wfs
-            gts += part_gts
+            if vfs is None:
+                vfs = part_vfs
+                p_wfs = part_p_wfs
+                n_wfs = part_n_wfs
+                gts = part_gts
+            else:
+                vfs = vfs.append(part_vfs, axis=0)
+                p_wfs = p_wfs.append(part_p_wfs, axis=0)
+                n_wfs = n_wfs.append(part_n_wfs, axis=0)
+                gts = gts.append(part_gts, axis=0)
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
