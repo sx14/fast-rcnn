@@ -94,13 +94,11 @@ class MyDataset():
             self._curr_package_cursor += 1
             negative_labels = list(set(range(0, len(self._wn_embedding))) -
                                    set(self._label2path[unicode(self._word_indexes[fid][1])]))
-            for n in range(0, len(negative_labels)):
-                vfs.append(vf)
-                p_wfs.append(p_wf)
-                negative_label_index = negative_labels[n]
-                n_wf = self._wn_embedding[negative_label_index]
-                n_wfs.append(n_wf)
-                gts.append([1])
+            vfs = np.tile(vf, (len(negative_labels), 1))
+            n_wfs = self._wn_embedding[negative_labels]
+            p_wfs = np.tile(p_wf, (len(negative_labels), 1))
+            gts = np.tile([1], (len(negative_labels), 1))
+
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
@@ -115,8 +113,9 @@ class MyDataset():
         p_wfs = []
         n_wfs = []
         gts = []
-        vf_num = 8
-        negative_label_num = self._minibatch_size / vf_num
+        vf_num = 10
+        # negative_label_num = self._minibatch_size / vf_num
+        negative_label_num = 4000
         for v in range(0, vf_num):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
@@ -129,14 +128,17 @@ class MyDataset():
             positive_label_index = self._word_indexes[fid][0]
             p_wf = self._wn_embedding[positive_label_index]
             self._curr_package_cursor += 1
-            negative_labels = random.sample(range(0, len(self._wn_embedding)), negative_label_num)
-            for n in range(0, negative_label_num):
-                vfs.append(vf)
-                p_wfs.append(p_wf)
-                negative_label_index = negative_labels[n]
-                n_wf = self._wn_embedding[negative_label_index]
-                n_wfs.append(n_wf)
-                gts.append([1])
+            all_negative_labels = list(set(range(0, len(self._wn_embedding))) -
+                                   set(self._label2path[unicode(self._word_indexes[fid][1])]))
+            negative_labels = random.sample(all_negative_labels, negative_label_num)
+            part_vfs = np.tile(vf, (len(negative_labels), 1))
+            part_n_wfs = self._wn_embedding[negative_labels]
+            part_p_wfs = np.tile(p_wf, (len(negative_labels), 1))
+            part_gts = np.tile([1], (len(negative_labels), 1))
+            vfs.append(part_vfs)
+            p_wfs.append(part_p_wfs)
+            n_wfs.append(part_n_wfs)
+            gts.append(part_gts)
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
