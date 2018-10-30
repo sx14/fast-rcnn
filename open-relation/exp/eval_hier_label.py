@@ -1,23 +1,33 @@
+import os
 import json
 import h5py
 import numpy as np
 
-weight_path = '../wordnet-embedding/object/word_vec_vs.h5'
+dataset_name = 'pascal'
+
+if dataset_name == 'pascal':
+    dataset_root = '/media/sunx/Data/dataset/voc2007/VOCdevkit/VOC2007'
+elif dataset_name == 'vs':
+    dataset_root = '/media/sunx/Data/dataset/visual genome'
+
+weight_path = '../wordnet-embedding/object/word_vec_'+dataset_name+'.h5'
 wn_embedding_file = h5py.File(weight_path, 'r')
 wn_embedding = wn_embedding_file['word_vec']
-wn2index_path = '/media/sunx/Data/dataset/visual genome/feature/object/prepare/wn2index.json'
+wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
 with open(wn2index_path, 'r') as wn2index_file:
     wn2index = json.load(wn2index_file)
-synset_name_path = '../wordnet-embedding/object/exp_dataset/synset_names_with_VS.json'
+synset_name_path = '../wordnet-embedding/object/'+dataset_name+'_dataset/synset_names_with_'+dataset_name+'.json'
 with open(synset_name_path, 'r') as synset_name_file:
     synset_names = json.load(synset_name_file)
-label2wn_path = '/media/sunx/Data/dataset/visual genome/feature/object/prepare/label2wn.json'
+label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
 with open(label2wn_path, 'r') as label2wn_file:
     label2wn = json.load(label2wn_file)
 
-all = len(wn2index.keys())
+all = len(label2wn.keys())
 positive = 0
+negative = 0
 entity = 0
+test_postive = False
 for label in label2wn:
     wn = label2wn[label][0]
 
@@ -25,8 +35,12 @@ for label in label2wn:
     if wn == 'entity.n.01':
         entity += 1
     hypo = wn2index[label]
-    hyper_v = np.array(wn_embedding[hyper])
-    hypo_v = np.array(wn_embedding[hypo])
+    if test_postive:
+        hyper_v = np.array(wn_embedding[hyper])
+        hypo_v = np.array(wn_embedding[hypo])
+    else:
+        hyper_v = np.array(wn_embedding[hypo])
+        hypo_v = np.array(wn_embedding[hyper])
 
     h_zero = np.stack((hyper_v, np.zeros(hyper_v.shape)), axis=1)
     relu = np.max(h_zero, axis=1)
@@ -46,5 +60,9 @@ for label in label2wn:
         positive += 1
     else:
         print(wn + '->' + label + '| no')
-print('acc :' + str(positive * 1.0 / all))
+        negative += 1
+if test_postive:
+    print('acc :' + str(positive * 1.0 / all))
+else:
+    print('acc :' + str(negative * 1.0 / all))
 print('entity :' + str(entity * 1.0 / all))

@@ -8,7 +8,8 @@ from model import model
 from train_config import hyper_params
 from dataset.pascaltest import label_map
 
-config = hyper_params['visual genome']
+dataset_name = 'pascal'
+config = hyper_params[dataset_name]
 print('Loading model ...')
 model_weight_path = config['best_weight_path']
 net = model.HypernymVisual1(config['visual_d'], config['embedding_d'])
@@ -17,8 +18,8 @@ net.load_state_dict(torch.load(model_weight_path))
 net.eval()
 
 print('Loading label map ...')
+dataset__root = config['dataset_root']
 label_list_path = config['label_path']  # img,offset -> label
-wn_synsets_path = os.path.join('wordnet-embedding', 'object', 'exp_dataset', 'synset_names_with_VS.json')   # all labels
 label2path_path = config['label2path_path']
 word_vec_path = config['word_vec_path']  # label embedding
 with open(label_list_path, 'r') as label_list_file:
@@ -29,8 +30,10 @@ p_result = []
 n_result = []
 sample_sum = 0
 corr = 0
-
-wn2index, index2label = label_map.wn2index(wn_synsets_path)
+wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
+index2label = json.load(open(wn_synsets_path, 'r'))
+wn2index_path = os.path.join(dataset__root, 'feature', 'object', 'prepare', 'wn2index.json')
+wn2index = json.load(open(wn2index_path, 'r'))
 print('Preparing word feature vectors ...')
 wn_embedding_file = h5py.File(word_vec_path, 'r')
 word_embedding = wn_embedding_file['word_vec']
@@ -64,8 +67,8 @@ for line in img_list:
         E = net(train_vfs, train_wfs)
         E = E.data.numpy()
         E = np.reshape(E, (E.size))
-        pred_label_indexes = np.where(E < 1)[0]
-        for pred_label_index in pred_label_indexes:
+        pred_label_indexes = np.argsort(E)[0]
+        for pred_label_index in pred_label_indexes[:10]:
             pred_wn = index2label[pred_label_index]
             label_index = wn2index[label]
             label_path = label2path[str(label_index)]

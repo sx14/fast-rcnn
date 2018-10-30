@@ -1,12 +1,10 @@
 local argparse = require 'argparse'
 
 
-FOR_VS = true
-
 parser = argparse('Train a WordNet completion model')
 parser:option '--seed' :description 'random seed' : default '1234' :convert(tonumber)
 parser:option '-d' :description 'dimensionality of embedding space' :default "600" :convert(tonumber)
-parser:option '--epochs' :description 'number of epochs to train for ' :default "30" :convert(tonumber)
+parser:option '--epochs' :description 'number of epochs to train for ' :default "20" :convert(tonumber)
 parser:option '--batchsize' :description 'size of minibatch to use' :default "1000" :convert(tonumber)
 parser:option '--eval_freq' :description 'evaluation frequency' :default "100" :convert(tonumber)
 parser:option '--lr' :description 'learning rate' :default "0.01" :convert(tonumber)
@@ -34,19 +32,14 @@ torch.manualSeed(args.seed)
 
 require 'Dataset'
 
-if FOR_VS then
-  datasets = torch.load('exp_dataset/' .. args.train .. '.t7')
-else
-  datasets = torch.load('dataset/' .. args.train .. '.t7')
-end
+dataset_name = 'pascal'
+
+datasets = torch.load(dataset_name .. '_dataset/' .. args.train .. '.t7')
+
 
 local datasets_eval = {}
 for _, name in ipairs(args.eval) do
-    if FOR_VS then
-      datasets_eval[name] = torch.load('exp_dataset/' .. name .. '.t7')
-    else
-      datasets_eval[name] = torch.load('dataset/' .. name .. '.t7')
-    end
+    datasets_eval[name] = torch.load(dataset_name .. '_dataset/' .. name .. '.t7')
 end
 local train = datasets.train
 
@@ -170,11 +163,8 @@ print("Best accuracy was at batch #" )
 print(pretty.write(best_counts,""))
 print(pretty.write(best_accuracies,""))
 
-if FOR_VS then
-  torch.save('word_embedding_weights_vs.t7', saved_weight)
-else
-  torch.save('word_embedding_weights.t7', saved_weight)
-end
+
+torch.save('word_embedding_weights_' .. dataset_name .. '.t7', saved_weight)
 
 if args.vis then
     for name, dataset in pairs(datasets_eval) do

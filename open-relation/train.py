@@ -19,7 +19,7 @@ def adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
 
 
 def train():
-    config = hyper_params['visual genome']
+    config = hyper_params['pascal']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'val.txt')

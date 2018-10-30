@@ -5,13 +5,11 @@ local method = 'contrastive'
 
 local hdf5 = require 'hdf5'
 
-FOR_VS = true
+dataset_name = 'pascal'
 
-if FOR_VS then
-  f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
-else
-  f = hdf5.open('dataset/wordnet.h5', 'r')
-end
+
+f = hdf5.open(dataset_name .. '_dataset/wordnet_with_' .. dataset_name .. '.h5', 'r')
+
 
 local originalHypernyms = f:read('hypernyms'):all():add(1) -- convert to 1-based indexing
 local numEntities = torch.max(originalHypernyms) 
@@ -26,7 +24,8 @@ local graph = require 'Graph'
 -----
 -- split hypernyms into train, dev, test
 -----
-for _, hypernymType in ipairs{'trans', 'notrans'} do
+ -- for _, hypernymType in ipairs{'trans', 'notrans'} do
+ for _, hypernymType in ipairs{'trans'} do
         local methodName = method
         local hypernyms = originalHypernyms
         if hypernymType == 'trans' then
@@ -36,8 +35,11 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
 
         local N_hypernyms = hypernyms:size(1)
         
-
-        splitSize = 4000
+        if dataset_name == 'vs' then
+          splitSize = 4000
+        elseif dataset_name == 'pascal' then
+          splitSize = 50
+        end
 
         
 
@@ -70,11 +72,9 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
             f:write(json.encode(t))
             f:close()
         end
-        if FOR_VS then
-          torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
-        else
-          torch.save('dataset/' .. methodName .. '.t7', datasets)
-        end
+    
+        torch.save(dataset_name .. '_dataset/' .. methodName .. '.t7', datasets)
+
         write_json('vis/static/' .. methodName .. '/hypernyms', datasets.train.hypernyms:totable())
 end
 

@@ -17,7 +17,7 @@ class MyDataset():
         # cached feature package
         self._curr_package = dict()
         # number of image_feature file
-        self._curr_package_capacity = 4000
+        self._curr_package_capacity = 2000
         # package bounds
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
