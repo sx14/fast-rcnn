@@ -142,10 +142,10 @@ class MyDataset():
                 n_wfs = part_n_wfs
                 gts = part_gts
             else:
-                vfs = vfs.append(part_vfs, axis=0)
-                p_wfs = p_wfs.append(part_p_wfs, axis=0)
-                n_wfs = n_wfs.append(part_n_wfs, axis=0)
-                gts = gts.append(part_gts, axis=0)
+                vfs = np.append(vfs, part_vfs, axis=0)
+                p_wfs = np.append(p_wfs, part_p_wfs, axis=0)
+                n_wfs = np.append(n_wfs, part_n_wfs, axis=0)
+                gts = np.append(gts, part_gts, axis=0)
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
