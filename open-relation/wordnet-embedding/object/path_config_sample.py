@@ -10,7 +10,7 @@ vs_config = {
 }
 
 pascal_config = {
-    'object_prepare_root': os.path.join(PASCAL_ROOT, 'feature', 'prepare'),
+    'object_prepare_root': os.path.join(PASCAL_ROOT, 'feature', 'object', 'prepare'),
     'hypernym_data_path': 'pascal_dataset/wordnet_with_pascal.h5',
     'synset_names_path': 'pascal_dataset/synset_names_with_pascal.json'
 }
