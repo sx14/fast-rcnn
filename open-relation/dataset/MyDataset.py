@@ -135,8 +135,8 @@ class MyDataset():
                                    set(self._label2path[unicode(self._word_indexes[fid][1])]))
             negative_labels = random.sample(all_negative_labels, negative_label_num)
             part_n_wfs = self._wn_embedding[negative_labels]
-            vfs[v*negative_label_num:(v+1)*negative_label_num] = vfs
-            p_wfs[v*negative_label_num:(v+1)*negative_label_num] = p_wfs
+            vfs[v*negative_label_num:(v+1)*negative_label_num] = vf
+            p_wfs[v*negative_label_num:(v+1)*negative_label_num] = p_wf
             n_wfs[v*negative_label_num:(v+1)*negative_label_num] = part_n_wfs
             gts[v*negative_label_num:(v+1)*negative_label_num] = [1]
 
