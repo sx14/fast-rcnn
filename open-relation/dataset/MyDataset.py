@@ -27,7 +27,7 @@ class MyDataset():
         self._curr_package_feature_indexes = []
         # word2vec
         wn_embedding_file = h5py.File(wn_embedding_path, 'r')
-        self._wn_embedding = wn_embedding_file['word_vec']
+        self._wn_embedding = np.array(wn_embedding_file['word_vec'])
         # label2path
         with open(label2path_path, 'r') as label2path_file:
             self._label2path = json.load(label2path_file)
@@ -104,8 +104,6 @@ class MyDataset():
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
         gts = torch.from_numpy(np.array(gts)).float()
         return vfs, p_wfs, n_wfs, gts
-
-
 
     def minibatch1(self):
         # generate minibatch from current feature package
