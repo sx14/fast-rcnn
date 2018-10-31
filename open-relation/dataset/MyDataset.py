@@ -28,6 +28,7 @@ class MyDataset():
         # word2vec
         wn_embedding_file = h5py.File(wn_embedding_path, 'r')
         self._wn_embedding = np.array(wn_embedding_file['word_vec'])
+        self._wn_feature_length = len(self._wn_embedding[0])
         # label2path
         with open(label2path_path, 'r') as label2path_file:
             self._label2path = json.load(label2path_file)
@@ -107,18 +108,22 @@ class MyDataset():
 
     def minibatch1(self):
         # generate minibatch from current feature package
-        vfs = None
-        p_wfs = None
-        n_wfs = None
-        gts = None
         vf_num = 10
         # negative_label_num = self._minibatch_size / vf_num
         negative_label_num = 4000
+        vfs = np.zeros((vf_num * negative_label_num, 4096))
+        p_wfs = np.zeros((vf_num * negative_label_num, self._wn_feature_length))
+        n_wfs = np.zeros((vf_num * negative_label_num, self._wn_feature_length))
+        gts = np.ones((vf_num * negative_label_num, 1))
         for v in range(0, vf_num):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
                 self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                vfs = vfs[:v * negative_label_num]
+                p_wfs = p_wfs[:v * negative_label_num]
+                n_wfs = n_wfs[:v * negative_label_num]
+                gts = gts[:v * negative_label_num]
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
@@ -134,16 +139,12 @@ class MyDataset():
             part_n_wfs = self._wn_embedding[negative_labels]
             part_p_wfs = np.tile(p_wf, (len(negative_labels), 1))
             part_gts = np.tile([1], (len(negative_labels), 1))
-            if vfs is None:
-                vfs = part_vfs
-                p_wfs = part_p_wfs
-                n_wfs = part_n_wfs
-                gts = part_gts
-            else:
-                vfs = np.append(vfs, part_vfs, axis=0)
-                p_wfs = np.append(p_wfs, part_p_wfs, axis=0)
-                n_wfs = np.append(n_wfs, part_n_wfs, axis=0)
-                gts = np.append(gts, part_gts, axis=0)
+
+            vfs[v*negative_label_num:(v+1)*negative_label_num] = part_vfs
+            p_wfs[v*negative_label_num:(v+1)*negative_label_num] = part_p_wfs
+            n_wfs[v*negative_label_num:(v+1)*negative_label_num] = part_n_wfs
+            gts[v*negative_label_num:(v+1)*negative_label_num] = part_gts
+
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
