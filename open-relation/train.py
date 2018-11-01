@@ -19,7 +19,7 @@ def batch_adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
 
 
 def epoch_adjust_lr(optimizer, org_lr, curr_epoch):
-    lr = org_lr * (0.1 ** curr_epoch)
+    lr = org_lr * (0.66 ** (curr_epoch / 5))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     print('==== adjust lr ====')
@@ -52,7 +52,6 @@ def train():
     optim = torch.optim.Adam(params=params, lr=config['lr'])
     loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
     batch_counter = 0
-    best_acc = 0
     best_wrong = float('inf')
     training_loss = []
     training_acc = []
