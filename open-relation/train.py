@@ -8,8 +8,18 @@ from model import model
 from train_config import hyper_params
 
 
-def adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
+def batch_adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
     lr = org_lr * (0.66 ** (curr_batch / adjust_freq))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+    print('==== adjust lr ====')
+    for param_group in optimizer.param_groups:
+        print(param_group['lr'])
+    print('===================')
+
+
+def epoch_adjust_lr(optimizer, org_lr, curr_epoch):
+    lr = org_lr * (0.1 ** curr_epoch)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     print('==== adjust lr ====')
@@ -46,10 +56,11 @@ def train():
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
+        epoch_adjust_lr(optim, config['lr'], e)
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            if batch_counter % config['lr_adjust_freq'] == 0:
-                adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
+            # if batch_counter % config['lr_adjust_freq'] == 0:
+            #     batch_adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
             vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
@@ -57,12 +68,12 @@ def train():
             batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
             gts = torch.autograd.Variable(gts).cuda()
             p_E, n_E = net(batch_vf, batch_p_wfs, batch_n_wfs)
-            _, t_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
+            _, t_acc, t_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
             # expect n_E > p_E
             l = loss(n_E, p_E, gts)
             l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
+                info = 'epoch: %d | batch: %d | wrong: %.2f | loss: %.2f' % (e, batch_counter, t_wrong, l_raw)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -79,8 +90,8 @@ def train():
                 acc_log_path = config['log_acc_path']
                 save_log_data(acc_log_path, training_acc)
                 training_acc = []
-                best_threshold, e_acc = eval(val_dataset, net)
-                info = 'eval acc: %.2f | best threshold: %.2f' % (e_acc, best_threshold)
+                best_threshold, e_acc, wrong = eval(val_dataset, net)
+                info = 'eval acc: %.2f | best threshold: %.2f' % (wrong, best_threshold)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -112,9 +123,10 @@ def cal_acc(p_E, n_E):
     tmp_n_E = np.reshape(tmp_n_E, (tmp_n_E.size))
     sub = tmp_n_E - tmp_p_E
     t = np.where(sub > 0)[0]
+    wrong = len(t) - len(sub)
     acc = len(t) * 1.0 / len(sub)
     best_threshold = np.max(tmp_p_E)
-    return best_threshold, acc
+    return best_threshold, acc, wrong
 
 
 def eval(dataset, model):
@@ -122,21 +134,24 @@ def eval(dataset, model):
     acc_sum = 0
     threshold_sum = 0
     batch_sum = 0
+    wrong_sum = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
-        print('evaluating ...')
         vf, p_wf, n_wf, gt = dataset.minibatch2()
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
-        batch_threshold, batch_acc = cal_acc(p_E.cpu().data, n_E.cpu().data)
+        batch_threshold, batch_acc, batch_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
+        print('wrong:'+str(batch_wrong))
         acc_sum += batch_acc
+        wrong_sum += batch_wrong
         threshold_sum += batch_threshold
         batch_sum += 1
-    acc = acc_sum / batch_sum
-    threshold = threshold_sum / batch_sum
-    return threshold, acc
+    avg_acc = acc_sum / batch_sum
+    avg_threshold = threshold_sum / batch_sum
+    avg_wrong = wrong_sum / batch_sum
+    return avg_threshold, avg_acc, avg_wrong
 
 
 if __name__ == '__main__':
