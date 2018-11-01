@@ -124,6 +124,7 @@ def eval(dataset, model):
     batch_sum = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
+        print('evaluating ...')
         vf, p_wf, n_wf, gt = dataset.minibatch2()
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
