@@ -93,12 +93,11 @@ class MyDataset():
             positive_label_index = self._word_indexes[fid][0]
             p_wf = self._wn_embedding[positive_label_index]
             self._curr_package_cursor += 1
-            negative_labels = list(set(range(0, len(self._wn_embedding))) -
-                                   set(self._label2path[unicode(self._word_indexes[fid][1])]))
-            vfs = np.tile(vf, (len(negative_labels), 1))
-            n_wfs = self._wn_embedding[negative_labels]
-            p_wfs = np.tile(p_wf, (len(negative_labels), 1))
-            gts = np.tile([1], (len(negative_labels), 1))
+            positive_labels = self._label2path[unicode(self._word_indexes[fid][1])]
+            vfs = np.tile(vf, (len(self._wn_embedding), 1))
+            n_wfs = self._wn_embedding
+            p_wfs = np.tile(p_wf, (len(self._wn_embedding), 1))
+            gts = np.tile([1], (len(self._wn_embedding), 1))
 
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
