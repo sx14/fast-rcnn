@@ -73,7 +73,7 @@ def train():
             l = loss(n_E, p_E, gts)
             l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d | wrong: %.2f | loss: %.2f' % (e, batch_counter, t_wrong, l_raw)
+                info = 'epoch: %d | batch: %d | wrong: %d | loss: %.2f' % (e, batch_counter, t_wrong, l_raw)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -91,7 +91,7 @@ def train():
                 save_log_data(acc_log_path, training_acc)
                 training_acc = []
                 best_threshold, e_acc, wrong = eval(val_dataset, net)
-                info = 'eval acc: %.2f | best threshold: %.2f' % (wrong, best_threshold)
+                info = 'eval wrong: %d | best threshold: %.2f' % (wrong, best_threshold)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -143,7 +143,7 @@ def eval(dataset, model):
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
         batch_threshold, batch_acc, batch_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
-        print('wrong:'+str(batch_wrong))
+        print('wrong: '+str(batch_wrong))
         acc_sum += batch_acc
         wrong_sum += batch_wrong
         threshold_sum += batch_threshold
