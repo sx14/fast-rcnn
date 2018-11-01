@@ -50,14 +50,18 @@ def train():
     print(net)
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=True)
+    loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
     batch_counter = 0
     best_acc = 0
+    optim_freq = 10
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
         epoch_adjust_lr(optim, config['lr'], e)
         train_dataset.init_package()
+        loss_sum = 0
+        wrong_sum = 0
+        acc_sum = 0
         while train_dataset.has_next_minibatch():
             # if batch_counter % config['lr_adjust_freq'] == 0:
             #     batch_adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
@@ -72,18 +76,23 @@ def train():
             # expect n_E > p_E
             l = loss(n_E, p_E, gts)
             l_raw = l.cpu().data.numpy().tolist()
-            if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d | wrong: %d | loss: %.2f' % (e, batch_counter, t_wrong, l_raw)
+            loss_sum += l_raw
+            wrong_sum += t_wrong
+            acc_sum += t_acc
+            l.backward()
+            if batch_counter % optim_freq == 0:
+                optim.step()
+                optim.zero_grad()
+                info = 'epoch: %d | batch: %d | wrong: %d | loss: %.2f' % (e, batch_counter, wrong_sum/optim_freq, loss_sum/optim_freq)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
-                    log.write(info+'\n')
-                training_loss.append(l_raw)
-                training_acc.append(t_acc)
-            l.backward()
-            if batch_counter % 10 == 0:
-                optim.step()
-                optim.zero_grad()
+                    log.write(info + '\n')
+                training_loss.append(loss_sum/optim_freq)
+                training_acc.append(wrong_sum/optim_freq)
+                loss_sum = 0
+                wrong_sum = 0
+                acc_sum = 0
             if batch_counter % config['eval_freq'] == 0:
                 loss_log_path = config['log_loss_path']
                 save_log_data(loss_log_path, training_loss)

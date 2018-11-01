@@ -79,10 +79,6 @@ class MyDataset():
 
     def minibatch2(self):
         # generate minibatch from current feature package
-        vfs = np.zeros((len(self._wn_embedding), 4096))
-        p_wfs = np.zeros((len(self._wn_embedding), self._wn_feature_length))
-        n_wfs = []
-        gts = np.ones((len(self._wn_embedding), 1))
         if self._curr_package_cursor == len(self._curr_package_feature_indexes):
             # current package finished, load another 4000 feature files
             self.load_next_feature_package()
@@ -93,9 +89,17 @@ class MyDataset():
             positive_label_index = self._word_indexes[fid][0]
             p_wf = self._wn_embedding[positive_label_index]
             self._curr_package_cursor += 1
+            vfs = np.zeros((len(self._wn_embedding), 4096))
             vfs[:] = vf
             n_wfs = self._wn_embedding
+            p_wfs = np.zeros((len(self._wn_embedding), self._wn_feature_length))
             p_wfs[:] = p_wf
+            gts = np.ones((len(self._wn_embedding), 1))
+        else:
+            vfs = []
+            p_wfs = []
+            n_wfs = []
+            gts = []
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
