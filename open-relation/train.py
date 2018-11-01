@@ -53,6 +53,7 @@ def train():
     loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
     batch_counter = 0
     best_acc = 0
+    best_wrong = float('inf')
     training_loss = []
     training_acc = []
     for e in range(0, config['epoch']):
@@ -79,7 +80,7 @@ def train():
                 with open(log_path, 'a') as log:
                     log.write(info+'\n')
                 training_loss.append(l_raw)
-                training_acc.append(t_acc)
+                training_acc.append(t_wrong)
             optim.zero_grad()
             l.backward()
             optim.step()
@@ -98,10 +99,10 @@ def train():
                     log.write(info+'\n')
                 torch.save(net.state_dict(), latest_weights_path)
                 print('Updating weights success.')
-                if e_acc > best_acc:
+                if wrong < best_wrong:
                     torch.save(net.state_dict(), best_weights_path)
                     print('Updating best weights success.')
-                    best_acc = e_acc
+                    best_wrong = wrong
 
 
 def save_log_data(file_path, data):
