@@ -123,7 +123,7 @@ def cal_acc(p_E, n_E):
     tmp_n_E = np.reshape(tmp_n_E, (tmp_n_E.size))
     sub = tmp_n_E - tmp_p_E
     t = np.where(sub > 0)[0]
-    wrong = len(t) - len(sub)
+    wrong = len(sub) - len(t)
     acc = len(t) * 1.0 / len(sub)
     best_threshold = np.max(tmp_p_E)
     return best_threshold, acc, wrong
