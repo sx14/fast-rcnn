@@ -108,9 +108,9 @@ class MyDataset():
 
     def minibatch1(self):
         # generate minibatch from current feature package
-        vf_num = 10
+        vf_num = 30
         # negative_label_num = self._minibatch_size / vf_num
-        negative_label_num = 4000
+        negative_label_num = 2000
         vfs = np.zeros((vf_num * negative_label_num, 4096))
         p_wfs = np.zeros((vf_num * negative_label_num, self._wn_feature_length))
         n_wfs = np.zeros((vf_num * negative_label_num, self._wn_feature_length))

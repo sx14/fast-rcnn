@@ -2,7 +2,7 @@ import pickle
 import matplotlib.pyplot as plt
 from train_config import hyper_params
 
-config = hyper_params['visual genome']
+config = hyper_params['pascal']
 with open(config['log_loss_path'], 'rb') as log_loss:
     loss = pickle.load(log_loss)
 with open(config['log_acc_path'], 'rb') as log_acc:

@@ -22,7 +22,7 @@ def train():
     config = hyper_params['pascal']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val.txt')
+    val_list_path = os.path.join(config['list_root'], 'val_small.txt')
     word_vec_path = config['word_vec_path']
     label2path_path = config['label2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, label2path_path, config['batch_size'])
