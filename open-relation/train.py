@@ -138,9 +138,9 @@ def eval(dataset, model):
     dataset.init_package()
     while dataset.has_next_minibatch():
         vf, p_wf, n_wf, gt = dataset.minibatch2()
-        batch_vf = torch.autograd.Variable(vf).cuda()
-        batch_p_wf = torch.autograd.Variable(p_wf).cuda()
-        batch_n_wf = torch.autograd.Variable(n_wf).cuda()
+        batch_vf = torch.autograd.Variable(vf, volatile=True).cuda()
+        batch_p_wf = torch.autograd.Variable(p_wf, volatile=True).cuda()
+        batch_n_wf = torch.autograd.Variable(n_wf, volatiel=True).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
         batch_threshold, batch_acc, batch_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
         print('wrong: '+str(batch_wrong))
@@ -151,6 +151,7 @@ def eval(dataset, model):
     avg_acc = acc_sum / batch_sum
     avg_threshold = threshold_sum / batch_sum
     avg_wrong = wrong_sum / batch_sum
+    model.train()
     return avg_threshold, avg_acc, avg_wrong
 
 
