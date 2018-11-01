@@ -140,7 +140,7 @@ def eval(dataset, model):
         vf, p_wf, n_wf, gt = dataset.minibatch2()
         batch_vf = torch.autograd.Variable(vf, volatile=True).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf, volatile=True).cuda()
-        batch_n_wf = torch.autograd.Variable(n_wf, volatiel=True).cuda()
+        batch_n_wf = torch.autograd.Variable(n_wf, volatile=True).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
         batch_threshold, batch_acc, batch_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
         print('wrong: '+str(batch_wrong))
