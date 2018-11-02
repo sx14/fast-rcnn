@@ -76,14 +76,15 @@ for line in img_list:
         E = E.data.numpy()
         E = np.reshape(E, (E.size))
         pred_label_indexes = np.argsort(E)
-        for pred_label_index in pred_label_indexes[:10]:
+        for pred_label_index in pred_label_indexes[:1]:
             pred_wn = index2label[pred_label_index]
             label_index = wn2index[label]
             label_path = label2path[str(label_index)]
             output_info = img_id+'.jpg ' + str(i+1) + ' ' + label + ' | ' + pred_wn
             print(output_info)
             hit = 0
-            if pred_label_index in label_path:
+            # if pred_label_index in label_path:
+            if label == pred_wn:
                 p_result.append(output_info + ' | y\n')
                 hit = 1
             else:
