@@ -8,7 +8,7 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=256):
+    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=32):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._raw_data_root = raw_data_root
@@ -17,7 +17,7 @@ class MyDataset():
         # cached feature package
         self._curr_package = dict()
         # number of image_feature file
-        self._curr_package_capacity = 2000
+        self._curr_package_capacity = 3000
         # package bounds
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
@@ -145,51 +145,40 @@ class MyDataset():
         gts = torch.from_numpy(np.array(gts)).float()
         return vfs, p_wfs, n_wfs, gts
 
-
-    def minibatch(self):
-        # generate minibatch from current feature package
-        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-            # current package finished
-            # load another 2000 feature files
-            self.load_next_feature_package()
-        vfs = []
-        p_wfs = []
-        n_wfs = []
-        gts = []
-        # positive item x1
-        # ==== p-128n ====
-        fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-        feature_file, offset = self._feature_indexes[fid]
-        vf = self._curr_package[feature_file][offset]
-        positive_label_index = self._word_indexes[fid][0]
-        p_wf = self._wn_embedding[positive_label_index]
-        self._curr_package_cursor += 1
-        # ==== p-128n ====
-
-        # negative items x(minibatch_size) | random version
-        negative_labels = random.sample(range(0, len(self._wn_embedding)), self._minibatch_size)
-        for i in range(0, self._minibatch_size):
-            # ==== 128 p-n ====
-            # if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-            #     break
-            # fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-            # feature_file, offset = self._feature_indexes[fid]
-            # vf = self._curr_package[feature_file][offset]
-            # positive_label_index = self._word_indexes[fid][0]
-            # p_wf = self._wn_embedding[positive_label_index]
-            # self._curr_package_cursor += 1
-            # ==== 128 p-n ====
-            vfs.append(vf)
-            p_wfs.append(p_wf)
-            negative_label_index = negative_labels[i]
-            n_wf = self._wn_embedding[negative_label_index]
-            n_wfs.append(n_wf)
-            gts.append([1])
+    def minibatch_acc(self):
+        negative_label_num = 2000
+        vfs = np.zeros((self._minibatch_size, 4096))
+        p_wfs = np.zeros((self._minibatch_size, self._wn_feature_length))
+        v_actual_num = 0
+        p_w_set = set()
+        gts = np.ones((self._minibatch_size * negative_label_num, 1))
+        for v in range(0, self._minibatch_size):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                # current package finished, load another 4000 feature files
+                self.load_next_feature_package()
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                vfs = vfs[:v_actual_num]
+                p_wfs = p_wfs[:v_actual_num]
+                gts = gts[:v_actual_num]
+                break
+            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            feature_file, offset = self._feature_indexes[fid]
+            vfs[v] = self._curr_package[feature_file][offset]
+            positive_label_index = self._word_indexes[fid][0]
+            p_wfs[v] = self._wn_embedding[positive_label_index]
+            p_w_set = p_w_set | set(self._label2path[unicode(self._word_indexes[fid][1])])
+            self._curr_package_cursor += 1
+            v_actual_num += 1
+        all_negative_labels = list(set(range(0, len(self._wn_embedding))) - p_w_set)
+        negative_labels = random.sample(all_negative_labels, negative_label_num)
+        n_wfs = self._wn_embedding[negative_labels]
+        #  vfs: minibatch_size | p_wfs: minibatch_size | n_wfs: negative_label_num | gts: minibatch_size * negative_label_num
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
         gts = torch.from_numpy(np.array(gts)).float()
         return vfs, p_wfs, n_wfs, gts
+
 
     def has_next_minibatch(self):
         if self._next_package_start_fid == len(self._feature_indexes):

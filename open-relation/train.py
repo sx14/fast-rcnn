@@ -37,7 +37,7 @@ def train():
     label2path_path = config['label2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, label2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, label2path_path, config['batch_size'])
-    net = model.HypernymVisual(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     if os.path.isfile(latest_weights_path):
@@ -61,7 +61,7 @@ def train():
         while train_dataset.has_next_minibatch():
             # if batch_counter % config['lr_adjust_freq'] == 0:
             #     batch_adjust_lr(optim, config['lr'], batch_counter, config['lr_adjust_freq'])
-            vf, p_wfs, n_wfs, gts = train_dataset.minibatch1()
+            vf, p_wfs, n_wfs, gts = train_dataset.minibatch_acc()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
