@@ -68,7 +68,7 @@ def train():
             batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
             p_E, n_E = net(batch_vf, batch_p_wfs, batch_n_wfs)
             _, t_acc, t_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
-            gts = torch.from_numpy(np.ones(p_E.size()[0], 1))
+            gts = torch.from_numpy(np.ones((p_E.cpu().size()[0], 1))).float()
             gts = torch.autograd.Variable(gts).cuda()
             # expect n_E > p_E
             l = loss(n_E, p_E, gts)
@@ -138,10 +138,10 @@ def eval(dataset, model):
     wrong_sum = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
-        vf, p_wf, n_wf = dataset.minibatch_acc()
-        batch_vf = torch.autograd.Variable(vf, volatile=True).cuda()
-        batch_p_wf = torch.autograd.Variable(p_wf, volatile=True).cuda()
-        batch_n_wf = torch.autograd.Variable(n_wf, volatile=True).cuda()
+        vf, p_wf, n_wf = dataset.minibatch_eval()
+        batch_vf = torch.autograd.Variable(vf).cuda()
+        batch_p_wf = torch.autograd.Variable(p_wf).cuda()
+        batch_n_wf = torch.autograd.Variable(n_wf).cuda()
         p_E, n_E = model(batch_vf, batch_p_wf, batch_n_wf)
         batch_threshold, batch_acc, batch_wrong = cal_acc(p_E.cpu().data, n_E.cpu().data)
         print('wrong: '+str(batch_wrong))

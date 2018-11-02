@@ -60,8 +60,7 @@ for line in img_list:
         print('------------------')
         label = labels[i]
         raw_vf = img_features[i]
-        raw_vfs = np.tile(raw_vf, (len(index2label), 1))
-        vfs = torch.from_numpy(raw_vfs)
+        vfs = torch.from_numpy(raw_vf)
         train_vfs = torch.autograd.Variable(vfs)
         train_wfs = torch.autograd.Variable(wfs)
         E = net(train_vfs, train_wfs)
