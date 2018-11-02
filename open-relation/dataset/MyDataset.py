@@ -196,9 +196,9 @@ class MyDataset():
             positive_labels = self._label2path[unicode(self._word_indexes[fid][1])]
             all_negative_labels = list(set(range(0, len(self._wn_embedding))) -
                                        set(positive_labels))
-            vfs = vf
+            vfs = [vf]
             n_wfs = self._wn_embedding[all_negative_labels]
-            p_wfs = p_wf
+            p_wfs = [p_wf]
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()

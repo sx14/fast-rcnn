@@ -138,7 +138,7 @@ def eval(dataset, model):
     wrong_sum = 0
     dataset.init_package()
     while dataset.has_next_minibatch():
-        vf, p_wf, n_wf = dataset.minibatch_eval()
+        vf, p_wf, n_wf = dataset.minibatch_acc()
         batch_vf = torch.autograd.Variable(vf).cuda()
         batch_p_wf = torch.autograd.Variable(p_wf).cuda()
         batch_n_wf = torch.autograd.Variable(n_wf).cuda()
