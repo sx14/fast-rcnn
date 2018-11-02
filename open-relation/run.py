@@ -42,7 +42,7 @@ wn2index = json.load(open(wn2index_path, 'r'))
 # wfs = np.array(wfs)
 # wfs = torch.from_numpy(wfs).float()
 label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
-label2wn = json.load(open(label2wn_path), 'r')
+label2wn = json.load(open(label2wn_path, 'r'))
 index2label = label2wn.keys()
 for label in index2label:
     wfs.append(word_embedding[wn2index[label]])
