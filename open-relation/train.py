@@ -19,7 +19,7 @@ def batch_adjust_lr(optimizer, org_lr, curr_batch, adjust_freq):
 
 
 def epoch_adjust_lr(optimizer, org_lr, curr_epoch):
-    lr = org_lr * (0.66 ** (curr_epoch / 5))
+    lr = org_lr * (0.66 ** (curr_epoch / 10))
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
     print('==== adjust lr ====')

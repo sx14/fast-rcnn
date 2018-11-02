@@ -18,7 +18,7 @@ net.load_state_dict(torch.load(model_weight_path))
 net.eval()
 
 print('Loading label map ...')
-dataset__root = config['dataset_root']
+dataset_root = config['dataset_root']
 label_list_path = config['label_path']  # img,offset -> label
 label2path_path = config['label2path_path']
 word_vec_path = config['word_vec_path']  # label embedding
@@ -30,18 +30,27 @@ p_result = []
 n_result = []
 sample_sum = 0
 corr = 0
-wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
-index2label = json.load(open(wn_synsets_path, 'r'))
-wn2index_path = os.path.join(dataset__root, 'feature', 'object', 'prepare', 'wn2index.json')
-wn2index = json.load(open(wn2index_path, 'r'))
-print('Preparing word feature vectors ...')
 wn_embedding_file = h5py.File(word_vec_path, 'r')
 word_embedding = wn_embedding_file['word_vec']
 wfs = []
-for w in range(0, len(index2label)):
-    wfs.append(word_embedding[w])
+wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
+wn2index = json.load(open(wn2index_path, 'r'))
+# wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
+# index2label = json.load(open(wn_synsets_path, 'r'))
+# for w in range(0, len(index2label)):
+#     wfs.append(word_embedding[w])
+# wfs = np.array(wfs)
+# wfs = torch.from_numpy(wfs).float()
+label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
+label2wn = json.load(open(label2wn_path), 'r')
+index2label = label2wn.keys()
+for label in index2label:
+    wfs.append(word_embedding[wn2index[label]])
 wfs = np.array(wfs)
 wfs = torch.from_numpy(wfs).float()
+
+
+
 
 print('Predicting ...')
 feature_root = config['visual_feature_root']    # get visual feature

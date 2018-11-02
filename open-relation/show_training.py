@@ -8,16 +8,19 @@ with open(config['log_loss_path'], 'rb') as log_loss:
 with open(config['log_acc_path'], 'rb') as log_acc:
     acc = pickle.load(log_acc)
 
-loss_x = [i for i in range(0, len(loss))]
-plt.plot(loss_x, loss)
+start = max(0, len(acc) - 2000)
+
+
+loss_x = [i for i in range(start, len(loss))]
+plt.plot(loss_x, loss[start:])
 plt.title('Training Loss')
 plt.xlabel('time')
 plt.ylabel('Loss')
 plt.show()
 
-acc_x = [i for i in range(0, len(acc))]
-plt.plot(acc_x, acc)
-plt.title('Training Acc')
+acc_x = [i for i in range(start, len(acc))]
+plt.plot(acc_x, acc[start:])
+plt.title('Training Wrong')
 plt.xlabel('time')
-plt.ylabel('Acc')
+plt.ylabel('Wrong')
 plt.show()
