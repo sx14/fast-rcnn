@@ -151,7 +151,6 @@ class MyDataset():
         p_wfs = np.zeros((self._minibatch_size, self._wn_feature_length))
         v_actual_num = 0
         p_w_set = set()
-        gts = np.ones((self._minibatch_size * negative_label_num, 1))
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
@@ -159,7 +158,6 @@ class MyDataset():
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
                 p_wfs = p_wfs[:v_actual_num]
-                gts = gts[:v_actual_num]
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
@@ -172,12 +170,12 @@ class MyDataset():
         all_negative_labels = list(set(range(0, len(self._wn_embedding))) - p_w_set)
         negative_labels = random.sample(all_negative_labels, negative_label_num)
         n_wfs = self._wn_embedding[negative_labels]
-        #  vfs: minibatch_size | p_wfs: minibatch_size | n_wfs: negative_label_num | gts: minibatch_size * negative_label_num
+
+        #  vfs: minibatch_size | p_wfs: minibatch_size | n_wfs: negative_label_num
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_wfs = torch.from_numpy(np.array(p_wfs)).float()
         n_wfs = torch.from_numpy(np.array(n_wfs)).float()
-        gts = torch.from_numpy(np.array(gts)).float()
-        return vfs, p_wfs, n_wfs, gts
+        return vfs, p_wfs, n_wfs
 
 
     def has_next_minibatch(self):
