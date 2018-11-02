@@ -8,7 +8,7 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=32):
+    def __init__(self, raw_data_root, list_path, wn_embedding_path, label2path_path, minibatch_size=128):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._raw_data_root = raw_data_root
@@ -146,7 +146,7 @@ class MyDataset():
         return vfs, p_wfs, n_wfs, gts
 
     def minibatch_acc(self):
-        negative_label_num = 2000
+        negative_label_num = 4000
         vfs = np.zeros((self._minibatch_size, 4096))
         p_wfs = np.zeros((self._minibatch_size, self._wn_feature_length))
         v_actual_num = 0
