@@ -74,10 +74,12 @@ class HypernymVisual1(nn.Module):
 class HypernymVisual_acc(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual_acc, self).__init__()
+        self.norm = nn.BatchNorm1d(4096)
         self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
         self.activate = nn.ReLU()
 
     def forward(self, vf, p_wfs, n_wfs):
+        vf = self.norm.forward(vf)
         vf_embeddings = self.embedding.forward(vf)
         p_sub = p_wfs - vf_embeddings
         p_act = self.activate.forward(p_sub)
@@ -100,11 +102,13 @@ class HypernymVisual_acc2(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual_acc2, self).__init__()
         hidden_layer_unit_num = 2000
+        self.norm = nn.BatchNorm1d(4096)
         self.hidden = nn.Linear(visual_feature_dimension, hidden_layer_unit_num)
         self.embedding = nn.Linear(hidden_layer_unit_num, embedding_dimension)
         self.activate = nn.ReLU()
 
     def forward(self, vf, p_wfs, n_wfs):
+        vf = self.norm.forward(vf)
         vf_hidden = self.hidden.forward(vf)
         vf_embeddings = self.embedding.forward(vf_hidden)
         p_sub = p_wfs - vf_embeddings
