@@ -146,7 +146,7 @@ class MyDataset():
         return vfs, p_wfs, n_wfs, gts
 
     def minibatch_acc(self):
-        negative_label_num = 4000
+        negative_label_num = 400
         vfs = np.zeros((self._minibatch_size, 4096))
         p_wfs = np.zeros((self._minibatch_size, self._wn_feature_length))
         v_actual_num = 0

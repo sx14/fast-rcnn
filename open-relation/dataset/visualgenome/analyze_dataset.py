@@ -146,12 +146,13 @@ def find_redundant_relationship(anno_root):
                 if sbj2obj[sbj_id] == obj_id:
                     sbjobj_key = sbj_id+'-'+obj_id
                     existed_relation = sbjobj2relation[sbjobj_key]
-                    relationship1_str = sbj['name']+' | '+relationship['predicate']+' | '+obj['name']
-                    relationship2_str = sbj['name']+' | '+existed_relation+' | '+obj['name']
-                    print(relationship1_str)
-                    output_file.write(relationship1_str + '\n')
-                    print(relationship2_str)
-                    output_file.write(relationship2_str + '\n')
+                    if existed_relation != relationship['predicate']:
+                        relationship1_str = sbj['name']+' | '+relationship['predicate']+' | '+obj['name']
+                        relationship2_str = sbj['name']+' | '+existed_relation+' | '+obj['name']
+                        print(relationship1_str)
+                        output_file.write(relationship1_str + '\n')
+                        print(relationship2_str)
+                        output_file.write(relationship2_str + '\n')
             elif obj_id in sbj2obj:
                 if sbj2obj[obj_id] == sbj_id:
                     sbjobj_key = obj_id + '-' + sbj_id

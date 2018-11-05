@@ -71,12 +71,38 @@ class HypernymVisual1(nn.Module):
         return e.view(len(e.data), 1)
 
 
+class HypernymVisual_cos(nn.Module):
+    def __init__(self, visual_feature_dimension, embedding_dimension):
+        super(HypernymVisual_cos, self).__init__()
+        self.norm = nn.BatchNorm1d(4096)
+        self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
+        self.activate = nn.ReLU()
+        self.cos = nn.CosineSimilarity()
+
+    def forward(self, vf, p_wfs, n_wfs):
+        vf = self.norm.forward(vf)
+        vf_embeddings = self.embedding.forward(vf)
+        vf_embeddings = self.activate.forward(vf_embeddings)
+        p_e = self.cos.forward(vf, p_wfs)
+        n_wf_num = len(n_wfs)
+        p_e_stack = torch.autograd.Variable(torch.zeros(n_wf_num * len(p_e))).cuda()
+        n_e_stack = torch.autograd.Variable(torch.zeros(n_wf_num * len(p_e))).cuda()
+        for v in range(0, len(vf_embeddings)):
+            vf_embedding_rep = vf_embeddings[v].repeat(n_wf_num)
+            n_e = self.cos.forward(vf_embedding_rep, n_wfs)
+            n_e_stack[v * n_wf_num:(v + 1) * n_wf_num] = n_e[:]
+            p_e_stack[v * n_wf_num:(v + 1) * n_wf_num] = p_e[v]
+        # expect: n_e < p_e
+        return n_e_stack.view(len(p_e_stack.data), 1), p_e_stack.view(len(p_e_stack.data), 1)
+
+
 class HypernymVisual_acc(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual_acc, self).__init__()
         self.norm = nn.BatchNorm1d(4096)
         self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
         self.activate = nn.ReLU()
+
 
     def forward(self, vf, p_wfs, n_wfs):
         vf = self.norm.forward(vf)
