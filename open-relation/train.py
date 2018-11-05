@@ -37,7 +37,7 @@ def train():
     label2path_path = config['label2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, label2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, label2path_path, config['batch_size'])
-    net = model.HypernymVisual_acc2(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     if os.path.isfile(latest_weights_path):
@@ -50,7 +50,7 @@ def train():
     print(net)
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.MarginRankingLoss(margin=0.1, size_average=False)
+    loss = torch.nn.MarginRankingLoss(margin=1, size_average=False)
     batch_counter = 0
     best_wrong = float('inf')
     training_loss = []

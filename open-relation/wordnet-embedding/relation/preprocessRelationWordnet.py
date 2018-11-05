@@ -51,11 +51,11 @@ hypernyms = np.array(hypernyms)
 # save hypernyms
 import h5py
 
-f = h5py.File('exp_dataset/wordnet_with_VS.h5', 'w')
+f = h5py.File('exp_dataset/wordnet_with_vs.h5', 'w')
 f.create_dataset('hypernyms', data=hypernyms)
 f.close()
 # save list of synset names
 import json
 wn2index_save_path = os.path.join(path_config.RELATION_SAVE_ROOT, 'wn2index.json')
 json.dump(id2index, open(wn2index_save_path, 'w'))
-json.dump(all_nouns, open('exp_dataset/synset_names_with_VS.json', 'w'))
+json.dump(all_nouns, open('exp_dataset/synset_names_with_vs.json', 'w'))

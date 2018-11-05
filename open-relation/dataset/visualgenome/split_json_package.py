@@ -1,10 +1,11 @@
 import json
 import os
+import data_config
 
-object_json_path = '/home/magus/dataset/visual genome/objects.json'
-image_data_path = '/home/magus/dataset/visual genome/image_data.json'
-relationship_path = '/home/magus/dataset/visual genome/relationships.json'
-output_json_root = '/home/magus/dataset/visual genome/anno'
+object_json_path = os.path.join(data_config.VS_ROOT, 'objects.json')
+image_data_path = os.path.join(data_config.VS_ROOT, 'image_data.json')
+relationship_path = os.path.join(data_config.VS_ROOT, 'relationships.json')
+output_json_root = os.path.join(data_config.VS_ROOT, 'anno')
 
 
 def split_json(json_path, output_json_root, key, has_key):

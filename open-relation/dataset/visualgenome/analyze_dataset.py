@@ -126,18 +126,68 @@ def export_txt(relation_counter, txt_file_path):
         txt_file.writelines(lines)
 
 
+def find_redundant_relationship(anno_root):
+    output_file = open('redundant_relationship.txt', 'a')
+    for anno_name in os.listdir(anno_root):
+        img_info = '----'+anno_name+'----'
+        print(img_info)
+        output_file.write(img_info+'\n')
+        anno_path = os.path.join(anno_root, anno_name)
+        anno = json.load(open(anno_path, 'r'))
+        sbj2obj = dict()
+        sbjobj2relation = dict()
+        relationships = anno['relationships']
+        for relationship in relationships:
+            sbj = relationship['subject']
+            sbj_id = str(sbj['object_id'])
+            obj = relationship['object']
+            obj_id = str(obj['object_id'])
+            if sbj_id in sbj2obj:
+                if sbj2obj[sbj_id] == obj_id:
+                    sbjobj_key = sbj_id+'-'+obj_id
+                    existed_relation = sbjobj2relation[sbjobj_key]
+                    relationship1_str = sbj['name']+' | '+relationship['predicate']+' | '+obj['name']
+                    relationship2_str = sbj['name']+' | '+existed_relation+' | '+obj['name']
+                    print(relationship1_str)
+                    output_file.write(relationship1_str + '\n')
+                    print(relationship2_str)
+                    output_file.write(relationship2_str + '\n')
+            elif obj_id in sbj2obj:
+                if sbj2obj[obj_id] == sbj_id:
+                    sbjobj_key = obj_id + '-' + sbj_id
+                    existed_relation = sbjobj2relation[sbjobj_key]
+                    relationship1_str = sbj['name']+' | '+relationship['predicate']+' | '+obj['name']
+                    relationship2_str = obj['name']+' | '+existed_relation+' | '+sbj['name']
+                    print(relationship1_str)
+                    output_file.write(relationship1_str + '\n')
+                    print(relationship2_str)
+                    output_file.write(relationship2_str + '\n')
+            else:
+                sbj2obj[sbj_id] = obj_id
+                sbjobj_key = sbj_id+'-'+obj_id
+                sbjobj2relation[sbjobj_key] = relationship['predicate']
+
+
+
+
+
+
+
+
 
 
 if __name__  == '__main__':
     anno_root = '/media/sunx/Data/dataset/visual genome/anno'
-    total = 1000
+    # total = 1000
     # get_distribution(anno_root, 'objects', total)
     # get_distribution(anno_root, 'relationships', total)
     # lines = convert_relation_to_wn(anno_root, 10)
     # relation_set = collect_all_relationships(anno_root, 10000)
-    relation_counter, wn_relation_set, relation_bags = collect_all_relationships(anno_root, 100000000)
-    relation_bag_json_path = '/media/sunx/Data/dataset/visual genome/relation_bag3.json'
+    # relation_counter, wn_relation_set, relation_bags = collect_all_relationships(anno_root, 100000000)
+    # relation_bag_json_path = '/media/sunx/Data/dataset/visual genome/relation_bag3.json'
     # export_json(relation_bags, relation_bag_json_path)
-    relation_counter_txt_path = '/media/sunx/Data/dataset/visual genome/relation_counter.txt'
-    export_txt(relation_counter, relation_counter_txt_path)
+    # relation_counter_txt_path = '/media/sunx/Data/dataset/visual genome/relation_counter.txt'
+    # export_txt(relation_counter, relation_counter_txt_path)
+
+    find_redundant_relationship(anno_root)
 
