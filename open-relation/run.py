@@ -8,7 +8,7 @@ from model import model
 from train_config import hyper_params
 from dataset.pascaltest import label_map
 
-dataset_name = 'visual genome'
+dataset_name = 'vs'
 config = hyper_params[dataset_name]
 print('Loading model ...')
 model_weight_path = config['best_weight_path']
