@@ -52,6 +52,7 @@ class HypernymVisual3(nn.Module):
 class HypernymVisual1(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual1, self).__init__()
+        self.norm = nn.BatchNorm1d(4096)
         self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
         # hidden_layer_unit_num = 1500
         # self.hidden = nn.Linear(visual_feature_dimension, hidden_layer_unit_num)
@@ -59,6 +60,7 @@ class HypernymVisual1(nn.Module):
         self.activate = nn.ReLU()
 
     def forward(self, vf, wf):
+        vf = self.norm(vf)
         # preserve values of vf positive
         vf = self.activate(vf)
         # hidden_out = self.hidden.forward(vf)

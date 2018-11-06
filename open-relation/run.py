@@ -8,7 +8,7 @@ from model import model
 from train_config import hyper_params
 from dataset.pascaltest import label_map
 
-dataset_name = 'pascal'
+dataset_name = 'visual genome'
 config = hyper_params[dataset_name]
 print('Loading model ...')
 model_weight_path = config['best_weight_path']
@@ -35,19 +35,19 @@ word_embedding = wn_embedding_file['word_vec']
 wfs = []
 wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
 wn2index = json.load(open(wn2index_path, 'r'))
-# wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
-# index2label = json.load(open(wn_synsets_path, 'r'))
-# for w in range(0, len(index2label)):
-#     wfs.append(word_embedding[w])
-# wfs = np.array(wfs)
-# wfs = torch.from_numpy(wfs).float()
-label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
-label2wn = json.load(open(label2wn_path, 'r'))
-index2label = label2wn.keys()
-for label in index2label:
-    wfs.append(word_embedding[wn2index[label]])
+wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
+index2label = json.load(open(wn_synsets_path, 'r'))
+for w in range(0, len(index2label)):
+    wfs.append(word_embedding[w])
 wfs = np.array(wfs)
 wfs = torch.from_numpy(wfs).float()
+# label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
+# label2wn = json.load(open(label2wn_path, 'r'))
+# index2label = label2wn.keys()
+# for label in index2label:
+#     wfs.append(word_embedding[wn2index[label]])
+# wfs = np.array(wfs)
+# wfs = torch.from_numpy(wfs).float()
 
 
 
