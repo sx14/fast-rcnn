@@ -97,10 +97,13 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
                 pickle.dump(fc7s, feature_file)
         for f in range(0, len(box_list)):
             label = curr_img_labels[f]
-            label_index = wn2index[label]
+            # label_index = wn2index[label]
             # img_id.bin offset hier_gt vs_gt
-            label_list.append(feature_id + ' ' + str(f) + ' ' + str(label_index) + ' ' + str(label_index) + '\n')
+            # label_list.append(feature_id + ' ' + str(f) + ' ' + str(label_index) + ' ' + str(label_index) + '\n')
             syns = label2wn[label]
+            if syns[0] == 'entity.n.01':
+                continue
+            label_index = wn2index[syns[0]]
             for syn in syns:
                 if syn.split('.')[1] == 'x':
                     wn_index = wn2index[syn]
