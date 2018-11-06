@@ -83,7 +83,7 @@ class HypernymVisual_cos(nn.Module):
         vf = self.norm.forward(vf)
         vf_embeddings = self.embedding.forward(vf)
         vf_embeddings = self.activate.forward(vf_embeddings)
-        p_e = self.cos.forward(vf, p_wfs)
+        p_e = self.cos.forward(vf_embeddings, p_wfs)
         n_wf_num = len(n_wfs)
         p_e_stack = torch.autograd.Variable(torch.zeros(n_wf_num * len(p_e))).cuda()
         n_e_stack = torch.autograd.Variable(torch.zeros(n_wf_num * len(p_e))).cuda()

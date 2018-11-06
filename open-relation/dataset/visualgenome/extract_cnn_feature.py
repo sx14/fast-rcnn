@@ -100,23 +100,29 @@ def extract_fc7_features(net, boxes, labels, img_root, list_path,  feature_root,
             label_index = wn2index[label]
             # img_id.bin offset hier_gt vs_gt
             label_list.append(feature_id + ' ' + str(f) + ' ' + str(label_index) + ' ' + str(label_index) + '\n')
-            # syns = label2wn[label]
-            # for syn in syns:
-            #     if syn.split('.')[1] == 'x':
-            #         wn_index = wn2index[syn]
-            #         label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
-            #     else:
-            #         synset = wn.synset(syn)
-            #         hypernym_paths = synset.hypernym_paths()
-            #         if len(hypernym_paths[0]) > 2:
-            #             h_list = list([random.randint(0, len(hypernym_paths[0])-2)])   # randomly get one
-            #             h_list.append(len(hypernym_paths[0])-1)  # nearest wordnet label to vs label
-            #         else:
-            #             h_list = range(0, len(hypernym_paths[0]))
-            #         for h in h_list:
-            #             s = hypernym_paths[0][h]
-            #             wn_index = wn2index[s.name()]
-            #             label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
+            syns = label2wn[label]
+            for syn in syns:
+                if syn.split('.')[1] == 'x':
+                    wn_index = wn2index[syn]
+                    label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
+                else:
+                    synset = wn.synset(syn)
+                    hypernym_paths = synset.hypernym_paths()
+                    # if len(hypernym_paths[0]) > 2:
+                    #     h_list = list([random.randint(0, len(hypernym_paths[0])-2)])   # randomly get one
+                    #     h_list.append(len(hypernym_paths[0])-1)  # nearest wordnet label to vs label
+                    # else:
+                    #     h_list = range(0, len(hypernym_paths[0]))
+                    # for h in h_list:
+                    #     s = hypernym_paths[0][h]
+                    #     wn_index = wn2index[s.name()]
+                    #     label_list.append(feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
+                    h_list = range(0, len(hypernym_paths[0]))
+                    for h in h_list:
+                        s = hypernym_paths[0][h]
+                        wn_index = wn2index[s.name()]
+                        label_list.append(
+                            feature_id + ' ' + str(f) + ' ' + str(wn_index) + ' ' + str(label_index) + '\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)
