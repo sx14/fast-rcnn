@@ -4,22 +4,21 @@ import numpy as np
 from nltk.corpus import wordnet as wn
 from path_config import config
 
-path_config = config['pascal']
+path_config = config['vs']
 
 label2wn_path = os.path.join(path_config['object_prepare_root'], 'label2wn.json')
 with open(label2wn_path, 'r') as label2wn_file:
     label2wn = json.load(label2wn_file)
-# wns = label2wn.values()
-# wn_nodes = set()
-# for wn_names in wns:
-#     for wn_name in wn_names:
-#         wn_synset = wn.synset(wn_name)
-#         for p in wn_synset.hypernym_paths():
-#             for w in p:
-#                 wn_nodes.add(w)
-# wn_nodes = list(wn_nodes)
-wn_nodes = list(wn.all_synsets('n'))
-
+wns = label2wn.values()
+wn_nodes = set()
+for wn_names in wns:
+    for wn_name in wn_names:
+        wn_synset = wn.synset(wn_name)
+        for p in wn_synset.hypernym_paths():
+            for w in p:
+                wn_nodes.add(w)
+wn_nodes = list(wn_nodes)
+# wn_nodes = list(wn.all_synsets('n'))
 
 
 # get mapping of synset id to index
@@ -34,15 +33,15 @@ for synset in wn_nodes:
         hypernyms.append([wn2index[synset.name()], wn2index[h.name()]])
 
 # ==== append object labels ====
-labels = []
-next_id2index_id = len(wn2index)
-for label in label2wn:
-    labels.append(label)
-    wn2index[label] = next_id2index_id
-    wns = label2wn[label]
-    for h in wns:
-        hypernyms.append([next_id2index_id, wn2index[h]])
-    next_id2index_id = next_id2index_id + 1
+# labels = []
+# next_id2index_id = len(wn2index)
+# for label in label2wn:
+#     labels.append(label)
+#     wn2index[label] = next_id2index_id
+#     wns = label2wn[label]
+#     for h in wns:
+#         hypernyms.append([next_id2index_id, wn2index[h]])
+#     next_id2index_id = next_id2index_id + 1
 # ===============================
 hypernyms = np.array(hypernyms)
 # save hypernyms
@@ -54,7 +53,8 @@ f.close()
 # index2path_index_list
 label2path = dict()
 for label in label2wn:
-    path_indexes = list([wn2index[label]])
+    # path_indexes = list([wn2index[label]])
+    path_indexes = []
     wn_names = label2wn[label]
     for wn_name in wn_names:
         syn = wn.synset(wn_name)
@@ -65,14 +65,15 @@ for label in label2wn:
                 w_index = wn2index[w.name()]
                 hyper_indexes.append(w_index)
         path_indexes = path_indexes + hyper_indexes
-        label2path[wn2index[label]] = path_indexes
+        # label2path[wn2index[label]] = path_indexes
+        label2path[wn2index[wn_name]] = path_indexes
 
 
 
 
 # save list of synset names
 names = map(lambda s: s.name(), wn_nodes)
-names = names + labels
+# names = names + labels
 
 wn2index_save_path = os.path.join(path_config['object_prepare_root'], 'wn2index.json')
 json.dump(wn2index, open(wn2index_save_path, 'w'))
