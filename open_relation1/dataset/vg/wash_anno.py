@@ -14,7 +14,7 @@ def clean_anno(dirty_anno_path, clean_anno_path):
     obj_annos = dirty_anno['objects']
     for obj in obj_annos:
         oid = obj['object_id']
-        oname = obj['name']
+        oname = obj['names'][0]
         o_syns = obj['synsets']
         if len(o_syns) > 0:
             # object has wn synset

@@ -7,3 +7,13 @@ vg_config = {
     'dirty_anno_root': os.path.join(vg_root, 'dirty_anno'),
     'clean_anno_root': os.path.join(vg_root, 'anno')
 }
+
+vg_split = {
+    'val': 1000,
+    'test': 10000,
+}
+
+vg_pascal_format = {
+    'ImageSets': 'ImageSets',
+    'Annotations': 'Annotations'
+}
