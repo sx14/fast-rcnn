@@ -51,7 +51,7 @@ def clean_anno(dirty_anno_path, clean_anno_path):
             obj_rlts[oid] = rlts
         else:
             obj_rlts = dict()
-            obj_rlts[oid] = [(0, predicate)]
+            obj_rlts[oid] = [predicate]
             rlt_dict[sid] = obj_rlts
             cleaned_rlts.append(rlt)
     clean_anno['relationships'] = cleaned_rlts
@@ -62,8 +62,9 @@ if __name__ == '__main__':
     dirty_anno_root = vg_config['dirty_anno_root']
     clean_anno_root = vg_config['clean_anno_root']
     anno_list = os.listdir(dirty_anno_root)
-    # anno_sum = len(anno_list)
-    anno_sum = 1000
+    anno_list = sorted(anno_list)
+    anno_sum = len(anno_list)
+    # anno_sum = 1000
     for i in range(0, anno_sum):
         print('processing [%d/%d]' % (anno_sum, i+1))
         dirty_anno_path = os.path.join(dirty_anno_root, anno_list[i])

@@ -3,6 +3,7 @@ import cv2
 import os
 import json
 from matplotlib import pyplot as plt
+from open_relation1.data_config import vg_config
 
 
 def show_proposals(im, dets, cls):
@@ -42,8 +43,8 @@ def get_objects(img_root, anno_root, img_id):
 
 
 if __name__ == '__main__':
-    img_root = '/media/sunx/Data/dataset/visual genome/JPEGImages'
-    anno_root = '/media/sunx/Data/dataset/visual genome/anno'
+    img_root = vg_config['img_root']
+    anno_root = vg_config['dirty_anno_root']
     img_id = '1'
     im, cls, boxes = get_objects(img_root, anno_root, img_id)
     show_proposals(im, boxes, cls)
