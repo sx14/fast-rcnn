@@ -5,3 +5,4 @@ utils/*.so
 *.bin
 .idea/
 *.pkl
+global_config.py

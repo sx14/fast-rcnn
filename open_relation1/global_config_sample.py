@@ -1,0 +1,1 @@
+vg_root = '/media/sunx/Data/dataset/visual genome'
