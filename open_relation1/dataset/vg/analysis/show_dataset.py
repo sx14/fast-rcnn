@@ -37,7 +37,7 @@ def get_objects(img_root, anno_root, img_id):
     cls = []
     boxes = []
     for o in objects:
-        cls.append(o['names'][0])
+        cls.append(o['name'])
         boxes.append([o['x'], o['y'], o['w'], o['h']])
     return im, cls, boxes
 

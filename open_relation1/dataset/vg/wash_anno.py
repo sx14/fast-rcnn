@@ -3,7 +3,9 @@ import copy
 import json
 from open_relation1.data_config import vg_config
 
+
 def clean_anno1(dirty_anno_path, clean_anno_path):
+    # use objects in relationships
     dirty_anno = json.load(open(dirty_anno_path, 'r'))
     clean_anno = copy.deepcopy(dirty_anno)
     cleaned_objs = []
@@ -13,12 +15,14 @@ def clean_anno1(dirty_anno_path, clean_anno_path):
     rlt_dict = dict()
     rlt_annos = dirty_anno['relationships']
     for rlt in rlt_annos:
-        # use objects in relationships
         # clean objects
         objs = [rlt['subject'], rlt['object']]
         for o in objs:
             if o['object_id'] not in objIds and len(o['synsets']) > 0:
                 objIds.add(o['object_id'])
+                if 'names' in o:
+                    o['name'] = o['names'][0]
+                    o.pop('names')
                 cleaned_objs.append(o)
         sid = rlt['subject']['object_id']
         oid = rlt['object']['object_id']
@@ -55,6 +59,7 @@ def clean_anno1(dirty_anno_path, clean_anno_path):
 
 
 def clean_anno(dirty_anno_path, clean_anno_path):
+    # use objects in objects.json
     dirty_anno = json.load(open(dirty_anno_path, 'r'))
     clean_anno = copy.deepcopy(dirty_anno)
     cleaned_objs = []
@@ -116,9 +121,9 @@ if __name__ == '__main__':
     anno_sum = len(anno_list)
     # anno_sum = 1000
     for i in range(0, anno_sum):
-        print('processing [%d/%d]' % (anno_sum, i+1))
+        print('processing wash_anno [%d/%d]' % (anno_sum, i+1))
         dirty_anno_path = os.path.join(dirty_anno_root, anno_list[i])
         clean_anno_path = os.path.join(clean_anno_root, anno_list[i])
-        clean_anno(dirty_anno_path, clean_anno_path)
+        clean_anno1(dirty_anno_path, clean_anno_path)
 
 
