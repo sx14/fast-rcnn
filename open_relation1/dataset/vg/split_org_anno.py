@@ -1,6 +1,6 @@
 import json
 import os
-from open_relation1.data_config import vg_config
+from open_relation1.vg_data_config import vg_config
 
 
 def split_json(json_path, output_json_root, key, has_key):

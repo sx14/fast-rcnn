@@ -3,7 +3,7 @@ import cv2
 import os
 import json
 from matplotlib import pyplot as plt
-from open_relation1.data_config import vg_config
+from open_relation1.vg_data_config import vg_config
 
 
 def show_proposals(im, dets, cls):

@@ -1,7 +1,7 @@
 import os
 import copy
 import json
-from open_relation1.data_config import vg_config
+from open_relation1.vg_data_config import vg_config
 
 
 def clean_anno1(dirty_anno_path, clean_anno_path):

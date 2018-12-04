@@ -1,6 +1,6 @@
 import os
 import random
-from open_relation1.data_config import vg_config, vg_split, vg_pascal_format
+from open_relation1.vg_data_config import vg_config, vg_split, vg_pascal_format
 
 if __name__ == '__main__':
     anno_root = vg_config['clean_anno_root']
