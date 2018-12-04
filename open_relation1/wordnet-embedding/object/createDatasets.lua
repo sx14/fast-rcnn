@@ -5,7 +5,7 @@ local method = 'contrastive'
 
 local hdf5 = require 'hdf5'
 
-dataset_name = 'pascal'
+dataset_name = 'vg'
 
 
 f = hdf5.open(dataset_name .. '_dataset/wordnet_with_' .. dataset_name .. '.h5', 'r')
@@ -35,8 +35,8 @@ local graph = require 'Graph'
 
         local N_hypernyms = hypernyms:size(1)
         
-        if dataset_name == 'vs' then
-          splitSize = 4000
+        if dataset_name == 'vg' then
+          splitSize = 2000
         elseif dataset_name == 'pascal' then
           splitSize = 50
         end

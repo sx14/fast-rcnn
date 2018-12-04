@@ -36,17 +36,17 @@ def vglabel2wnleaf(anno_root, vg2wn_path, target_key):
                     else:
                         vg2wn[item_name][syn] = 1
     for vg_label in vg2wn:
-        syns = vg2wn[vg_label]
+        syn_counter = vg2wn[vg_label]
         if target_key == 'objects':
-            max_times = 1
-            max_time_syn = syns[0]
-            for syn in syns:
-                if syns[syn] > max_times:
-                    max_times = syns[syn]
+            max_time_syn = syn_counter.keys()[0]
+            max_times = syn_counter[max_time_syn]
+            for syn in syn_counter:
+                if syn_counter[syn] > max_times:
+                    max_times = syn_counter[syn]
                     max_time_syn = syn
-            vg2wn[vg_label] = [max_time_syn]   # 1 - [1]
+            vg2wn[vg_label] = [max_time_syn]        # 1 - [1]
         elif target_key == 'relationships':
-            vg2wn[vg_label] = syns.keys()      # 1 - [n]
+            vg2wn[vg_label] = syn_counter.keys()    # 1 - [n]
         else:
             print('target_key is expected to be "objects" or "relationships"')
             return

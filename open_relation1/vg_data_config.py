@@ -15,13 +15,17 @@ vg_config = {
 # object part config
 vg_object_feature_root = os.path.join(vg_feature_root, 'object')
 vg_object_config = {
-    'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin')
+    'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin'),
+    'label2index_path': os.path.join(vg_object_feature_root, 'prepare', 'label2index.bin'),
+    'vg2path_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2path.bin'),
 }
 
 # relation part config
 vg_relation_feature_root = os.path.join(vg_feature_root, 'relation')
 vg_relation_config = {
-    'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin')
+    'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin'),
+    'label2index_path': os.path.join(vg_object_feature_root, 'prepare', 'label2index.bin'),
+    'vg2path_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2path.bin'),
 }
 
 vg_split = {
