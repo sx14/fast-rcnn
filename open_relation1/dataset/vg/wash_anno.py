@@ -65,31 +65,41 @@ def clean_anno(dirty_anno_path, clean_anno_path):
     cleaned_objs = []
     cleaned_rlts = []
     # clean objects
-    objId2name = dict()
     obj_annos = dirty_anno['objects']
     for obj in obj_annos:
-        oid = obj['object_id']
-        oname = obj['names'][0]
+        obj[u'name'] = obj[u'names'][0]
+        obj.pop(u'names')
         o_syns = obj['synsets']
         if len(o_syns) > 0:
             # object has wn synset
-            objId2name[oid] = oname
             cleaned_objs.append(obj)
     clean_anno['objects'] = cleaned_objs
     # clean relationships
     rlt_dict = dict()
     rlt_annos = dirty_anno['relationships']
     for rlt in rlt_annos:
-        sid = rlt['subject']['object_id']
-        oid = rlt['object']['object_id']
-        pre_syn = rlt['synsets']
-        if sid not in objId2name:
+        sbj = rlt['subject']
+        if u'names' in sbj:
+            sbj[u'name'] = sbj['names'][0]
+            sbj.pop('names')
+            rlt[u'subject'] = sbj
+        obj = rlt['object']
+        if u'names' in obj:
+            obj[u'name'] = obj['names'][0]
+            obj.pop('names')
+            rlt[u'object'] = obj
+        sid = sbj['object_id']
+        oid = obj['object_id']
+        s_syns = sbj['synsets']
+        o_syns = obj['synsets']
+        p_syns = rlt['synsets']
+        if len(s_syns) == 0:
             # subject has no wn synset
             continue
-        if oid not in objId2name:
+        if len(o_syns) == 0:
             # object has no wn synset
             continue
-        if len(pre_syn) == 0:
+        if len(p_syns) == 0:
             # predicate has no wn synset
             continue
         predicate = rlt['predicate']
@@ -101,6 +111,7 @@ def clean_anno(dirty_anno_path, clean_anno_path):
                 rlts = list()
             # s -> o
             if predicate not in rlts:
+                # not redundant
                 rlts.append(predicate)
                 cleaned_rlts.append(rlt)
             obj_rlts[oid] = rlts
@@ -124,6 +135,6 @@ if __name__ == '__main__':
         print('processing wash_anno [%d/%d]' % (anno_sum, i+1))
         dirty_anno_path = os.path.join(dirty_anno_root, anno_list[i])
         clean_anno_path = os.path.join(clean_anno_root, anno_list[i])
-        clean_anno1(dirty_anno_path, clean_anno_path)
+        clean_anno(dirty_anno_path, clean_anno_path)
 
 
