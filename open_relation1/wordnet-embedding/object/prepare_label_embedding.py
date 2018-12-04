@@ -1,4 +1,3 @@
-import os
 import copy
 import json
 import pickle
@@ -7,20 +6,20 @@ from nltk.corpus import wordnet as wn
 from open_relation1.vg_data_config import vg_object_config
 
 vg2wn_path = vg_object_config['vg2wn_path']
-vg2wn = json.load(open(vg2wn_path, 'r'))
+vg2wn = pickle.load(open(vg2wn_path, 'r'))
 wn_syn_lists = vg2wn.values()
 wn_nodes = set()
 for wn_syns in wn_syn_lists:
     for wn_syn in wn_syns:
-        wn_synset = wn.synset(wn_syn)
-        for p in wn_synset.hypernym_paths():
+        wn_node = wn.synset(wn_syn)
+        for p in wn_node.hypernym_paths():
             for w in p:
                 wn_nodes.add(w)
 wn_nodes = list(wn_nodes)
 # wn_nodes = list(wn.all_synsets('n'))
 
 
-# map synset to index
+# wn -> index
 wn2index = {}
 for i in range(len(wn_nodes)):
     wn2index[wn_nodes[i].name()] = i
@@ -28,14 +27,16 @@ for i in range(len(wn_nodes)):
 # gen wordnet hypernym relations
 hypernyms = []
 for wn_node in wn_nodes:
-    for hyp in wn_node.hypernyms() + wn_node.instance_hypernyms():
+    for hyper in wn_node.hypernyms() + wn_node.instance_hypernyms():
         # [hypo, hyper]
-        hypernyms.append([wn2index[wn_node.name()], wn2index[hyp.name()]])
+        hypernyms.append([wn2index[wn_node.name()], wn2index[hyper.name()]])
 
 # ==== append vg labels, append vg -> syn ====
+vg_labels = []
 next_label_index = len(wn2index)
 label2index = copy.deepcopy(wn2index)
 for vg_label in vg2wn:
+    vg_labels.append(vg_label)
     label2index[vg_label] = next_label_index
     wn_syns = vg2wn[vg_label]
     for syn in wn_syns:
@@ -65,12 +66,12 @@ for vg_label in vg2wn:
             for hyper in hyper_path:
                 hyper_index = label2index[hyper.name()]
                 hyper_indexes.add(hyper_index)
-        path_indexes = path_indexes + hyper_indexes
+        path_indexes = path_indexes | hyper_indexes
     vg2path[label2index[vg_label]] = list(path_indexes)
 
 # save list of labels
-# names = map(lambda s: s.name(), wn_nodes)
-labels = vg2wn.values() + vg2wn.keys()
+wn_labels = map(lambda s: s.name(), wn_nodes)
+labels = wn_labels + vg_labels
 
 label2index_path = vg_object_config['label2index_path']
 pickle.dump(label2index, open(label2index_path, 'wb'))
