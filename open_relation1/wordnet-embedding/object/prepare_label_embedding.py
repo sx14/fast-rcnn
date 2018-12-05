@@ -77,4 +77,5 @@ label2index_path = vg_object_config['label2index_path']
 pickle.dump(label2index, open(label2index_path, 'wb'))
 label2path_path = vg_object_config['vg2path_path']
 pickle.dump(vg2path, open(label2path_path, 'wb'))
-json.dump(labels, open('vg_dataset/synset_names_with_vg.json', 'w'))
+labels_path = vg_object_config['labels_path']
+pickle.dump(labels, open(labels_path, 'w'))

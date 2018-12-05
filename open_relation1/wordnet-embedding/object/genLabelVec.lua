@@ -23,7 +23,7 @@ for i=1, dataset.numEntities do
   fs[i] = f
 end
 
-myFile = hdf5.open('word_vec_' .. dataset_name .. '.h5', 'w')
+myFile = hdf5.open('label_vec_' .. dataset_name .. '.h5', 'w')
 
-myFile:write('word_vec', torch.Tensor(fs))
+myFile:write('label_vec', torch.Tensor(fs))
 myFile:close()

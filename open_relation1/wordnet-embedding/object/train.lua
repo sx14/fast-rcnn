@@ -1,7 +1,7 @@
 local argparse = require 'argparse'
 
 
-parser = argparse('Train a WordNet completion model')
+parser = argparse('Train a label completion model')
 parser:option '--seed' :description 'random seed' : default '1234' :convert(tonumber)
 parser:option '-d' :description 'dimensionality of embedding space' :default "600" :convert(tonumber)
 parser:option '--epochs' :description 'number of epochs to train for ' :default "20" :convert(tonumber)
@@ -164,7 +164,7 @@ print(pretty.write(best_counts,""))
 print(pretty.write(best_accuracies,""))
 
 
-torch.save('word_embedding_weights_' .. dataset_name .. '.t7', saved_weight)
+torch.save('label_embedding_weights_' .. dataset_name .. '.t7', saved_weight)
 
 if args.vis then
     for name, dataset in pairs(datasets_eval) do

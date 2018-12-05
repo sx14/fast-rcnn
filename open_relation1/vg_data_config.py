@@ -18,6 +18,7 @@ vg_object_config = {
     'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin'),
     'label2index_path': os.path.join(vg_object_feature_root, 'prepare', 'label2index.bin'),
     'vg2path_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2path.bin'),
+    'labels_path': os.path.join(vg_object_feature_root, 'prepare', 'labels.bin'),
 }
 
 # relation part config
