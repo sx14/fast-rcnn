@@ -17,7 +17,7 @@ def vg_anno_2_dict(anno_file_path):
             obj['ymin'] = str(o['y'])
             obj['xmax'] = str(int(o['x']) + int(o['w']) - 1)
             obj['ymax'] = str(int(o['y']) + int(o['h']) - 1)
-            obj['name'] = o['names'][0]
+            obj['name'] = o['name']
             obj['pose'] = 'left'
             obj['truncated'] = '0'
             obj['difficult'] = '0'

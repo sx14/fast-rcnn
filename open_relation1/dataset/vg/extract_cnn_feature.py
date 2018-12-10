@@ -91,18 +91,18 @@ if __name__ == '__main__':
     if target == 'object':
         label2index_path = vg_data_config.vg_object_config['label2index_path']
         vg2wn_path = vg_data_config.vg_object_config['vg2wn_path']
-        visual_feature_prepare_root = vg_data_config.vg_object_feature_prepare_root
+        feature_root = vg_data_config.vg_object_feature_root
     else:
         label2index_path = ''
         vg2wn_path = ''
-        visual_feature_prepare_root = ''
-    fc7_save_root = os.path.join(visual_feature_prepare_root, 'fc7')
+        feature_root = ''
+    fc7_save_root = os.path.join(feature_root, 'fc7')
     anno_root = vg_data_config.vg_config['clean_anno_root']
     img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
     for d in datasets:
-        label_save_root = os.path.join(visual_feature_prepare_root, 'label', d + '.txt')
+        label_save_root = os.path.join(feature_root, 'label', d + '.txt')
         anno_list = os.path.join(vg_data_config.vg_pascal_format['ImageSets'], 'Main', d + '.txt')
-        box_label_path = os.path.join(visual_feature_prepare_root, d + '_box_label.bin')
+        box_label_path = os.path.join(feature_root, 'prepare', d + '_box_label.bin')
         prepare_object_boxs_and_labels(anno_root, anno_list, box_label_path)
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = pickle.load(open(label2index_path, 'rb'))
