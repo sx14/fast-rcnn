@@ -36,7 +36,7 @@ vg_split = {
 }
 
 vg_pascal_format = {
-    'JPEGImages': 'JPEGImages',
-    'ImageSets': 'ImageSets',
-    'Annotations': 'Annotations'
+    'JPEGImages': os.path.join(vg_root, 'JPEGImages'),
+    'ImageSets': os.path.join(vg_root, 'ImageSets'),
+    'Annotations': os.path.join(vg_root, 'Annotations')
 }
