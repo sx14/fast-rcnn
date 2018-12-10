@@ -1,3 +1,7 @@
+"""
+step4: split the whole dataset as train, val and test.
+next: extract_cnn_feature.py
+"""
 import os
 import random
 from open_relation1.vg_data_config import vg_config, vg_split, vg_pascal_format

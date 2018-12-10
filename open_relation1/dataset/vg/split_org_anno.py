@@ -1,3 +1,7 @@
+"""
+step1 split original annotation json package
+next: wash_anno.py
+"""
 import json
 import os
 from open_relation1.vg_data_config import vg_config

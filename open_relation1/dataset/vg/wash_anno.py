@@ -1,3 +1,7 @@
+"""
+step2 retain the objects and relationships with WordNet annotation
+next: vg2wn.py
+"""
 import os
 import copy
 import json

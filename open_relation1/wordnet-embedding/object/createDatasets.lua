@@ -52,7 +52,8 @@ local graph = require 'Graph'
         local sets = {
                 test = hypernyms:narrow(1, 1, splitSize),
                 val = hypernyms:narrow(1, splitSize + 1, splitSize),
-                train = hypernyms:narrow(1, splitSize*2+ 1, N_hypernyms - 2*splitSize)
+                train = hypernyms
+                -- train = hypernyms:narrow(1, splitSize*2+ 1, N_hypernyms - 2*splitSize)
             }
         print("Done. Building Datasets ...")
         local datasets = {}

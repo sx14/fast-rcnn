@@ -61,12 +61,12 @@ def eval1():
 
 def eval2():
     weight_path = target+'/label_vec_'+dataset_name+'.h5'
-    label_embedding_file = h5py.File(weight_path, 'r')
-    label_vecs = np.array(label_embedding_file['label_vec'])
+    label_vec_file = h5py.File(weight_path, 'r')
+    label_vecs = np.array(label_vec_file['label_vec'])
     label2index_path = vg_object_config['label2index_path']
     label2index = pickle.load(open(label2index_path, 'rb'))
     labels_path = vg_object_config['labels_path']
-    synset_names = pickle.load(open(labels_path, 'rb'))
+    labels = pickle.load(open(labels_path, 'rb'))
     vg2wn_path = vg_object_config['vg2wn_path']
     vg2wn = pickle.load(open(vg2wn_path, 'rb'))
 
@@ -80,8 +80,9 @@ def eval2():
         relu = relu * relu
         E = np.sum(relu, axis=1)
         pred = np.argsort(E)[1:20]
+        print('===== '+vg_label+'=====\n')
         for p in pred:
-            print(synset_names[p]+'| %f' % E[p])
+            print(labels[p]+'| %f' % E[p])
 
 
 

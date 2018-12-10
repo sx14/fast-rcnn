@@ -1,3 +1,7 @@
+"""
+step3: VG original label mapping WordNet synset
+next: split_dataset.py
+"""
 import os
 import json
 import pickle

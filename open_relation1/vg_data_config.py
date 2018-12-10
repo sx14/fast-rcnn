@@ -14,11 +14,12 @@ vg_config = {
 
 # object part config
 vg_object_feature_root = os.path.join(vg_feature_root, 'object')
+vg_object_feature_prepare_root = os.path.join(vg_object_feature_root, 'prepare')
 vg_object_config = {
-    'vg2wn_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2wn.bin'),
-    'label2index_path': os.path.join(vg_object_feature_root, 'prepare', 'label2index.bin'),
-    'vg2path_path': os.path.join(vg_object_feature_root, 'prepare', 'vg2path.bin'),
-    'labels_path': os.path.join(vg_object_feature_root, 'prepare', 'labels.bin'),
+    'vg2wn_path': os.path.join(vg_object_feature_prepare_root, 'vg2wn.bin'),
+    'label2index_path': os.path.join(vg_object_feature_prepare_root, 'label2index.bin'),
+    'vg2path_path': os.path.join(vg_object_feature_prepare_root, 'vg2path.bin'),
+    'index2label_path': os.path.join(vg_object_feature_prepare_root, 'index2label.bin'),
 }
 
 # relation part config
@@ -35,6 +36,7 @@ vg_split = {
 }
 
 vg_pascal_format = {
+    'JPEGImages': 'JPEGImages',
     'ImageSets': 'ImageSets',
     'Annotations': 'Annotations'
 }
