@@ -8,16 +8,16 @@
 
 """Test a Fast R-CNN network on an imdb (image database)."""
 
-from fast_rcnn.config import cfg, get_output_dir
+from lib.fast_rcnn.config import cfg, get_output_dir
 import argparse
-from utils.timer import Timer
+from lib.utils.timer import Timer
 import numpy as np
 import cv2
 import caffe
-from utils.cython_nms import nms
+from lib.utils.cython_nms import nms
 import cPickle
 import heapq
-from utils.blob import im_list_to_blob
+from lib.utils.blob import im_list_to_blob
 import os
 
 def _get_image_blob(im):
