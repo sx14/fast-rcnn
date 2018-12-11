@@ -35,7 +35,7 @@ word_embedding = wn_embedding_file['word_vec']
 wfs = []
 wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
 wn2index = json.load(open(wn2index_path, 'r'))
-wn_synsets_path = os.path.join('wordnet-embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
+wn_synsets_path = os.path.join('label_embedding', 'object', dataset_name+'_dataset', 'synset_names_with_'+dataset_name+'.json')   # all labels
 index2label = json.load(open(wn_synsets_path, 'r'))
 for w in range(0, len(index2label)):
     wfs.append(word_embedding[w])

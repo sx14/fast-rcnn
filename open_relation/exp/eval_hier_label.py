@@ -14,13 +14,13 @@ def eval1():
     elif dataset_name == 'vs':
         dataset_root = '/media/sunx/Data/dataset/visual genome'
 
-    weight_path = '../wordnet-embedding/object/word_vec_'+dataset_name+'.h5'
+    weight_path = '../label_embedding/object/word_vec_'+dataset_name+'.h5'
     wn_embedding_file = h5py.File(weight_path, 'r')
     wn_embedding = np.array(wn_embedding_file['word_vec'])
     wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
     with open(wn2index_path, 'r') as wn2index_file:
         wn2index = json.load(wn2index_file)
-    synset_name_path = '../wordnet-embedding/object/'+dataset_name+'_dataset/synset_names_with_'+dataset_name+'.json'
+    synset_name_path = '../label_embedding/object/'+dataset_name+'_dataset/synset_names_with_'+dataset_name+'.json'
     with open(synset_name_path, 'r') as synset_name_file:
         synset_names = json.load(synset_name_file)
     label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
@@ -77,13 +77,13 @@ def eval2():
     elif dataset_name == 'vs':
         dataset_root = '/media/sunx/Data/dataset/visual genome'
 
-    weight_path = '../wordnet-embedding/object/word_vec_'+dataset_name+'.h5'
+    weight_path = '../label_embedding/object/word_vec_'+dataset_name+'.h5'
     wn_embedding_file = h5py.File(weight_path, 'r')
     wn_embedding = np.array(wn_embedding_file['word_vec'])
     wn2index_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'wn2index.json')
     with open(wn2index_path, 'r') as wn2index_file:
         wn2index = json.load(wn2index_file)
-    synset_name_path = '../wordnet-embedding/object/'+dataset_name+'_dataset/synset_names_with_'+dataset_name+'.json'
+    synset_name_path = '../label_embedding/object/'+dataset_name+'_dataset/synset_names_with_'+dataset_name+'.json'
     with open(synset_name_path, 'r') as synset_name_file:
         synset_names = json.load(synset_name_file)
     label2wn_path = os.path.join(dataset_root, 'feature', 'object', 'prepare', 'label2wn.json')
