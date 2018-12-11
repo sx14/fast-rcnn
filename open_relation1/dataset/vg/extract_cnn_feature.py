@@ -2,9 +2,7 @@
 step5: extract CNN feature for image region using pretrained CNN
 """
 import os
-import json
 import pickle
-import random
 import numpy as np
 import caffe
 import cv2
@@ -15,7 +13,7 @@ from open_relation1 import vg_data_config
 from open_relation1 import global_config
 
 
-def prepare_object_boxs_and_labels(anno_root, anno_list_path, box_label_path):
+def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
     objs = dict()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
@@ -61,18 +59,18 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             fc7s = np.array(net.blobs['fc7'].data)
             with open(feature_path, 'w') as feature_file:
                 pickle.dump(fc7s, feature_file)
-        for b in range(0, len(curr_img_boxes)):
-            vg_label = curr_img_boxes[b, 4]
+        for box_id in range(0, len(curr_img_boxes)):
+            vg_label = curr_img_boxes[box_id, 4]
             vg_label_index = label2index[vg_label]
             # img_id.bin offset label_index
-            label_list.append(feature_id + ' ' + str(b) + ' ' + str(vg_label_index) + '\n')
+            label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
             wn_labels = vg2wn[vg_label]
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)
                 hypernym_paths = wn_node.hypernym_paths()
                 for h in hypernym_paths[0]:
                     wn_label_index = label2index[h.name()]
-                    label_list.append(feature_id + ' ' + str(b) + ' ' + str(wn_label_index) + '\n')
+                    label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(vg_label_index)+'\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)
@@ -81,12 +79,14 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
 
 
 if __name__ == '__main__':
+    # load cnn
     prototxt = global_config.fast_prototxt_path
     caffemodel = global_config.fast_caffemodel_path
     datasets = ['train', 'val', 'test']
     caffe.set_mode_gpu()
     caffe.set_device(0)
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+    # prepare
     target = 'object'  # relation
     if target == 'object':
         label2index_path = vg_data_config.vg_object_config['label2index_path']
@@ -99,13 +99,13 @@ if __name__ == '__main__':
     fc7_save_root = os.path.join(feature_root, 'fc7')
     anno_root = vg_data_config.vg_config['clean_anno_root']
     img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
+    # extracting feature
     for d in datasets:
         label_save_root = os.path.join(feature_root, 'label', d + '.txt')
         anno_list = os.path.join(vg_data_config.vg_pascal_format['ImageSets'], 'Main', d + '.txt')
         box_label_path = os.path.join(feature_root, 'prepare', d + '_box_label.bin')
-        prepare_object_boxs_and_labels(anno_root, anno_list, box_label_path)
+        prepare_object_boxes_and_labels(anno_root, anno_list, box_label_path)
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = pickle.load(open(label2index_path, 'rb'))
         label2wn = pickle.load(open(vg2wn_path, 'rb'))
-        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root,
-                             label2index, label2wn)
+        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, label2wn)

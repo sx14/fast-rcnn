@@ -60,17 +60,17 @@ def vglabel2wnleaf(anno_root, vg2wn_path, target_key):
     return vg2wn
 
 
-def index_labels(vg2wn, label2index_path, label_list_path):
+def index_labels(vg2wn, label2index_path, index2label_path):
     vg_labels = sorted(vg2wn.keys())
     wn_label_set = set()
     label2index = dict()
-    label_list = []
+    index2label = []
     next_label_index = 0
     for vg_label in vg_labels:
         # vg_label is unique
         label2index[vg_label] = next_label_index
         next_label_index += 1
-        label_list.append(vg_label)
+        index2label.append(vg_label)
         wn_labels = vg2wn[vg_label]
         for wn_label in wn_labels:
             if wn_label not in wn_label_set:
@@ -80,10 +80,10 @@ def index_labels(vg2wn, label2index_path, label_list_path):
                     if w.name() not in wn_label_set:
                         wn_label_set.add(w.name())
                         label2index[w.name()] = next_label_index
-                        label_list.append(w.name())
+                        index2label.append(w.name())
                         next_label_index += 1
     pickle.dump(label2index, open(label2index_path, 'wb'))
-    pickle.dump(label_list, open(label_list_path, 'wb'))
+    pickle.dump(index2label, open(index2label_path, 'wb'))
     return label2index
 
 
