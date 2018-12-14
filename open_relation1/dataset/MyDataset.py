@@ -7,7 +7,6 @@ import h5py
 import torch
 
 
-
 class MyDataset():
     def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, label2path_path, minibatch_size=64):
         # whole dataset

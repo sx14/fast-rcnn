@@ -4,12 +4,12 @@ require 'dpnn'
 require 'Dataset'
 require 'hdf5'
 
-dataset_name = 'pascal'
+dataset_name = 'vg'
 featureDimension = 600
 
 
 datasetPath = dataset_name .. '_dataset/contrastive_trans.t7'
-weights = torch.load('word_embedding_weights_' .. dataset_name .. '.t7')
+weights = torch.load('label_embedding_weights_' .. dataset_name .. '.t7')
 
 
 dataset = torch.load(datasetPath)

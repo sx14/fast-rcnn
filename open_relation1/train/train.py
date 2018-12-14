@@ -2,7 +2,7 @@ import os
 import shutil
 import pickle
 import torch
-from open_relation1.dataset import MyDataset
+from open_relation1.dataset.MyDataset import MyDataset
 from open_relation1.model import model
 from train_config import hyper_params
 
@@ -14,7 +14,7 @@ def train():
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'val.txt')
     word_vec_path = config['word_vec_path']
-    vg2path_path = config['label2path_path']
+    vg2path_path = config['vg2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, vg2path_path, config['batch_size'])
     net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
