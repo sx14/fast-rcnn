@@ -4,3 +4,5 @@ project_root = '/media/sunx/Data/linux-workspace/python-workspace/hierarchical-r
 
 fast_prototxt_path = os.path.join(project_root, 'models', 'VGG16', 'test.prototxt')
 fast_caffemodel_path = os.path.join(project_root, 'data', 'fast_rcnn_models', 'vgg16_fast_rcnn_iter_40000.caffemodel')
+
+our_model_root = os.path.join(project_root, 'open_relation1', 'model')

@@ -7,6 +7,7 @@ import h5py
 import torch
 
 
+
 class MyDataset():
     def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, label2path_path, minibatch_size=64):
         # whole dataset
@@ -22,7 +23,7 @@ class MyDataset():
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
         # _curr_package_cursor indexes _curr_package_feature_indexes
-        self._curr_package_cursor = 0
+        self._curr_package_cursor = -1
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
         # word2vec
@@ -30,11 +31,10 @@ class MyDataset():
         self._label_embedding = np.array(label_embedding_file['word_vec'])
         self._label_feature_length = len(self._label_embedding[0])
         # label2path
-        with open(label2path_path, 'r') as label2path_file:
-            self._label2path = json.load(label2path_file)
+        self._label2path = json.load(open(label2path_path, 'r'))
         with open(flabel_list_path, 'r') as list_file:
-            f_list = list_file.read().splitlines()
-        for item in f_list:
+            flabel_list = list_file.read().splitlines()
+        for item in flabel_list:
             # image id, offset, hier_label_index, vg_label_index
             item_info = item.split(' ')
             item_feature_file = item_info[0]
@@ -59,6 +59,7 @@ class MyDataset():
         if self._next_package_start_fid == len(self._feature_indexes):
             # the last package
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                # the last minibatch
                 return False
         return True
 
@@ -69,6 +70,7 @@ class MyDataset():
         self._curr_package_start_fid = self._next_package_start_fid
         while len(self._curr_package.keys()) < self._curr_package_capacity:
             if self._next_package_start_fid == len(self._feature_indexes):
+                # all features already loaded
                 break
             # fill feature package
             next_feature_file, _ = self._feature_indexes[self._next_package_start_fid]
@@ -84,7 +86,7 @@ class MyDataset():
         # init package index cursor
         self._curr_package_cursor = 0
 
-    def minibatch_acc(self, negative_label_num=1000):
+    def minibatch_acc(self, negative_label_num=200):
         vfs = np.zeros((self._minibatch_size, 4096))
         p_lfs = np.zeros((self._minibatch_size, self._label_feature_length))
         v_actual_num = 0

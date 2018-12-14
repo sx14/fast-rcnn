@@ -92,11 +92,12 @@ if __name__ == '__main__':
         label2index_path = vg_data_config.vg_object_config['label2index_path']
         vg2wn_path = vg_data_config.vg_object_config['vg2wn_path']
         feature_root = vg_data_config.vg_object_feature_root
+        fc7_save_root = vg_data_config.vg_object_fc7_root
     else:
         label2index_path = ''
         vg2wn_path = ''
         feature_root = ''
-    fc7_save_root = os.path.join(feature_root, 'fc7')
+        fc7_save_root = ''
     anno_root = vg_data_config.vg_config['clean_anno_root']
     img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
     # extracting feature
