@@ -45,17 +45,16 @@ def train():
             batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
             score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
             t_acc = cal_acc(score_vecs.cpu().data)
-            gts = torch.zeros(len(score_vecs), len(score_vecs[0])).float()
+            gts = torch.zeros(len(score_vecs)).long()
             gts = torch.autograd.Variable(gts).cuda()
-            # expect n_E > p_E
             l = loss.forward(score_vecs, gts)
             l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
                 print(info)
-                log_path = config['log_path']
-                with open(log_path, 'a') as log:
-                    log.write(info+'\n')
+                # log_path = config['log_path']
+                # with open(log_path, 'a') as log:
+                #     log.write(info+'\n')
                 training_loss.append(l_raw)
             optim.zero_grad()
             l.backward()
@@ -129,5 +128,7 @@ def eval(dataset, model):
 
 
 if __name__ == '__main__':
-    train()
-
+    # train()
+    a = torch.zeros(5,5)
+    a[:,0] = 1
+    print(a)
