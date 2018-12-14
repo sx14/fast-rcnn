@@ -13,7 +13,7 @@ def train():
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'val.txt')
-    word_vec_path = config['word_vec_path']
+    word_vec_path = config['label_vec_path']
     vg2path_path = config['vg2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, vg2path_path, config['batch_size'])
