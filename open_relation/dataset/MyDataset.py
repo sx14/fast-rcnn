@@ -27,7 +27,7 @@ class MyDataset():
         self._curr_package_feature_indexes = []
         # word2vec
         wn_embedding_file = h5py.File(wn_embedding_path, 'r')
-        self._wn_embedding = np.array(wn_embedding_file['label_vec'])
+        self._wn_embedding = np.array(wn_embedding_file['word_vec'])
         self._wn_feature_length = len(self._wn_embedding[0])
         # label2path
         with open(label2path_path, 'r') as label2path_file:

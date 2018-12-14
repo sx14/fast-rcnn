@@ -38,17 +38,17 @@ def train():
     for e in range(0, config['epoch']):
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            vf, p_wfs, n_wfs = train_dataset.minibatch_acc()
+            vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
             batch_counter += 1
             batch_vf = torch.autograd.Variable(vf).cuda()
-            batch_p_wfs = torch.autograd.Variable(p_wfs).cuda()
-            batch_n_wfs = torch.autograd.Variable(n_wfs).cuda()
-            score_vec = net(batch_vf, batch_p_wfs, batch_n_wfs)
-            t_acc = cal_acc(score_vec.cpu().data)
-            gts = torch.zeros(len(score_vec), 1).float()
+            batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
+            batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
+            score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
+            t_acc = cal_acc(score_vecs.cpu().data)
+            gts = torch.zeros(len(score_vecs), 1).float()
             gts = torch.autograd.Variable(gts).cuda()
             # expect n_E > p_E
-            l = loss.forward(score_vec, gts)
+            l = loss.forward(score_vecs, gts)
             l_raw = l.cpu().data.numpy().tolist()
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
@@ -93,14 +93,17 @@ def save_log_data(file_path, data):
             pickle.dump(history_data, f)
 
 
-def cal_acc(scores):
-    tmp_scores = scores.numpy()
-    n_counter = 0.0
-    for i in range(1, len(tmp_scores)):
-        if tmp_scores[i] > tmp_scores[0]:
-            n_counter += 1
-    acc = n_counter / (len(scores) - 1)
-    return acc
+def cal_acc(score_vecs):
+    acc_sum = 0
+    for score_vec in score_vecs:
+        p_counter = 0.0
+        for i in range(1, len(score_vec)):
+            if score_vec[i] < score_vec[0]:
+                p_counter += 1
+        acc = p_counter / (len(score_vecs) - 1)
+        acc_sum += acc
+    acc_avg = acc_sum / len(score_vecs)
+    return acc_avg
 
 
 def eval(dataset, model):

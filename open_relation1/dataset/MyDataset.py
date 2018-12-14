@@ -1,7 +1,6 @@
 import os
 import random
 import pickle
-import json
 import numpy as np
 import h5py
 import torch
@@ -27,10 +26,10 @@ class MyDataset():
         self._curr_package_feature_indexes = []
         # word2vec
         label_embedding_file = h5py.File(label_embedding_path, 'r')
-        self._label_embedding = np.array(label_embedding_file['word_vec'])
+        self._label_embedding = np.array(label_embedding_file['label_vec'])
         self._label_feature_length = len(self._label_embedding[0])
         # label2path
-        self._label2path = json.load(open(label2path_path, 'r'))
+        self._label2path = pickle.load(open(label2path_path, 'rb'))
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()
         for item in flabel_list:
