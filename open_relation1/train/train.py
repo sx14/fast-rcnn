@@ -52,9 +52,9 @@ def train():
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
                 print(info)
-                # log_path = config['log_path']
-                # with open(log_path, 'a') as log:
-                #     log.write(info+'\n')
+                log_path = config['log_path']
+                with open(log_path, 'a') as log:
+                    log.write(info+'\n')
                 training_loss.append(l_raw)
             optim.zero_grad()
             l.backward()
