@@ -45,7 +45,7 @@ def train():
             batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
             score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
             t_acc = cal_acc(score_vecs.cpu().data)
-            gts = torch.zeros(len(score_vecs), 1).float()
+            gts = torch.zeros(len(score_vecs), len(score_vecs[0])).float()
             gts = torch.autograd.Variable(gts).cuda()
             # expect n_E > p_E
             l = loss.forward(score_vecs, gts)
@@ -100,7 +100,7 @@ def cal_acc(score_vecs):
         for i in range(1, len(score_vec)):
             if score_vec[i] < score_vec[0]:
                 p_counter += 1
-        acc = p_counter / (len(score_vecs) - 1)
+        acc = p_counter / (len(score_vecs[0]) - 1)
         acc_sum += acc
     acc_avg = acc_sum / len(score_vecs)
     return acc_avg
@@ -130,6 +130,4 @@ def eval(dataset, model):
 
 if __name__ == '__main__':
     train()
-
-
 
