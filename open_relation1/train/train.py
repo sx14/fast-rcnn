@@ -9,6 +9,7 @@ from train_config import hyper_params
 
 
 def train():
+    # prepare data
     config = hyper_params['vg']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
@@ -17,20 +18,23 @@ def train():
     vg2path_path = config['vg2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, vg2path_path, config['batch_size'])
-    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
-    latest_weights_path = config['latest_weight_path']
-    best_weights_path = config['best_weight_path']
-    if os.path.isfile(latest_weights_path):
-        net.load_state_dict(torch.load(latest_weights_path))
-        print('Loading weights success.')
     if os.path.isdir(config['log_root']):
         shutil.rmtree(config['log_root'])
         os.mkdir(config['log_root'])
+    # initialize model
+    latest_weights_path = config['latest_weight_path']
+    best_weights_path = config['best_weight_path']
+    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+    if os.path.isfile(latest_weights_path):
+        net.load_state_dict(torch.load(latest_weights_path))
+        print('Loading weights success.')
     net.cuda()
     print(net)
+    # config training hyper params
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
     loss = torch.nn.CrossEntropyLoss()
+    # recorders
     batch_counter = 0
     best_acc = -1.0
     training_loss = []
@@ -128,7 +132,4 @@ def eval(dataset, model):
 
 
 if __name__ == '__main__':
-    # train()
-    a = torch.zeros(5,5)
-    a[:,0] = 1
-    print(a)
+    train()
