@@ -2,6 +2,7 @@
 step5: extract CNN feature for image region using pretrained CNN
 """
 import os
+import random
 import pickle
 import numpy as np
 import caffe
@@ -78,6 +79,18 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             label_list = []
 
 
+def split_a_small_val(val_list_path, length, small_val_path):
+    small_val = []
+    with open(val_list_path, 'r') as val_list_file:
+        val_list = val_list_file.readlines()
+        val_list_length = len(val_list)
+    for i in range(0, length):
+        ind = random.randint(0, val_list_length - 1)
+        small_val.append(val_list[ind])
+    with open(small_val_path, 'w') as small_val_file:
+        small_val_file.writelines(small_val)
+
+
 if __name__ == '__main__':
     # load cnn
     prototxt = global_config.fast_prototxt_path
@@ -110,3 +123,6 @@ if __name__ == '__main__':
         label2index = pickle.load(open(label2index_path, 'rb'))
         label2wn = pickle.load(open(vg2wn_path, 'rb'))
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, label2wn)
+    small_val_path = os.path.join(feature_root, 'label', 'small_val.txt')
+    val_path = os.path.join(feature_root, 'label', 'val.txt')
+    split_a_small_val(val_path, 6400, small_val_path)
