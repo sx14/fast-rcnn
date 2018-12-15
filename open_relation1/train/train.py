@@ -115,16 +115,17 @@ def eval(dataset, model):
     threshold_sum = 0
     batch_sum = 0
     dataset.init_package()
-    while dataset.has_next_minibatch():
-        vf, p_wf, n_wf = dataset.minibatch_acc()
-        batch_vf = torch.autograd.Variable(vf, volatile=True).cuda()
-        batch_p_wf = torch.autograd.Variable(p_wf, volatile=True).cuda()
-        batch_n_wf = torch.autograd.Variable(n_wf, volatile=True).cuda()
-        scores = model(batch_vf, batch_p_wf, batch_n_wf)
-        batch_acc = cal_acc(scores.cpu().data)
-        acc_sum += batch_acc
-        threshold_sum += scores[0]
-        batch_sum += 1
+    with torch.no_grad():
+        while dataset.has_next_minibatch():
+            vf, p_wf, n_wf = dataset.minibatch_acc()
+            batch_vf = torch.autograd.Variable(vf).cuda()
+            batch_p_wf = torch.autograd.Variable(p_wf).cuda()
+            batch_n_wf = torch.autograd.Variable(n_wf).cuda()
+            scores = model(batch_vf, batch_p_wf, batch_n_wf)
+            batch_acc = cal_acc(scores.cpu().data)
+            acc_sum += batch_acc
+            threshold_sum += scores[0]
+            batch_sum += 1
     avg_acc = acc_sum / batch_sum
     avg_threshold = threshold_sum / batch_sum
     model.train()
