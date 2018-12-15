@@ -43,23 +43,28 @@ def train():
     best_acc = -1.0
     training_loss = []
     training_acc = []
+
+    # train
     for e in range(0, config['epoch']):
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
-            vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
             batch_counter += 1
+            # load a minibatch
+            vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
             batch_vf = torch.autograd.Variable(vf).cuda()
             batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
             batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
+            # forward
             score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
             t_acc = cal_acc(score_vecs.cpu().data)
             gts = torch.zeros(len(score_vecs)).long()
             gts = torch.autograd.Variable(gts).cuda()
             l = loss.forward(score_vecs, gts)
             l_raw = l.cpu().data.numpy().tolist()
+            training_loss.append(l_raw)
+            training_acc.append(t_acc)
             if batch_counter % config['print_freq'] == 0:
-                info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
-                print(info)
+                print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw))
                 loss_log_path = config['log_loss_path']
                 save_log_data(loss_log_path, training_loss)
                 training_loss = []
