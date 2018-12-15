@@ -36,7 +36,7 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.CrossEntropyLoss(size_average=False)
+    loss = torch.nn.NLLLoss()
 
     # recorders
     batch_counter = 0
@@ -101,7 +101,7 @@ def save_log_data(file_path, data):
 
 
 def cal_acc(score_vecs):
-    tp_counter = 0
+    tp_counter = 0.0
     for score_vec in score_vecs:
         is_tp = True
         for i in range(1, len(score_vec)):
@@ -116,7 +116,7 @@ def cal_acc(score_vecs):
 
 def eval(dataset, model):
     model.eval()
-    acc_sum = 0
+    acc_sum = 0.0
     batch_sum = 0
     dataset.init_package()
     with torch.no_grad():

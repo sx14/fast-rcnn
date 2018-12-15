@@ -22,20 +22,22 @@ class HypernymVisual_acc(nn.Module):
         self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
         self.activate = nn.ReLU()
         self.partial_order_similarity = PartialOrderSimilarity(2)
+        self.log = nn.LogSoftmax()
 
     def forward(self, vf, p_lfs, n_lfs):
         vf_embeddings = self.embedding.forward(vf)
         p_scores = self.partial_order_similarity.forward(p_lfs, vf_embeddings)
         score_vec_len = len(n_lfs) + 1
         v_length = len(vf)
-        score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len))
+        score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len)).cuda()
         for v in range(0, len(vf_embeddings)):
             n_scores = self.partial_order_similarity.forward(n_lfs, vf_embeddings[v])
             scores = torch.zeros(1+len(n_scores))
             scores[0] = p_scores[v]
             scores[1:] = n_scores
             score_stack[v] = scores
-        return score_stack
+        log_score_stack = self.log.forward(score_stack)
+        return log_score_stack
 
 
 # if __name__ == '__main__':
