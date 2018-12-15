@@ -60,20 +60,17 @@ def train():
             if batch_counter % config['print_freq'] == 0:
                 info = 'epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw)
                 print(info)
-                log_path = config['log_path']
-                with open(log_path, 'a') as log:
-                    log.write(info+'\n')
-                training_loss.append(l_raw)
-            optim.zero_grad()
-            l.backward()
-            optim.step()
-            if batch_counter % config['eval_freq'] == 0:
                 loss_log_path = config['log_loss_path']
                 save_log_data(loss_log_path, training_loss)
                 training_loss = []
                 acc_log_path = config['log_acc_path']
                 save_log_data(acc_log_path, training_acc)
                 training_acc = []
+                training_loss.append(l_raw)
+            optim.zero_grad()
+            l.backward()
+            optim.step()
+            if batch_counter % config['eval_freq'] == 0:
                 e_acc = eval(val_dataset, net)
                 info = ' ======== eval acc: %.2f ========' % e_acc
                 print(info)
