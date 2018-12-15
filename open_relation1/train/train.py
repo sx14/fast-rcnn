@@ -75,7 +75,7 @@ def train():
                 save_log_data(acc_log_path, training_acc)
                 training_acc = []
                 e_acc = eval(val_dataset, net)
-                info = ' ======== eval acc: %d ========' % e_acc
+                info = ' ======== eval acc: %.2f ========' % e_acc
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
