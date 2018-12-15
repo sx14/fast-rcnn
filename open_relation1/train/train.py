@@ -33,7 +33,7 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.CrossEntropyLoss()
+    loss = torch.nn.CrossEntropyLoss(size_average=False)
     # recorders
     batch_counter = 0
     best_acc = -1.0
@@ -63,25 +63,25 @@ def train():
             optim.zero_grad()
             l.backward()
             optim.step()
-            if batch_counter % config['eval_freq'] == 0:
-                loss_log_path = config['log_loss_path']
-                save_log_data(loss_log_path, training_loss)
-                training_loss = []
-                acc_log_path = config['log_acc_path']
-                save_log_data(acc_log_path, training_acc)
-                training_acc = []
-                best_threshold, e_acc = eval(val_dataset, net)
-                info = 'eval acc: %d | best threshold: %.2f' % (e_acc, best_threshold)
-                print(info)
-                log_path = config['log_path']
-                with open(log_path, 'a') as log:
-                    log.write(info+'\n')
-                torch.save(net.state_dict(), latest_weights_path)
-                print('Updating weights success.')
-                if e_acc > best_acc:
-                    torch.save(net.state_dict(), best_weights_path)
-                    print('Updating best weights success.')
-                    best_acc = e_acc
+            # if batch_counter % config['eval_freq'] == 0:
+            #     loss_log_path = config['log_loss_path']
+            #     save_log_data(loss_log_path, training_loss)
+            #     training_loss = []
+            #     acc_log_path = config['log_acc_path']
+            #     save_log_data(acc_log_path, training_acc)
+            #     training_acc = []
+            #     best_threshold, e_acc = eval(val_dataset, net)
+            #     info = 'eval acc: %d | best threshold: %.2f' % (e_acc, best_threshold)
+            #     print(info)
+            #     log_path = config['log_path']
+            #     with open(log_path, 'a') as log:
+            #         log.write(info+'\n')
+            #     torch.save(net.state_dict(), latest_weights_path)
+            #     print('Updating weights success.')
+            #     if e_acc > best_acc:
+            #         torch.save(net.state_dict(), best_weights_path)
+            #         print('Updating best weights success.')
+            #         best_acc = e_acc
 
 
 def save_log_data(file_path, data):
