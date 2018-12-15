@@ -22,7 +22,6 @@ class HypernymVisual_acc(nn.Module):
         self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
         self.activate = nn.ReLU()
         self.partial_order_similarity = PartialOrderSimilarity(2)
-        self.log = nn.LogSoftmax()
 
     def forward(self, vf, p_lfs, n_lfs):
         vf_embeddings = self.embedding.forward(vf)
@@ -36,8 +35,7 @@ class HypernymVisual_acc(nn.Module):
             scores[0] = p_scores[v]
             scores[1:] = n_scores
             score_stack[v] = scores
-        log_score_stack = self.log.forward(score_stack)
-        return log_score_stack
+        return score_stack
 
 
 # if __name__ == '__main__':

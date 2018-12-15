@@ -36,7 +36,7 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
-    loss = torch.nn.NLLLoss()
+    loss = torch.nn.CrossEntropyLoss(size_average=False)
 
     # recorders
     batch_counter = 0
