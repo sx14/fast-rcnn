@@ -7,20 +7,22 @@ from open_relation1.model import model
 from train_config import hyper_params
 
 
-
 def train():
     # prepare data
     config = hyper_params['vg']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'val.txt')
-    word_vec_path = config['label_vec_path']
+    val_list_path = os.path.join(config['list_root'], 'small_val.txt')
+    label_vec_path = config['label_vec_path']
     vg2path_path = config['vg2path_path']
-    train_dataset = MyDataset(visual_feature_root, train_list_path, word_vec_path, vg2path_path, config['batch_size'])
-    val_dataset = MyDataset(visual_feature_root, val_list_path, word_vec_path, vg2path_path, config['batch_size'])
+    train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path, vg2path_path, config['batch_size'])
+    val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path, vg2path_path, config['batch_size'])
+
+    # prepare training log
     if os.path.isdir(config['log_root']):
         shutil.rmtree(config['log_root'])
         os.mkdir(config['log_root'])
+
     # initialize model
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
@@ -30,10 +32,12 @@ def train():
         print('Loading weights success.')
     net.cuda()
     print(net)
+
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.Adam(params=params, lr=config['lr'])
     loss = torch.nn.CrossEntropyLoss(size_average=False)
+
     # recorders
     batch_counter = 0
     best_acc = -1.0
@@ -70,8 +74,8 @@ def train():
                 acc_log_path = config['log_acc_path']
                 save_log_data(acc_log_path, training_acc)
                 training_acc = []
-                best_threshold, e_acc = eval(val_dataset, net)
-                info = 'eval acc: %d | best threshold: %.2f' % (e_acc, best_threshold)
+                e_acc = eval(val_dataset, net)
+                info = ' ======== eval acc: %d ========' % e_acc
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -97,22 +101,22 @@ def save_log_data(file_path, data):
 
 
 def cal_acc(score_vecs):
-    acc_sum = 0
+    tp_counter = 0
     for score_vec in score_vecs:
-        p_counter = 0.0
+        is_tp = True
         for i in range(1, len(score_vec)):
-            if score_vec[i] < score_vec[0]:
-                p_counter += 1
-        acc = p_counter / (len(score_vecs[0]) - 1)
-        acc_sum += acc
-    acc_avg = acc_sum / len(score_vecs)
-    return acc_avg
+            if score_vec[i] > score_vec[0]:
+                is_tp = False
+                break
+        if is_tp:
+            tp_counter += 1
+    acc = tp_counter / len(score_vecs)
+    return acc
 
 
 def eval(dataset, model):
     model.eval()
     acc_sum = 0
-    threshold_sum = 0
     batch_sum = 0
     dataset.init_package()
     with torch.no_grad():
@@ -124,12 +128,10 @@ def eval(dataset, model):
             scores = model(batch_vf, batch_p_wf, batch_n_wf)
             batch_acc = cal_acc(scores.cpu().data)
             acc_sum += batch_acc
-            threshold_sum += scores[0]
             batch_sum += 1
     avg_acc = acc_sum / batch_sum
-    avg_threshold = threshold_sum / batch_sum
     model.train()
-    return avg_threshold, avg_acc
+    return avg_acc
 
 
 if __name__ == '__main__':
