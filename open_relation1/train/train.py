@@ -46,6 +46,7 @@ def train():
 
     # train
     for e in range(0, config['epoch']):
+        make_params_positive(params)
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             batch_counter += 1
@@ -76,8 +77,9 @@ def train():
             l.backward()
             optim.step()
             if batch_counter % config['eval_freq'] == 0:
+                make_params_positive(params)
                 e_acc = eval(val_dataset, net)
-                info = ' ======== eval acc: %.2f ========' % e_acc
+                info = '======== eval acc: %.2f ========' % e_acc
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
@@ -88,6 +90,11 @@ def train():
                     torch.save(net.state_dict(), best_weights_path)
                     print('Updating best weights success.')
                     best_acc = e_acc
+
+
+def make_params_positive(params):
+    for param in params:
+        param.data[param.data < 0] = 0
 
 
 def save_log_data(file_path, data):

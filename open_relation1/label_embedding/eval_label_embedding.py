@@ -85,8 +85,8 @@ def eval2():
         pred = np.argsort(E)[1:20]
         print('\n===== '+vg_label+'=====')
         print('---answer---')
-        wn_label = vg2wn[vg_label]
-        wn_node = wn.synset(wn_label)
+        wn_labels = vg2wn[vg_label]
+        wn_node = wn.synset(wn_labels[0])
         hypernym_path = wn_node.hypernym_paths()[0]
         for i in range(0, len(hypernym_path)):
             print(hypernym_path[i])
