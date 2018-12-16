@@ -50,32 +50,31 @@ def train():
         while train_dataset.has_next_minibatch():
             batch_counter += 1
             # load a minibatch
-            for i in range(0, 10):
-                vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
-                batch_vf = torch.autograd.Variable(vf).cuda()
-                batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
-                batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
-                # forward
-                score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
-                t_acc = cal_acc(score_vecs.cpu().data)
-                gts = torch.zeros(len(score_vecs)).long()
-                gts = torch.autograd.Variable(gts).cuda()
-                l = loss.forward(score_vecs, gts)
-                l_raw = l.cpu().data.numpy().tolist()
+            vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
+            batch_vf = torch.autograd.Variable(vf).cuda()
+            batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
+            batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
+            # forward
+            score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
+            t_acc = cal_acc(score_vecs.cpu().data)
+            gts = torch.zeros(len(score_vecs)).long()
+            gts = torch.autograd.Variable(gts).cuda()
+            l = loss.forward(score_vecs, gts)
+            l_raw = l.cpu().data.numpy().tolist()
+            training_loss.append(l_raw)
+            training_acc.append(t_acc)
+            if batch_counter % config['print_freq'] == 0:
+                print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw))
+                loss_log_path = config['log_loss_path']
+                save_log_data(loss_log_path, training_loss)
+                training_loss = []
+                acc_log_path = config['log_acc_path']
+                save_log_data(acc_log_path, training_acc)
+                training_acc = []
                 training_loss.append(l_raw)
-                training_acc.append(t_acc)
-                if batch_counter % config['print_freq'] == 0:
-                    print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw))
-                    loss_log_path = config['log_loss_path']
-                    save_log_data(loss_log_path, training_loss)
-                    training_loss = []
-                    acc_log_path = config['log_acc_path']
-                    save_log_data(acc_log_path, training_acc)
-                    training_acc = []
-                    training_loss.append(l_raw)
-                optim.zero_grad()
-                l.backward()
-                optim.step()
+            optim.zero_grad()
+            l.backward()
+            optim.step()
             if batch_counter % config['eval_freq'] == 0:
                 e_acc = eval(val_dataset, net)
                 info = ' ======== eval acc: %.2f ========' % e_acc
