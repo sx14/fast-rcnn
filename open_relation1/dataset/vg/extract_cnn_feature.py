@@ -40,13 +40,18 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
     if os.path.exists(label_list_path):
         os.remove(label_list_path)
     label_list = []
+
+    # loading image file list of current dataset
     with open(list_path, 'r') as list_file:
         image_list = list_file.read().splitlines()
+
+    # for each image file
     for i in range(0, len(image_list)):
         image_id = image_list[i]
         print('fc7 processing[%d/%d] %s' % (len(image_list), (i + 1), image_id))
         if image_id not in img_box_label:
             continue
+        # get boxes
         curr_img_boxes = np.array(img_box_label[image_id])
         box_num = curr_img_boxes.shape[0]
         if box_num == 0:
@@ -99,6 +104,7 @@ if __name__ == '__main__':
     caffe.set_mode_gpu()
     caffe.set_device(0)
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+
     # prepare
     target = 'object'  # relation
     if target == 'object':
@@ -113,6 +119,7 @@ if __name__ == '__main__':
         fc7_save_root = ''
     anno_root = vg_data_config.vg_config['clean_anno_root']
     img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
+
     # extracting feature
     for d in datasets:
         label_save_root = os.path.join(feature_root, 'label', d + '.txt')
@@ -125,4 +132,6 @@ if __name__ == '__main__':
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, label2wn)
     small_val_path = os.path.join(feature_root, 'label', 'small_val.txt')
     val_path = os.path.join(feature_root, 'label', 'val.txt')
+
+    # split a small val list for quick evaluation
     split_a_small_val(val_path, 6400, small_val_path)
