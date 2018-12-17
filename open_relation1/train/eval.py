@@ -38,9 +38,12 @@ print(net)
 # eval
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in train_box_label:
+    box_labels = train_box_label[feature_file_id]
+    if len(box_labels) == 0:
+        continue
     feature_file_name = feature_file_id+'.bin'
     feature_file_path = os.path.join(visual_feature_root, feature_file_name)
-    features = pickle.load(feature_file_path)
+    features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(train_box_label[feature_file_id]):
         vf = features[i]
         vf_v = torch.autograd.Variable(vf).cuda()
