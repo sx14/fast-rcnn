@@ -6,11 +6,11 @@ log_root = 'open_relation1/log'
 vg_hyper_params = {
     'visual_d': 4096,
     'embedding_d': 600,
-    'epoch': 30,
+    'epoch': 500,
     'batch_size': 128,
     'eval_freq': 4000,
     'print_freq': 10,
-    'lr': 0.0001,
+    'lr': 0.01,
     'log_root': os.path.join(global_config.project_root, log_root),
     'log_path': os.path.join(global_config.project_root, log_root, 'vg_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vg_loss.bin'),

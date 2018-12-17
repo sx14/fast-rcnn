@@ -33,8 +33,8 @@ def eval2():
         relu = np.max(sub_zero, axis=2)
         relu = relu * relu
         E = np.sum(relu, axis=1)
-        pred = np.argsort(E)[1:20]
-        print('\n===== '+vg_label+'=====')
+        pred = np.argsort(E)[:20]
+        print('\n===== '+vg_label+' =====')
         print('---answer---')
         wn_labels = vg2wn[vg_label]
         wn_node = wn.synset(wn_labels[0])
