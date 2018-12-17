@@ -103,7 +103,8 @@ if __name__ == '__main__':
     # load cnn
     prototxt = global_config.fast_prototxt_path
     caffemodel = global_config.fast_caffemodel_path
-    datasets = ['train', 'val', 'test']
+    datasets = ['train', 'val']
+    # datasets = ['train', 'val', 'test']
     caffe.set_mode_gpu()
     caffe.set_device(0)
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
