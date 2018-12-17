@@ -46,17 +46,19 @@ for feature_file_id in train_box_label:
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(train_box_label[feature_file_id]):
         vf = features[i]
-        vf_v = torch.autograd.Variable(vf).cuda()
-        lfs_v = torch.autograd.Variable(label_vecs).cuda()
+        vf_v = torch.autograd.Variable(torch.from_numpy(vf)).cuda()
+        lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs)).cuda()
         vg_label = box_label[4]
         label_inds = vg2path[label2index[vg_label]]
         print('\n===== answer =====')
         for label_ind in label_inds:
             print(index2label[label_ind])
-        scores = net.forward2(vf_v, lfs_v)
-        pred = np.argsort(scores.cpu().data)[:20]
+        scores = net.forward2(vf_v, lfs_v).cpu().data
+        ranked_inds = np.argsort(scores).tolist()   # ascending
+        ranked_inds.reverse()
+        pred = ranked_inds[:20]
         print('===== prediction =====')
         for p in pred:
-            print(index2label[p])
+            print('%s : %f' % (index2label[p], scores[p]))
 
 
