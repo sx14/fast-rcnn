@@ -85,6 +85,7 @@ class MyDataset():
         self._curr_package_cursor = 0
 
     def minibatch_acc(self, negative_label_num=1000):
+        negative_label_num = min(negative_label_num, len(self._label_embedding))
         vfs = np.zeros((self._minibatch_size, 4096))
         p_lfs = np.zeros((self._minibatch_size, self._label_feature_length))
         v_actual_num = 0

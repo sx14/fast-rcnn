@@ -2,12 +2,16 @@
 # import numpy as np
 # from torch import nn
 #
-# a = nn.Linear(5, 5)
-# params = a.parameters()
-# for param in params:
-#     print(param.data)
-#     param.data[param.data < 0] = 0
+# a = nn.CrossEntropyLoss()
 #
-# params = a.parameters()
-# for param in params:
-#     print(param.data)
+#
+# v = [[-10, -10, -10, -10, -10, -10]]
+# y = [0]
+#
+# v1 = torch.from_numpy(np.array(v))
+# vv1 = torch.autograd.Variable(v1).float()
+# y1 = torch.from_numpy(np.array(y))
+# yy1 = torch.autograd.Variable(y1).long()
+#
+# l = a.forward(vv1, yy1)
+# print(l.data.numpy().tolist())

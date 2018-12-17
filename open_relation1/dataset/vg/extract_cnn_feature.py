@@ -86,6 +86,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
         with open(label_list_path, 'a') as label_file:
             label_file.writelines(label_list)
 
+
 def split_a_small_val(val_list_path, length, small_val_path):
     small_val = []
     with open(val_list_path, 'r') as val_list_file:

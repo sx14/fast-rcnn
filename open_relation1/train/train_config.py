@@ -7,7 +7,7 @@ vg_hyper_params = {
     'visual_d': 4096,
     'embedding_d': 600,
     'epoch': 30,
-    'batch_size': 32,
+    'batch_size': 128,
     'eval_freq': 4000,
     'print_freq': 10,
     'lr': 0.0001,
