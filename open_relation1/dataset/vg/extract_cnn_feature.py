@@ -67,18 +67,21 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
                 pickle.dump(fc7s, feature_file)
         for box_id in range(0, len(curr_img_boxes)):
             vg_label = curr_img_boxes[box_id, 4]
-            vg_label_index = label2index[vg_label]
+            # vg_label_index = label2index[vg_label]
             # img_id.bin offset label_index
-            label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
+            # label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
             wn_labels = vg2wn[vg_label]
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)
                 hypernym_path = wn_node.hypernym_paths()[0]
                 hypernym_path.reverse()
-                for h in range(min(2, len(hypernym_path))):
-                    h_node = hypernym_path[h]
+                for h_node in hypernym_path:
+                # for h in range(min(2, len(hypernym_path))):
+                #     h_node = hypernym_path[h]
+                    # -------------------------
                     wn_label_index = label2index[h_node.name()]
-                    label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(vg_label_index)+'\n')
+                    # label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(vg_label_index)+'\n')
+                    label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(label2index[wn_label])+'\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)
@@ -134,8 +137,8 @@ if __name__ == '__main__':
         prepare_object_boxes_and_labels(anno_root, anno_list, box_label_path)
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = pickle.load(open(label2index_path, 'rb'))
-        label2wn = pickle.load(open(vg2wn_path, 'rb'))
-        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, label2wn)
+        vg2wn = pickle.load(open(vg2wn_path, 'rb'))
+        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, vg2wn)
     small_val_path = os.path.join(feature_root, 'label', 'small_val.txt')
     val_path = os.path.join(feature_root, 'label', 'val.txt')
 

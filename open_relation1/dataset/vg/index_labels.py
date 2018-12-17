@@ -68,9 +68,9 @@ def index_labels(vg2wn, label2index_path, index2label_path):
     next_label_index = 0
     for vg_label in vg_labels:
         # vg_label is unique
-        label2index[vg_label] = next_label_index
-        next_label_index += 1
-        index2label.append(vg_label)
+        # label2index[vg_label] = next_label_index
+        # next_label_index += 1
+        # index2label.append(vg_label)
         wn_labels = vg2wn[vg_label]
         for wn_label in wn_labels:
             if wn_label not in wn_label_set:
@@ -90,11 +90,12 @@ def index_labels(vg2wn, label2index_path, index2label_path):
 def vg2path(vg2wn, label2index, vg2path_path):
     vg2path = dict()
     for vg_label in vg2wn:
-        path_indexes = set()
+        # path_indexes = set()
         # add vg_label index
-        path_indexes.add(label2index[vg_label])
+        # path_indexes.add(label2index[vg_label])
         wn_labels = vg2wn[vg_label]
         for wn_label in wn_labels:
+            path_indexes = set()
             wn_node = wn.synset(wn_label)
             hypernym_path = wn_node.hypernym_paths()[0]
             # WordNet indexes on the hyper path of vg_label
@@ -103,7 +104,8 @@ def vg2path(vg2wn, label2index, vg2path_path):
                 wn_index = label2index[w.name()]
                 wn_indexes.add(wn_index)
             path_indexes = path_indexes | wn_indexes
-        vg2path[label2index[vg_label]] = list(path_indexes)
+            vg2path[label2index[wn_label]] = list(path_indexes)
+        # vg2path[label2index[vg_label]] = list(path_indexes)
     pickle.dump(vg2path, open(vg2path_path, 'wb'))
     return vg2path
 

@@ -15,7 +15,7 @@ vg_config = {
 # object part config
 vg_object_feature_root = os.path.join(vg_feature_root, 'object')
 vg_object_fc7_root = os.path.join(vg_object_feature_root, 'fc7')
-vg_object_label_root = os.path.join(vg_object_feature_root, 'label')
+vg_object_label_root = os.path.join(vg_object_feature_root, 'label1')
 vg_object_feature_prepare_root = os.path.join(vg_object_feature_root, 'prepare')
 vg_object_config = {
     'vg2wn_path': os.path.join(vg_object_feature_prepare_root, 'vg2wn.bin'),
@@ -34,7 +34,7 @@ vg_relation_config = {
 
 vg_split = {
     'val': 1000,
-    'test': 97077,
+    'test': 107067,
 }
 
 vg_pascal_format = {
