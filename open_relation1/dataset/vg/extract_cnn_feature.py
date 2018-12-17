@@ -73,9 +73,11 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             wn_labels = vg2wn[vg_label]
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)
-                hypernym_paths = wn_node.hypernym_paths()
-                for h in hypernym_paths[0]:
-                    wn_label_index = label2index[h.name()]
+                hypernym_path = wn_node.hypernym_paths()[0]
+                hypernym_path.reverse()
+                for h in range(min(2, len(hypernym_path))):
+                    h_node = hypernym_path[h]
+                    wn_label_index = label2index[h_node.name()]
                     label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(vg_label_index)+'\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
