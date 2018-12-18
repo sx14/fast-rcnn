@@ -26,7 +26,8 @@ class HypernymVisual_acc(nn.Module):
         self.partial_order_similarity = PartialOrderSimilarity(2)
 
     def forward(self, vfs, p_lfs, n_lfs):
-        vf_embeddings = self.embedding.forward(vfs)
+        vf_hidden = self.hidden.forward(vfs)
+        vf_embeddings = self.embedding.forward(vf_hidden)
         p_scores = self.partial_order_similarity.forward(p_lfs, vf_embeddings)
         score_vec_len = len(n_lfs) + 1
         v_length = len(vfs)
@@ -40,7 +41,8 @@ class HypernymVisual_acc(nn.Module):
         return score_stack
 
     def forward2(self, vf, lfs):
-        vf_embedding = self.embedding.forward(vf)
+        vf_hidden = self.hidden.forward(vf)
+        vf_embedding = self.embedding.forward(vf_hidden)
         scores = self.partial_order_similarity.forward(lfs, vf_embedding)
         return scores
 
