@@ -39,6 +39,7 @@ print(net)
 
 # eval
 visual_feature_root = config['visual_feature_root']
+counter = 0
 for feature_file_id in train_box_label:
     box_labels = train_box_label[feature_file_id]
     if len(box_labels) == 0:
@@ -64,5 +65,8 @@ for feature_file_id in train_box_label:
         print('----- prediction -----')
         for p in pred:
             print('%s : %f' % (index2label[p], scores[p]))
+        counter += 1
+        if counter == 100:
+            break
 
 
