@@ -103,7 +103,7 @@ if __name__ == '__main__':
     if len(label2index.keys()) != len(label2vec.keys()):
         print('WRONG !!!')
         exit(-1)
-    label_vec_path = vg_object_config['label_vec_path1']
+    label_vec_path = vg_object_config['label_vec_path']
     save_label_vecs_as_h5(label_vec_path, label2vec, label2index)
 
 

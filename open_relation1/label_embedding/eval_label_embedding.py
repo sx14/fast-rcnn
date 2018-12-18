@@ -13,7 +13,7 @@ target = 'object'
 
 def eval2():
     # label vectors
-    weight_path = vg_object_config['label_vec_path1']
+    weight_path = vg_object_config['label_vec_path']
     label_vec_file = h5py.File(weight_path, 'r')
     label_vecs = np.array(label_vec_file['label_vec'])
     # label_vecs = np.array(pickle.load(open(weight_path, 'rb')))
