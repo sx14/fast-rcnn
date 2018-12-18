@@ -74,6 +74,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)
                 wn_node_index = label2index[wn_label]
+                label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(wn_node_index) + ' ' + str(wn_node_index) + '\n')
                 hypernym_path = wn_node.hypernym_paths()[0]
                 hypernym_path.reverse()
                 for h_node in hypernym_path:
