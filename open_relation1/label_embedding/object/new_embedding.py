@@ -70,7 +70,7 @@ def order_embedding_by_dfs(father2children, father, father_vec, label2vec):
         child_vec = np.copy(father_vec)
         for p in range(0, len(avaliable_poses)):
             if p != i:
-                child_vec[p] += 1
+                child_vec[avaliable_poses[p]] += 1
         order_embedding_by_dfs(father2children, child, child_vec, label2vec)
 
 
