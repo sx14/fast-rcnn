@@ -123,6 +123,7 @@ if __name__ == '__main__':
         vg2wn_path = vg_data_config.vg_object_config['vg2wn_path']
         feature_root = vg_data_config.vg_object_feature_root
         fc7_save_root = vg_data_config.vg_object_fc7_root
+        label_save_root = vg_data_config.vg_object_label_root
     else:
         label2index_path = ''
         vg2wn_path = ''
@@ -133,7 +134,7 @@ if __name__ == '__main__':
     anno_root = vg_data_config.vg_config['clean_anno_root']
     img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
     for d in datasets:
-        label_save_root = os.path.join(feature_root, 'label', d + '.txt')
+        label_save_root = os.path.join(label_save_root, d + '.txt')
         anno_list = os.path.join(vg_data_config.vg_pascal_format['ImageSets'], 'Main', d + '.txt')
         box_label_path = os.path.join(feature_root, 'prepare', d + '_box_label.bin')
         prepare_object_boxes_and_labels(anno_root, anno_list, box_label_path)
@@ -141,8 +142,8 @@ if __name__ == '__main__':
         label2index = pickle.load(open(label2index_path, 'rb'))
         vg2wn = pickle.load(open(vg2wn_path, 'rb'))
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_root, label2index, vg2wn)
-    small_val_path = os.path.join(feature_root, 'label', 'small_val.txt')
-    val_path = os.path.join(feature_root, 'label', 'val.txt')
+    small_val_path = os.path.join(label_save_root, 'small_val.txt')
+    val_path = os.path.join(label_save_root, 'val.txt')
 
     # split a small val list for quick evaluation
     split_a_small_val(val_path, 6400, small_val_path)
