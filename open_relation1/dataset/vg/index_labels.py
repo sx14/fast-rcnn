@@ -95,16 +95,14 @@ def vg2path(vg2wn, label2index, vg2path_path):
         # path_indexes.add(label2index[vg_label])
         wn_labels = vg2wn[vg_label]
         for wn_label in wn_labels:
-            path_indexes = set()
             wn_node = wn.synset(wn_label)
             hypernym_path = wn_node.hypernym_paths()[0]
             # WordNet indexes on the hyper path of vg_label
-            wn_indexes = set()
+            wn_indexes = []
             for w in hypernym_path:
                 wn_index = label2index[w.name()]
-                wn_indexes.add(wn_index)
-            path_indexes = path_indexes | wn_indexes
-            vg2path[label2index[wn_label]] = list(path_indexes)
+                wn_indexes.append(wn_index)
+            vg2path[label2index[wn_label]] = wn_indexes
         # vg2path[label2index[vg_label]] = list(path_indexes)
     pickle.dump(vg2path, open(vg2path_path, 'wb'))
     return vg2path
