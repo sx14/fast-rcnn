@@ -14,9 +14,9 @@ target = 'object'
 def eval2():
     # label vectors
     weight_path = target+'/label_vec_'+dataset_name+'.h5'
-    # label_vec_file = h5py.File(weight_path, 'r')
-    # label_vecs = np.array(label_vec_file['label_vec'])
-    label_vecs = np.array(pickle.load(open(weight_path, 'rb')))
+    label_vec_file = h5py.File(weight_path, 'r')
+    label_vecs = np.array(label_vec_file['label_vec'])
+    # label_vecs = np.array(pickle.load(open(weight_path, 'rb')))
     label2index_path = vg_object_config['label2index_path']
     label2index = pickle.load(open(label2index_path, 'rb'))
     index2label_path = vg_object_config['index2label_path']
