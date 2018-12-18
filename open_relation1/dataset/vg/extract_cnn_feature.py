@@ -73,15 +73,16 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             wn_labels = vg2wn[vg_label]
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)
+                wn_node_index = label2index[wn_label]
                 hypernym_path = wn_node.hypernym_paths()[0]
                 hypernym_path.reverse()
                 for h_node in hypernym_path:
                 # for h in range(min(2, len(hypernym_path))):
                 #     h_node = hypernym_path[h]
                     # -------------------------
-                    wn_label_index = label2index[h_node.name()]
-                    # label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(vg_label_index)+'\n')
-                    label_list.append(feature_id+' '+str(box_id)+' '+str(wn_label_index)+' '+str(label2index[wn_label])+'\n')
+                    h_label_index = label2index[h_node.name()]
+                    # label_list.append(feature_id+' '+str(box_id)+' '+str(h_label_index)+' '+str(vg_label_index)+'\n')
+                    label_list.append(feature_id+' '+str(box_id)+' '+str(h_label_index)+' '+str(wn_node_index)+'\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)
@@ -126,10 +127,10 @@ if __name__ == '__main__':
         vg2wn_path = ''
         feature_root = ''
         fc7_save_root = ''
-    anno_root = vg_data_config.vg_config['clean_anno_root']
-    img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
 
     # extracting feature
+    anno_root = vg_data_config.vg_config['clean_anno_root']
+    img_root = os.path.join(vg_data_config.vg_pascal_format['JPEGImages'])
     for d in datasets:
         label_save_root = os.path.join(feature_root, 'label', d + '.txt')
         anno_list = os.path.join(vg_data_config.vg_pascal_format['ImageSets'], 'Main', d + '.txt')

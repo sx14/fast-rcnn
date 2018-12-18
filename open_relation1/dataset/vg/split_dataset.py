@@ -14,7 +14,7 @@ if __name__ == '__main__':
     test_capacity = vg_split['test']
     train_capacity = anno_sum - val_capacity - test_capacity
     anno_list = os.listdir(anno_root)
-    random.shuffle(anno_list)
+    # random.shuffle(anno_list)
     dataset_list = {
         'train': anno_list[0:train_capacity],
         'val': anno_list[train_capacity:train_capacity+val_capacity],

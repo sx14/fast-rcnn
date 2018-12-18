@@ -101,14 +101,14 @@ class MyDataset():
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
-            positive_label_index = self._label_indexes[fid][0]
-            p_lfs[v] = self._label_embedding[positive_label_index]
+            p_label_index = self._label_indexes[fid][0]
+            p_lfs[v] = self._label_embedding[p_label_index]
             p_label_set = p_label_set | set(self._label2path[self._label_indexes[fid][1]])
             self._curr_package_cursor += 1
             v_actual_num += 1
-        all_negative_labels = list(set(range(0, len(self._label_embedding))) - p_label_set)
-        negative_labels = random.sample(all_negative_labels, negative_label_num)
-        n_lfs = self._label_embedding[negative_labels]
+        all_n_labels = list(set(range(0, len(self._label_embedding))) - p_label_set)
+        n_labels = random.sample(all_n_labels, negative_label_num)
+        n_lfs = self._label_embedding[n_labels]
         #  vfs: minibatch_size | p_lfs: minibatch_size | n_lfs: negative_label_num
         vfs = torch.from_numpy(np.array(vfs)).float()
         p_lfs = torch.from_numpy(np.array(p_lfs)).float()

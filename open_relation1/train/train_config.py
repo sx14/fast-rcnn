@@ -10,7 +10,7 @@ vg_hyper_params = {
     'batch_size': 128,
     'eval_freq': 4000,
     'print_freq': 10,
-    'lr': 0.01,
+    'lr': 0.1,
     'log_root': os.path.join(global_config.project_root, log_root),
     'log_path': os.path.join(global_config.project_root, log_root, 'vg_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vg_loss.bin'),

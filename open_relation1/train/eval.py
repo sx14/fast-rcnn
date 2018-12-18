@@ -17,6 +17,8 @@ train_box_label = pickle.load(open(train_list_path))
 label_vec_path = config['label_vec_path']
 label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
+vg2wn_path = vg_data_config.vg_object_config['vg2wn_path']
+vg2wn = pickle.load(open(vg2wn_path))
 
 # prepare label maps
 vg2path_path = config['vg2path_path']
@@ -49,7 +51,8 @@ for feature_file_id in train_box_label:
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         vg_label = box_label[4]
-        label_inds = vg2path[label2index[vg_label]]
+        wn_label = vg2wn[vg_label][0]
+        label_inds = vg2path[label2index[wn_label]]
         print('\n===== '+vg_label+' =====')
         print('\n----- answer -----')
         for label_ind in label_inds:
