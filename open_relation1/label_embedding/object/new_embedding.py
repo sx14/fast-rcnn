@@ -83,10 +83,10 @@ def save_label_vecs_as_h5(label_vec_path, label2vec, label2index):
         label_vecs[label_index] = label_vec
     if os.path.exists(label_vec_path):
         os.remove(label_vec_path)
-    h5_file = h5py.File(label_vec_path)
-    h5_file.create_dataset('label_vec', data=label_vecs.tolist())
-    h5_file.close()
-
+    # h5_file = h5py.File(label_vec_path)
+    # h5_file.create_dataset('label_vec', data=label_vecs.tolist())
+    # h5_file.close()
+    pickle.dump(label_vecs, open(label_vec_path, 'wb'))
 
 if __name__ == '__main__':
     vg2wn_path = vg_object_config['vg2wn_path']

@@ -67,6 +67,6 @@ for feature_file_id in train_box_label:
             print('%s : %f' % (index2label[p], scores[p]))
         counter += 1
         if counter == 100:
-            break
+            exit(0)
 
 
