@@ -34,7 +34,7 @@ vg_relation_config = {
 
 vg_split = {
     'val': 1000,
-    'test': 107067,
+    'test': 106977,
 }
 
 vg_pascal_format = {

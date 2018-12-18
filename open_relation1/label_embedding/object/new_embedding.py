@@ -20,8 +20,6 @@ def max_children_num(vg2wn):
                 fathers[h_node.name()] = children
             if h < len(hyper_path)-1:
                 children.add(hyper_path[h+1].name())
-            else:
-                children.add(vg_label)
     children_max = 0
     for f in fathers:
         children = fathers[f]
@@ -36,7 +34,7 @@ def max_height(vg2wn):
         wn_labels = vg2wn[vg_label]
         wn_node = wn.synset(wn_labels[0])
         hyper_path = wn_node.hypernym_paths()[0]
-        max_height = max(max_height, len(hyper_path) + 1)
+        max_height = max(max_height, len(hyper_path))
     print('max height: %d' % max_height)
 
 

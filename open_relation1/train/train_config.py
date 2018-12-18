@@ -8,7 +8,7 @@ vg_hyper_params = {
     'embedding_d': 600,
     'epoch': 500,
     'batch_size': 128,
-    'eval_freq': 4000,
+    'eval_freq': 1000,
     'print_freq': 10,
     'lr': 0.1,
     'log_root': os.path.join(global_config.project_root, log_root),
