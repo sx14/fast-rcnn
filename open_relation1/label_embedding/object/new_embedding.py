@@ -1,3 +1,4 @@
+import os
 import h5py
 import pickle
 import numpy as np
@@ -80,6 +81,8 @@ def save_label_vecs_as_h5(label_vec_path, label2vec, label2index):
         label_vec = label2vec[label]
         label_index = label2index[label]
         label_vecs[label_index] = label_vec
+    if os.path.exists(label_vec_path):
+        os.remove(label_vec_path)
     h5_file = h5py.File(label_vec_path)
     h5_file.create_dataset('label_vec', data=label_vecs.tolist())
     h5_file.close()
