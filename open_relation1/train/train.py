@@ -8,13 +8,15 @@ from train_config import hyper_params
 
 
 def train():
+    dataset = 'vrd'
+
     # prepare data
-    config = hyper_params['vrd']
+    config = hyper_params[dataset]
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'small_val.txt')
     label_vec_path = config['label_vec_path']
-    vg2path_path = config['vg2path_path']
+    vg2path_path = config[dataset+'2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path, vg2path_path, config['batch_size'])
 

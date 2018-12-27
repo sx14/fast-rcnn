@@ -142,8 +142,8 @@ if __name__ == '__main__':
         label2index = pickle.load(open(label2index_path, 'rb'))
         vg2wn = pickle.load(open(vg2wn_path, 'rb'))
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_path, label2index, vg2wn)
-    small_val_path = os.path.join(label_save_root, 'small_val.txt')
-    val_path = os.path.join(label_save_root, 'val.txt')
 
     # split a small val list for quick evaluation
+    small_val_path = os.path.join(label_save_root, 'small_val.txt')
+    val_path = os.path.join(label_save_root, 'val.txt')
     split_a_small_val(val_path, 6400, small_val_path)

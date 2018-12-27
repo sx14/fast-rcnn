@@ -16,7 +16,7 @@ class MyDataset():
         # cached feature package
         self._curr_package = dict()
         # number of image_feature file
-        self._curr_package_capacity = 3000
+        self._curr_package_capacity = 4000
         # package bounds
         self._curr_package_start_fid = 0
         self._next_package_start_fid = 0
@@ -107,7 +107,7 @@ class MyDataset():
             self._curr_package_cursor += 1
             v_actual_num += 1
         all_n_labels = list(set(range(0, len(self._label_embedding))) - p_label_set)
-        n_labels = random.sample(all_n_labels, negative_label_num)
+        n_labels = random.sample(all_n_labels, min(negative_label_num, len(all_n_labels)))
         n_lfs = self._label_embedding[n_labels]
         #  vfs: minibatch_size | p_lfs: minibatch_size | n_lfs: negative_label_num
         vfs = torch.from_numpy(np.array(vfs)).float()
