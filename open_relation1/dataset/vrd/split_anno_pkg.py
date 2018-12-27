@@ -28,6 +28,8 @@ for d in datasets:
         anno = anno_package[img_name]
 
         # copy image
+        # only jpeg image
+        img_name = img_name.split('.')[0]+'.jpg'
         org_img_path = os.path.join(d_image_root, img_name)
         if not os.path.exists(org_img_path):
             continue

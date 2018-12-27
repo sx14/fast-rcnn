@@ -119,10 +119,13 @@ if __name__ == '__main__':
     anno_root = vrd_data_config.vrd_config['clean_anno_root']
     img_root = os.path.join(vrd_data_config.vrd_pascal_format['JPEGImages'])
     for d in datasets:
+        # prepare labels and boxes
         label_save_path = os.path.join(label_save_root, d + '.txt')
         anno_list = os.path.join(vrd_data_config.vrd_pascal_format['ImageSets'], d + '.txt')
         box_label_path = os.path.join(feature_root, 'prepare', d + '_box_label.bin')
-        # prepare_object_boxes_and_labels(anno_root, anno_list, box_label_path)
+        prepare_object_boxes_and_labels(anno_root, anno_list, box_label_path)
+
+        # extract cnn feature
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = pickle.load(open(label2index_path, 'rb'))
         vg2wn = pickle.load(open(vg2wn_path, 'rb'))
