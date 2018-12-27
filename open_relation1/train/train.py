@@ -9,7 +9,7 @@ from train_config import hyper_params
 
 def train():
     # prepare data
-    config = hyper_params['vg']
+    config = hyper_params['vrd']
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'small_val.txt')
