@@ -71,6 +71,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             vg_label_index = label2index[vg_label]
             # img_id.bin offset label_index
             label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
+            label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
             wn_labels = vrd2wn[vg_label]
             for wn_label in wn_labels:
                 wn_node = wn.synset(wn_label)

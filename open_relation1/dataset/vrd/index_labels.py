@@ -39,9 +39,7 @@ def index_labels(vg2wn, label2index_path, index2label_path):
 def vg2path(vg2wn, label2index, vg2path_path):
     vg2path = dict()
     for vg_label in vg2wn:
-        path_indexes = set()
-        # add vg_label index
-        path_indexes.add(label2index[vg_label])
+        path_indexes = []
         wn_labels = vg2wn[vg_label]
         for wn_label in wn_labels:
             wn_node = wn.synset(wn_label)
@@ -50,6 +48,8 @@ def vg2path(vg2wn, label2index, vg2path_path):
             for w in hypernym_path:
                 wn_index = label2index[w.name()]
                 path_indexes.add(wn_index)
+        # add vg_label index
+        path_indexes.append(label2index[vg_label])
         vg2path[label2index[vg_label]] = list(path_indexes)
     pickle.dump(vg2path, open(vg2path_path, 'wb'))
     return vg2path
