@@ -13,7 +13,7 @@ list_root = vrd_pascal_format['ImageSets']
 
 # all images and annotations are saved together
 image_root = vrd_pascal_format['JPEGImages']
-splited_anno_root = vrd_config['clean_anno_root']
+splited_anno_root = vrd_config['dirty_anno_root']
 
 
 for d in datasets:
