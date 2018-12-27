@@ -1,6 +1,6 @@
 import os
 from open_relation1 import vg_data_config, global_config
-
+from open_relation1 import vrd_data_config
 
 log_root = 'open_relation1/log'
 vg_hyper_params = {
@@ -36,11 +36,11 @@ vrd_hyper_params = {
     'log_path': os.path.join(global_config.project_root, log_root, 'vrd_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vrd_loss.bin'),
     'log_acc_path': os.path.join(global_config.project_root, log_root, 'vrd_acc.bin'),
-    'visual_feature_root': vg_data_config.vg_object_fc7_root,
-    'list_root': vg_data_config.vg_object_label_root,
+    'visual_feature_root': vrd_data_config.vrd_object_fc7_root,
+    'list_root': vrd_data_config.vrd_object_label_root,
     'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd.h5'),
     'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd1.h5'),
-    'vrd2path_path': vg_data_config.vg_object_config['vrd2path_path'],
+    'vrd2path_path': vrd_data_config.vrd_object_config['vrd2path_path'],
     'latest_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights_best.pkl'),
 }
