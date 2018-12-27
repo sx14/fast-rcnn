@@ -1,0 +1,51 @@
+import os
+import json
+import copy
+import random
+import shutil
+from open_relation1.vrd_data_config import vrd_config, vrd_root, vrd_pascal_format
+
+# ====== split annotation package ======
+datasets = ['train', 'test']
+# contain image lists
+dataset_lists = {'train': [], 'test': []}
+list_root = vrd_pascal_format['ImageSets']
+
+# all images and annotations are saved together
+image_root = vrd_pascal_format['JPEGImages']
+splited_anno_root = vrd_config['clean_anno_root']
+
+
+for d in datasets:
+    anno_package_path = os.path.join(vrd_root, 'json_dataset', 'annotations_'+d+'.json')
+    anno_package = json.load(open(anno_package_path))
+
+    data_list = dataset_lists[d]
+    d_image_root = os.path.join(vrd_root, 'sg_dataset', 'sg_'+d+'_images')
+
+    for i, img_name in enumerate(anno_package.keys()):
+        print('processing [%d/%d]' % (len(anno_package), i+1))
+        anno = anno_package[img_name]
+
+        # copy image
+        org_img_path = os.path.join(d_image_root, img_name)
+        if not os.path.exists(org_img_path):
+            continue
+        dst_img_root = os.path.join(image_root)
+        shutil.copy(org_img_path, dst_img_root)
+
+        # record image name in list
+        data_list.append(img_name.split('.')[0]+'\n')
+
+        # save splited annotation
+        anno_name = img_name.split('.')[0]+'.json'
+        anno_save_path = os.path.join(splited_anno_root, anno_name)
+        json.dump(anno, open(anno_save_path, 'w'))
+
+    # save image list
+    list_file_path = os.path.join(list_root, d+'.txt')
+    list_file = open(list_file_path, 'w')
+    list_file.writelines(data_list)
+    list_file.close()
+
+
