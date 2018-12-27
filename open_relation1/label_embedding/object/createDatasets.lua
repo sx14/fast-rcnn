@@ -37,7 +37,7 @@ local graph = require 'Graph'
         
         if dataset_name == 'vg' then
           splitSize = 2000
-        elseif dataset_name == 'pascal' then
+        elseif dataset_name == 'vrd' then
           splitSize = 50
         end
 

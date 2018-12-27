@@ -4,24 +4,24 @@ import json
 import h5py
 import numpy as np
 from nltk.corpus import wordnet as wn
-from open_relation1.vg_data_config import vg_object_config
+from open_relation1.vrd_data_config import vrd_object_config
 
 
-dataset_name = 'vg'
+dataset_name = 'vrd'
 target = 'object'
 
 
 def eval2():
     # label vectors
-    weight_path = vg_object_config['label_vec_path']
+    weight_path = vrd_object_config['label_vec_path']
     label_vec_file = h5py.File(weight_path, 'r')
     label_vecs = np.array(label_vec_file['label_vec'])
     # label_vecs = np.array(pickle.load(open(weight_path, 'rb')))
-    label2index_path = vg_object_config['label2index_path']
+    label2index_path = vrd_object_config['label2index_path']
     label2index = pickle.load(open(label2index_path, 'rb'))
-    index2label_path = vg_object_config['index2label_path']
+    index2label_path = vrd_object_config['index2label_path']
     index2label = pickle.load(open(index2label_path, 'rb'))
-    vg2wn_path = vg_object_config['vg2wn_path']
+    vg2wn_path = vrd_object_config['vrd2wn_path']
     vg2wn = pickle.load(open(vg2wn_path, 'rb'))
 
     vg_labels = vg2wn.keys()
