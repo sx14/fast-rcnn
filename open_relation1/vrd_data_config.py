@@ -14,6 +14,7 @@ vrd_config = {
 }
 
 # object part config
+# order embedding config
 vrd_object_feature_root = os.path.join(vrd_feature_root, 'object')
 vrd_object_fc7_root = os.path.join(vrd_object_feature_root, 'fc7')
 vrd_object_label_root = os.path.join(vrd_object_feature_root, 'label')
@@ -25,7 +26,15 @@ vrd_object_config = {
     'vrd2path_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2path.bin'),
     'index2label_path': os.path.join(vrd_object_feature_prepare_root, 'index2label.bin'),
     'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd.h5'),
-    'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd1.h5'),
+}
+
+# one-hot config
+vrd_object_label_root_t = os.path.join(vrd_object_feature_root, 'label_t')
+vrd_object_config_t = {
+    'vrd2wn_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2wn.bin'),
+    'label2index_path': os.path.join(vrd_object_feature_prepare_root, 't_label2index.bin'),
+    'vrd2path_path': os.path.join(vrd_object_feature_prepare_root, 't_vrd2path.bin'),
+    'index2label_path': os.path.join(vrd_object_feature_prepare_root, 't_index2label.bin'),
 }
 
 
