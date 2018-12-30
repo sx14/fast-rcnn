@@ -3,7 +3,7 @@ import shutil
 import pickle
 import torch
 from open_relation1.dataset.MyDataset import MyDataset
-from open_relation1.model import model
+from traditional.model import model
 from train_config import hyper_params
 
 

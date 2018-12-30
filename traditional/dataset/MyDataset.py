@@ -84,7 +84,7 @@ class MyDataset():
 
     def minibatch_acc(self):
         vfs = np.zeros((self._minibatch_size, 4096))
-        label_vecs = np.zeros(self._minibatch_size, self._label_num)
+        label_vecs = np.zeros((self._minibatch_size, self._label_num))
         v_actual_num = 0
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):

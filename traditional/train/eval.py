@@ -3,7 +3,7 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from open_relation1.model import model
+from traditional.model import model
 from open_relation1 import vrd_data_config
 from train_config import hyper_params
 
