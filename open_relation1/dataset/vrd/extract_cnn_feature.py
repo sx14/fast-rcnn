@@ -112,13 +112,14 @@ if __name__ == '__main__':
     # target = 'relation'
     if target == 'object':
         label2index_path = vrd_data_config.vrd_object_config['label2index_path']
-        vg2wn_path = vrd_data_config.vrd_object_config['vrd2wn_path']
+        vrd2wn_path = vrd_data_config.vrd_object_config['vrd2wn_path']
+        vrd2path_path = vrd_data_config.vrd_object_config['vrd2path_path']
         feature_root = vrd_data_config.vrd_object_feature_root
         fc7_save_root = vrd_data_config.vrd_object_fc7_root
         label_save_root = vrd_data_config.vrd_object_label_root
     else:
         label2index_path = ''
-        vg2wn_path = ''
+        vrd2wn_path = ''
         feature_root = ''
         fc7_save_root = ''
 
@@ -135,8 +136,9 @@ if __name__ == '__main__':
         # extract cnn feature
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = pickle.load(open(label2index_path, 'rb'))
-        vg2wn = pickle.load(open(vg2wn_path, 'rb'))
-        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_path, label2index, vg2wn)
+        vrd2wn = pickle.load(open(vrd2wn_path, 'rb'))
+        vrd2path = pickle.load(open(vrd2path_path, 'rb'))
+        extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root, label_save_path, label2index, vrd2wn, vrd2path)
 
     # split a small val list for quick evaluation
     small_val_path = os.path.join(label_save_root, 'small_val.txt')
