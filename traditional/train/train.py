@@ -28,7 +28,7 @@ def train():
     # initialize model
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
-    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual_acc(config['visual_d'], config['class_num'])
     if os.path.isfile(latest_weights_path):
         net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
