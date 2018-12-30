@@ -15,3 +15,8 @@
 #
 # l = a.forward(vv1, yy1)
 # print(l.data.numpy().tolist())
+
+# from nltk.corpus import wordnet as wn
+#
+# a = wn.synset('person.n.01')
+# print(a.hypernym_paths())
