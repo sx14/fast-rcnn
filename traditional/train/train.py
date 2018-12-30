@@ -111,10 +111,10 @@ def save_log_data(file_path, data):
 def cal_acc(score_vecs, label_vecs):
     tp_counter = 0.0
     for i, score_vec in enumerate(score_vecs):
-        label_vec = label_vecs[i]
-        real_score = np.dot(label_vec, score_vec)
+        label = label_vecs[i]
+        score = score_vec[label]
         max_score = np.max(score_vec.numpy())
-        if max_score == real_score:
+        if max_score == score:
             tp_counter += 1
     return tp_counter / len(score_vecs)
 
