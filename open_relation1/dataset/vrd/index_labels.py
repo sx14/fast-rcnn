@@ -47,7 +47,7 @@ def vg2path(vg2wn, label2index, vg2path_path):
             # WordNet indexes on the hyper path of vg_label
             for w in hypernym_path:
                 wn_index = label2index[w.name()]
-                path_indexes.add(wn_index)
+                path_indexes.append(wn_index)
         # add vg_label index
         path_indexes.append(label2index[vg_label])
         vg2path[label2index[vg_label]] = list(path_indexes)
