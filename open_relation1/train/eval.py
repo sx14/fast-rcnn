@@ -3,7 +3,7 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from traditional.model import model
+from open_relation1.model import model
 from open_relation1 import vrd_data_config
 from train_config import hyper_params
 
@@ -62,6 +62,8 @@ for feature_file_id in test_box_label:
         #     print(index2label[label_ind])
         scores = net.forward2(vf_v, lfs_v).cpu().data
         vg_scores = scores[vg_indexes]
+
+        # ====== org label only =====
         ranked_inds = np.argsort(vg_scores).tolist()
         ranked_inds.reverse()
         pred = ranked_inds[0]
@@ -70,8 +72,9 @@ for feature_file_id in test_box_label:
             print('T: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
         else:
             print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
+        # ====== org label only =====
 
-print('accuracy: %.2f' % (TP/counter))
+
         # ranked_inds = np.argsort(scores).tolist()   # ascending
         # ranked_inds.reverse()
         # pred = ranked_inds[:20]
@@ -82,4 +85,6 @@ print('accuracy: %.2f' % (TP/counter))
         # if counter == 100:
         #     exit(0)
 
+
+print('accuracy: %.2f' % (TP/counter))
 

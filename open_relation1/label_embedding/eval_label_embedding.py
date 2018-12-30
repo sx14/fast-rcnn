@@ -16,7 +16,8 @@ def eval2():
     weight_path = vrd_object_config['label_vec_path']
     label_vec_file = h5py.File(weight_path, 'r')
     label_vecs = np.array(label_vec_file['label_vec'])
-    # label_vecs = np.array(pickle.load(open(weight_path, 'rb')))
+
+    # label mapping
     label2index_path = vrd_object_config['label2index_path']
     label2index = pickle.load(open(label2index_path, 'rb'))
     index2label_path = vrd_object_config['index2label_path']
@@ -28,8 +29,10 @@ def eval2():
     for vg_label in vg_labels:
         # vg_label_index = label2index[vg_label]
         # vg_label_vec = label_vecs[vg_label_index]
+
         wn_label_index = label2index[vg2wn[vg_label][0]]
         wn_label_vec = label_vecs[wn_label_index]
+
         sub = label_vecs - wn_label_vec
         sub_zero = np.stack((sub, np.zeros(sub.shape)), axis=2)
         relu = np.max(sub_zero, axis=2)

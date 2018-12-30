@@ -104,8 +104,8 @@ class MyDataset():
 
         #  vfs: minibatch_size | lfs: one-hot label vec
         vfs = torch.from_numpy(vfs).float()
-        labels = torch.from_numpy(label_vecs).long()
-        return vfs, labels
+        label_inds = torch.from_numpy(label_vecs).long()
+        return vfs, label_inds
 
     def minibatch_eval(self):
         # generate minibatch from current feature package
