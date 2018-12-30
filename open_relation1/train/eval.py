@@ -55,6 +55,8 @@ for feature_file_id in test_box_label:
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         vg_label = box_label[4]
+
+        # ====== hier label =====
         label_inds = vg2path[label2index[vg_label]]
         print('\n===== '+vg_label+' =====')
         print('\n----- answer -----')
@@ -74,14 +76,12 @@ for feature_file_id in test_box_label:
         #     print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
         # ====== org label only =====
 
-
         ranked_inds = np.argsort(scores).tolist()   # ascending
         ranked_inds.reverse()
         pred = ranked_inds[:20]
         print('----- prediction -----')
         for p in pred:
             print('%s : %f' % (index2label[p], scores[p]))
-        counter += 1
         if counter == 100:
             exit(0)
 

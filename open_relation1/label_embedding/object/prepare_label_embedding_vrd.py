@@ -17,9 +17,9 @@ def generate_direct_hypernyms(vg2wn, label2index, hypernym_save_path):
             # vg_label -> wn_label
             hypernyms.append([label2index[vg_label], label2index[wn_label]])
             wn_node = wn.synset(wn_label)
-            wn_path = wn_node.hypernym_paths()[0]
-            for w in wn_path:
-                all_wn_nodes.add(w)
+            for wn_path in wn_node.hypernym_paths():
+                for w in wn_path:
+                    all_wn_nodes.add(w)
     for wn_node in all_wn_nodes:
         for h in wn_node.hypernyms() + wn_node.instance_hypernyms():
             if h.name() in label2index:

@@ -16,13 +16,14 @@ def eval2(label_vecs, index2label, label2index, vg2wn):
 
     vg_labels = vg2wn.keys()
     for vg_label in vg_labels:
-        # vg_label_index = label2index[vg_label]
-        # vg_label_vec = label_vecs[vg_label_index]
+        vg_label_index = label2index[vg_label]
+        vg_label_vec = label_vecs[vg_label_index]
+        sub = label_vecs - vg_label_vec
 
-        wn_label_index = label2index[vg2wn[vg_label][0]]
-        wn_label_vec = label_vecs[wn_label_index]
+        # wn_label_index = label2index[vg2wn[vg_label][0]]
+        # wn_label_vec = label_vecs[wn_label_index]
+        # sub = label_vecs - wn_label_vec
 
-        sub = label_vecs - wn_label_vec
         sub_zero = np.stack((sub, np.zeros(sub.shape)), axis=2)
         relu = np.max(sub_zero, axis=2)
         relu = relu * relu

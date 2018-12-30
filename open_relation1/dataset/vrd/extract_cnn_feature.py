@@ -37,7 +37,7 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
         pickle.dump(objs, box_label_file)
 
 
-def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, label_list_path, label2index, vrd2wn):
+def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, label_list_path, label2index, vrd2wn, vrd2path):
     if os.path.exists(label_list_path):
         os.remove(label_list_path)
     label_list = []
@@ -67,21 +67,14 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             with open(feature_path, 'w') as feature_file:
                 pickle.dump(fc7s, feature_file)
         for box_id in range(0, len(curr_img_boxes)):
-            vg_label = curr_img_boxes[box_id, 4]
-            vg_label_index = label2index[vg_label]
-            # img_id.bin offset label_index
-            label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
-            # label_list.append(feature_id+' '+str(box_id)+' '+str(vg_label_index)+' '+str(vg_label_index)+'\n')
-            wn_labels = vrd2wn[vg_label]
-            for wn_label in wn_labels:
-                wn_node = wn.synset(wn_label)
-                wn_node_index = label2index[wn_label]
-                # label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(wn_node_index) + ' ' + str(vg_label_index) + '\n')
-                hypernym_path = wn_node.hypernym_paths()[0]
-                hypernym_path.reverse()
-                for h_node in hypernym_path:
-                    h_label_index = label2index[h_node.name()]
-                    label_list.append(feature_id+' '+str(box_id)+' '+str(h_label_index)+' '+str(vg_label_index)+'\n')
+            vrd_label = curr_img_boxes[box_id, 4]
+            vrd_label_index = label2index[vrd_label]
+            # img_id.bin offset label_index vrd_label_index
+            # label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_index)+' '+str(vrd_label_index)+'\n')
+            labels = vrd2path[vrd_label_index]
+            for label in labels:
+                label_index = label2index[label]
+                label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_index) + ' ' + str(vrd_label_index) + '\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)

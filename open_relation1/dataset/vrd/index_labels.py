@@ -24,35 +24,40 @@ def index_labels(vg2wn, label2index_path, index2label_path):
         for wn_label in wn_labels:
             if wn_label not in wn_label_set:
                 wn_node = wn.synset(wn_label)
-                hypernym_path = wn_node.hypernym_paths()[0]
-                for w in hypernym_path:
-                    if w.name() not in wn_label_set:
-                        wn_label_set.add(w.name())
-                        label2index[w.name()] = next_label_index
-                        index2label.append(w.name())
-                        next_label_index += 1
+                hypernym_paths = wn_node.hypernym_paths()
+                for hypernym_path in hypernym_paths:
+                    for w in hypernym_path:
+                        if w.name() not in wn_label_set:
+                            wn_label_set.add(w.name())
+                            label2index[w.name()] = next_label_index
+                            index2label.append(w.name())
+                            next_label_index += 1
     pickle.dump(label2index, open(label2index_path, 'wb'))
     pickle.dump(index2label, open(index2label_path, 'wb'))
     return label2index
 
 
-def vg2path(vg2wn, label2index, vg2path_path):
-    vg2path = dict()
-    for vg_label in vg2wn:
+def vrd2path(vrd2wn, label2index, vrd2path_path):
+    vrd2path = dict()
+    for vrd_label in vrd2wn:
         path_indexes = []
-        wn_labels = vg2wn[vg_label]
+        wn_labels = vrd2wn[vrd_label]
+        wn_label_set = set()
         for wn_label in wn_labels:
             wn_node = wn.synset(wn_label)
-            hypernym_path = wn_node.hypernym_paths()[0]
-            # WordNet indexes on the hyper path of vg_label
-            for w in hypernym_path:
-                wn_index = label2index[w.name()]
-                path_indexes.append(wn_index)
+            hypernym_paths = wn_node.hypernym_paths()
+            # WordNet indexes on the hyper paths of vg_label
+            for hypernym_path in hypernym_paths:
+                for w in hypernym_path:
+                    if w.name() not in wn_label_set:
+                        wn_label_set.add(w.name())
+                        wn_index = label2index[w.name()]
+                        path_indexes.append(wn_index)
         # add vg_label index
-        path_indexes.append(label2index[vg_label])
-        vg2path[label2index[vg_label]] = list(path_indexes)
-    pickle.dump(vg2path, open(vg2path_path, 'wb'))
-    return vg2path
+        path_indexes.append(label2index[vrd_label])
+        vrd2path[label2index[vrd_label]] = list(path_indexes)
+    pickle.dump(vrd2path, open(vrd2path_path, 'wb'))
+    return vrd2path
 
 
 if __name__ == '__main__':
@@ -66,10 +71,6 @@ if __name__ == '__main__':
     label2index = index_labels(vrd2wn, obj_label2index_path, obj_label_list_path)
 
     vrd2path_path = vrd_object_config['vrd2path_path']
-    vg2path(vrd2wn, label2index, vrd2path_path)
-
-    # relation
-    # rlt_vg2wn_path = vg_relation_config['vg2wn_path']
-    # vglabel2wnleaf(anno_root, rlt_vg2wn_path, 'relationships')
+    vrd2path(vrd2wn, label2index, vrd2path_path)
 
 
