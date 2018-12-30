@@ -58,7 +58,7 @@ def train():
             batch_lfs = torch.autograd.Variable(lfs).cuda()
             # forward
             score_vecs = net(batch_vf)
-            t_acc = cal_acc(score_vecs.cpu().data, batch_lfs)
+            t_acc = cal_acc(score_vecs.cpu().data, batch_lfs.cpu().data)
             l = loss.forward(score_vecs, batch_lfs)
             l_raw = l.cpu().data.numpy().tolist()
             training_loss.append(l_raw)
@@ -129,8 +129,8 @@ def eval(dataset, model):
             vfs, lfs = dataset.minibatch_acc()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             batch_lfs = torch.autograd.Variable(lfs).cuda()
-            scores = model(batch_vf, batch_lfs)
-            batch_acc = cal_acc(scores.cpu().data, batch_lfs)
+            scores = model(batch_vf)
+            batch_acc = cal_acc(scores.cpu().data, batch_lfs.cpu().data)
             acc_sum += batch_acc
             batch_sum += 1
     avg_acc = acc_sum / batch_sum

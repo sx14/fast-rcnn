@@ -92,6 +92,7 @@ class MyDataset():
                 self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
+                label_vecs = label_vecs[:v_actual_num]
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
