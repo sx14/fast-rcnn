@@ -50,6 +50,7 @@ for feature_file_id in test_box_label:
     feature_file_path = os.path.join(visual_feature_root, feature_file_name)
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(test_box_label[feature_file_id]):
+        counter += 1
         vf = features[i]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
@@ -70,7 +71,7 @@ for feature_file_id in test_box_label:
         else:
             print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
 
-print('accuracy: %.2f' % TP/len(test_box_label))
+print('accuracy: %.2f' % (TP/counter))
         # ranked_inds = np.argsort(scores).tolist()   # ascending
         # ranked_inds.reverse()
         # pred = ranked_inds[:20]

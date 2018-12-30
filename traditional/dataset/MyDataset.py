@@ -13,6 +13,7 @@ class MyDataset():
         self._raw_feature_root = raw_feature_root
         self._feature_indexes = []      # index feature: [feature file name, offset]
         self._label_indexes = []        # label index
+
         # cached feature package
         self._curr_package = dict()
         # number of image_feature file
@@ -24,8 +25,10 @@ class MyDataset():
         self._curr_package_cursor = -1
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
+
         # label2path
         self._label2path = pickle.load(open(label2path_path, 'rb'))
+        self._label_num = len(self._label2path.keys())
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()
         for item in flabel_list:
@@ -81,7 +84,7 @@ class MyDataset():
 
     def minibatch_acc(self):
         vfs = np.zeros((self._minibatch_size, 4096))
-        label_vecs = np.zeros(self._minibatch_size, len(self._label2path.keys()))
+        label_vecs = np.zeros(self._minibatch_size, self._label_num)
         v_actual_num = 0
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
