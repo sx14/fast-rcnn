@@ -71,9 +71,8 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             vrd_label_index = label2index[vrd_label]
             # img_id.bin offset label_index vrd_label_index
             # label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_index)+' '+str(vrd_label_index)+'\n')
-            labels = vrd2path[vrd_label_index]
-            for label in labels:
-                label_index = label2index[label]
+            label_indexes = vrd2path[vrd_label_index]
+            for label_index in label_indexes:
                 label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_index) + ' ' + str(vrd_label_index) + '\n')
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
