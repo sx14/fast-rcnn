@@ -33,9 +33,12 @@ def eval2(label_vecs, index2label, label2index, vg2wn):
         print('---answer---')
         wn_labels = vg2wn[vg_label]
         wn_node = wn.synset(wn_labels[0])
-        hypernym_path = wn_node.hypernym_paths()[0]
-        for i in range(0, len(hypernym_path)):
-            print(hypernym_path[i])
+        wn_label_set = set()
+        for hypernym_path in wn_node.hypernym_paths():
+            for w in hypernym_path:
+                if w.name() not in wn_label_set:
+                    print(w.name())
+                    wn_label_set.add(w.name())
         print('---prediction---')
         for p in pred:
             print(index2label[p]+'| %f' % E[p])
@@ -55,9 +58,12 @@ def eval3(label_vecs, index2label, label2index, vg2wn, label):
         wn_node = wn.synset(wn_labels[0])
     else:
         wn_node = wn.synset(label)
-    hypernym_path = wn_node.hypernym_paths()[0]
-    for i in range(0, len(hypernym_path)):
-        print(hypernym_path[i].name())
+    wn_label_set = set()
+    for hypernym_path in wn_node.hypernym_paths():
+        for w in hypernym_path:
+            if w.name() not in wn_label_set:
+                print(w.name())
+                wn_label_set.add(w.name())
     print('---prediction---')
     for p in pred:
         print(index2label[p] + '| %f' % E[p])
