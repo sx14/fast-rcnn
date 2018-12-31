@@ -45,7 +45,7 @@ class HypernymVisual_acc(nn.Module):
         vf_hidden = self.hidden.forward(vfs)
         vf_embeddings = self.embedding.forward(vf_hidden)
         p_scores = self.partial_order_similarity.forward(label_vecs[pls], vf_embeddings)
-        score_vec_len = len(nls) + 1
+        score_vec_len = len(nls[0]) + 1
         v_length = len(vfs)
         score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len)).cuda()
         for v in range(0, v_length):
@@ -54,7 +54,7 @@ class HypernymVisual_acc(nn.Module):
             scores[0] = p_scores[v]
             scores[1:] = n_scores
             score_stack[v] = scores
-            
+
         return score_stack
 
 

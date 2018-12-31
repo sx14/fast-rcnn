@@ -137,6 +137,7 @@ def eval(dataset, model):
         while dataset.has_next_minibatch():
             vfs, pls, nls, label_vecs = dataset.minibatch_acc1()
             batch_vf = torch.autograd.Variable(vfs).cuda()
+            label_vecs = torch.autograd.Variable(label_vecs).cuda()
             # batch_p_wf = torch.autograd.Variable(p_wf).cuda()
             # batch_n_wf = torch.autograd.Variable(n_wf).cuda()
             # scores = model(batch_vf, batch_p_wf, batch_n_wf)

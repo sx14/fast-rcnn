@@ -133,7 +133,7 @@ class MyDataset():
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
             pls[v] = self._label_indexes[fid][0]
-            all_nls = list(set(range(0, len(self._label_embedding))) - self._label2path[self._label_indexes[fid][1]])
+            all_nls = list(set(range(0, len(self._label_embedding))) - set(self._label2path[self._label_indexes[fid][1]]))
             nls[v] = random.sample(all_nls, negative_label_num)
             self._curr_package_cursor += 1
             v_actual_num += 1
