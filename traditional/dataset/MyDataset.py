@@ -84,7 +84,7 @@ class MyDataset():
 
     def minibatch_acc(self):
         vfs = np.zeros((self._minibatch_size, 4096))
-        label_vecs = np.zeros(self._minibatch_size)
+        label_inds = np.zeros(self._minibatch_size)
         v_actual_num = 0
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
@@ -92,19 +92,19 @@ class MyDataset():
                 self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
-                label_vecs = label_vecs[:v_actual_num]
+                label_inds = label_inds[:v_actual_num]
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
             label_index = self._label_indexes[fid]
-            label_vecs[v] = label_index
+            label_inds[v] = label_index
             self._curr_package_cursor += 1
             v_actual_num += 1
 
         #  vfs: minibatch_size | lfs: one-hot label vec
         vfs = torch.from_numpy(vfs).float()
-        label_inds = torch.from_numpy(label_vecs).long()
+        label_inds = torch.from_numpy(label_inds).long()
         return vfs, label_inds
 
     def minibatch_eval(self):

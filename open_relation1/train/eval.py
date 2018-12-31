@@ -60,32 +60,32 @@ for feature_file_id in test_box_label:
 
 
         # ====== hier label =====
-        # label_inds = vg2path[label2index[vg_label]]
-        # print('\n===== '+vg_label+' =====')
-        # print('\n----- answer -----')
-        # for label_ind in label_inds:
-        #     print(index2label[label_ind])
+        label_inds = vg2path[label2index[vg_label]]
+        print('\n===== '+vg_label+' =====')
+        print('\n----- answer -----')
+        for label_ind in label_inds:
+            print(index2label[label_ind])
 
 
         # ====== org label only =====
-        ranked_inds = np.argsort(vg_scores).tolist()
-        ranked_inds.reverse()
-        pred = ranked_inds[0]
-        if vg_indexes[pred] == label2index[vg_label]:
-            TP += 1
-            print('T: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
-        else:
-            print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
-        # ====== org label only =====
-
-        # ranked_inds = np.argsort(scores).tolist()   # ascending
+        # ranked_inds = np.argsort(vg_scores).tolist()
         # ranked_inds.reverse()
-        # pred = ranked_inds[:20]
-        # print('----- prediction -----')
-        # for p in pred:
-        #     print('%s : %f' % (index2label[p], scores[p]))
-        # if counter == 100:
-        #     exit(0)
+        # pred = ranked_inds[0]
+        # if vg_indexes[pred] == label2index[vg_label]:
+        #     TP += 1
+        #     print('T: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
+        # else:
+        #     print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
+        # ====== org label only =====
+
+        ranked_inds = np.argsort(scores).tolist()   # ascending
+        ranked_inds.reverse()
+        pred = ranked_inds[:20]
+        print('----- prediction -----')
+        for p in pred:
+            print('%s : %f' % (index2label[p], scores[p]))
+        if counter == 100:
+            exit(0)
 
 
 print('accuracy: %.2f' % (TP/counter))

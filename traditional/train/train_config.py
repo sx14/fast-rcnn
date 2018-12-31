@@ -1,5 +1,5 @@
 import os
-from open_relation1 import vg_data_config, global_config
+from open_relation1 import global_config
 from open_relation1 import vrd_data_config
 
 log_root = 'traditional/log'
@@ -19,6 +19,7 @@ vrd_hyper_params = {
     'visual_feature_root': vrd_data_config.vrd_object_fc7_root,
     'list_root': vrd_data_config.vrd_object_label_root_t,
     'vrd2path_path': vrd_data_config.vrd_object_config_t['vrd2path_path'],
+    'label2index_path': vrd_data_config.vrd_object_config_t['label2index_path'],
     'latest_weight_path': os.path.join(global_config.our_model_root, 'object', 't_vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'object', 't_vrd_weights_best.pkl'),
 }
