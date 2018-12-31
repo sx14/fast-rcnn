@@ -119,7 +119,7 @@ def cal_acc(score_vecs):
     for score_vec in score_vecs:
         is_tp = True
         for i in range(1, len(score_vec)):
-            if score_vec[i] > score_vec[0]:
+            if score_vec[i] >= score_vec[0]:
                 is_tp = False
                 break
         if is_tp:
