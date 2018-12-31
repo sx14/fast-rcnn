@@ -115,6 +115,36 @@ class MyDataset():
         n_lfs = torch.from_numpy(np.array(n_lfs)).float()
         return vfs, p_lfs, n_lfs
 
+    def minibatch_acc1(self, negative_label_num=350):
+        vfs = np.zeros((self._minibatch_size, 4096))
+        pls = np.zeros(self._minibatch_size).astype(np.int)
+        nls = np.zeros((self._minibatch_size, negative_label_num)).astype(np.int)
+        v_actual_num = 0
+        for v in range(0, self._minibatch_size):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                # current package finished, load another 4000 feature files
+                self.load_next_feature_package()
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                vfs = vfs[:v_actual_num]
+                pls = pls[:v_actual_num]
+                nls = nls[:v_actual_num]
+                break
+            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            feature_file, offset = self._feature_indexes[fid]
+            vfs[v] = self._curr_package[feature_file][offset]
+            pls[v] = self._label_indexes[fid][0]
+            all_nls = list(set(range(0, len(self._label_embedding))) - self._label2path[self._label_indexes[fid][1]])
+            nls[v] = random.sample(all_nls, negative_label_num)
+            self._curr_package_cursor += 1
+            v_actual_num += 1
+        #  vfs: minibatch_size | pls: minibatch_size | nls: minibatch_size
+        vfs = torch.from_numpy(vfs).float()
+        pls = torch.from_numpy(pls)
+        nls = torch.from_numpy(nls)
+        label_vecs = torch.from_numpy(self._label_embedding).float()
+        return vfs, pls, nls, label_vecs
+
+
     def minibatch_eval(self):
         # generate minibatch from current feature package
         vfs = []

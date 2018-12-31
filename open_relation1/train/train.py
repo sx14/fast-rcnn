@@ -53,12 +53,15 @@ def train():
         while train_dataset.has_next_minibatch():
             batch_counter += 1
             # load a minibatch
-            vf, p_lfs, n_lfs = train_dataset.minibatch_acc()
-            batch_vf = torch.autograd.Variable(vf).cuda()
-            batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
-            batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
+            vfs, pls, nls, label_vecs = train_dataset.minibatch_acc1()
+            label_vecs = torch.autograd.Variable(label_vecs).cuda()
+            batch_vfs = torch.autograd.Variable(vfs).cuda()
+            # batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
+            # batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
             # forward
-            score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
+            # score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
+
+            score_vecs = net.forward1(batch_vfs, pls, nls, label_vecs)
             t_acc = cal_acc(score_vecs.cpu().data)
             gts = torch.zeros(len(score_vecs)).long()
             gts = torch.autograd.Variable(gts).cuda()
@@ -132,11 +135,12 @@ def eval(dataset, model):
     dataset.init_package()
     with torch.no_grad():
         while dataset.has_next_minibatch():
-            vf, p_wf, n_wf = dataset.minibatch_acc()
-            batch_vf = torch.autograd.Variable(vf).cuda()
-            batch_p_wf = torch.autograd.Variable(p_wf).cuda()
-            batch_n_wf = torch.autograd.Variable(n_wf).cuda()
-            scores = model(batch_vf, batch_p_wf, batch_n_wf)
+            vfs, pls, nls, label_vecs = dataset.minibatch_acc1()
+            batch_vf = torch.autograd.Variable(vfs).cuda()
+            # batch_p_wf = torch.autograd.Variable(p_wf).cuda()
+            # batch_n_wf = torch.autograd.Variable(n_wf).cuda()
+            # scores = model(batch_vf, batch_p_wf, batch_n_wf)
+            scores = model.forward1(batch_vf, pls, nls, label_vecs)
             batch_acc = cal_acc(scores.cpu().data)
             acc_sum += batch_acc
             batch_sum += 1
