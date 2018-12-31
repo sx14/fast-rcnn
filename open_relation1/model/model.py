@@ -54,6 +54,7 @@ class HypernymVisual_acc(nn.Module):
             scores[0] = p_scores[v]
             scores[1:] = n_scores
             score_stack[v] = scores
+            
         return score_stack
 
 
