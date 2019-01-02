@@ -17,6 +17,7 @@ def train():
     val_list_path = os.path.join(config['list_root'], 'small_val.txt')
     label_vec_path = config['label_vec_path']
     vg2path_path = config[dataset+'2path_path']
+    vg2weight_path = config[dataset+'2weight_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path, vg2path_path, config['batch_size'])
 
@@ -38,7 +39,7 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.SGD(params=params, lr=config['lr'])
-    loss = torch.nn.CrossEntropyLoss(size_average=True)
+    loss_func = torch.nn.CrossEntropyLoss(size_average=True)
 
     # recorders
     batch_counter = 0
@@ -54,7 +55,7 @@ def train():
             batch_counter += 1
 
             # load a minibatch
-            vfs, pls, nls, label_vecs = train_dataset.minibatch_acc1()
+            vfs, pls, nls, label_vecs, pws = train_dataset.minibatch_acc1()
 
             # forward
             score_vecs = net.forward1(vfs, pls, nls, label_vecs)
@@ -65,8 +66,10 @@ def train():
             gts = torch.autograd.Variable(gts).cuda()
 
             # cal loss
-            l = loss.forward(score_vecs, gts)
-            l_raw = l.cpu().data.numpy().tolist()
+            loss0 = loss_func.forward(score_vecs, gts)
+            loss = loss0 * pws
+            
+            l_raw = loss.cpu().data.numpy().tolist()
             training_loss.append(l_raw)
             training_acc.append(t_acc)
             if batch_counter % config['print_freq'] == 0:
@@ -82,7 +85,7 @@ def train():
 
             # backward propagate
             optim.zero_grad()
-            l.backward()
+            loss.backward()
             optim.step()
 
             # evaluate

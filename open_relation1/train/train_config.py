@@ -41,6 +41,7 @@ vrd_hyper_params = {
     'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd.h5'),
     'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd1.h5'),
     'vrd2path_path': vrd_data_config.vrd_object_config['vrd2path_path'],
+    'vrd2weight_path': vrd_data_config.vrd_object_config['vrd2weight_path'],
     'latest_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights_best.pkl'),
 }
