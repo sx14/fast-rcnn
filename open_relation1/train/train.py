@@ -18,8 +18,8 @@ def train():
     label_vec_path = config['label_vec_path']
     vg2path_path = config[dataset+'2path_path']
     vg2weight_path = config[dataset+'2weight_path']
-    train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path, vg2path_path, config['batch_size'])
-    val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path, vg2path_path, config['batch_size'])
+    train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path, vg2path_path, vg2weight_path, config['batch_size'])
+    val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path, vg2path_path, vg2weight_path, config['batch_size'])
 
     # prepare training log
     if os.path.isdir(config['log_root']):
@@ -68,7 +68,7 @@ def train():
             # cal loss
             loss0 = loss_func.forward(score_vecs, gts)
             loss = loss0 * pws
-            
+
             l_raw = loss.cpu().data.numpy().tolist()
             training_loss.append(l_raw)
             training_acc.append(t_acc)
@@ -144,7 +144,7 @@ def eval(dataset, model):
     dataset.init_package()
     with torch.no_grad():
         while dataset.has_next_minibatch():
-            vfs, pls, nls, label_vecs = dataset.minibatch_acc1()
+            vfs, pls, nls, label_vecs, pws = dataset.minibatch_acc1()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             label_vecs = torch.autograd.Variable(label_vecs).cuda()
             # batch_p_wf = torch.autograd.Variable(p_wf).cuda()
