@@ -17,19 +17,19 @@ label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
-vg2wn_path = vrd_data_config.vrd_object_config['vrd2wn_path']
-vg2wn = pickle.load(open(vg2wn_path))
-vg2path_path = config['vrd2path_path']
-vg2path = pickle.load(open(vg2path_path))
+org2wn_path = vrd_data_config.vrd_object_config['vrd2wn_path']
+org2wn = pickle.load(open(org2wn_path))
+org2path_path = config['vrd2path_path']
+org2path = pickle.load(open(org2path_path))
 label2index_path = vrd_data_config.vrd_object_config['label2index_path']
 label2index = pickle.load(open(label2index_path))
 index2label_path = vrd_data_config.vrd_object_config['index2label_path']
 index2label = pickle.load(open(index2label_path))
 
-vg_indexes = [label2index[i] for i in vg2wn.keys()]
+org_indexes = [label2index[i] for i in org2wn.keys()]
 
-# mode = 'org'
-mode = 'hier'
+mode = 'org'
+# mode = 'hier'
 
 # load model with best weights
 best_weights_path = config['best_weight_path']
@@ -41,9 +41,13 @@ net.cuda()
 print(net)
 
 # eval
-visual_feature_root = config['visual_feature_root']
+# simple TF counter
 counter = 0
-TP = 0.0
+T = 0.0
+# expected -> actual
+e_a = []
+
+visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
     if len(box_labels) == 0:
@@ -56,15 +60,15 @@ for feature_file_id in test_box_label:
         vf = features[i]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
-        vg_label = box_label[4]
+        org_label = box_label[4]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        vg_scores = scores[vg_indexes]
+        org_scores = scores[org_indexes]
 
 
         # ====== hier label =====
         if mode == 'hier':
-            label_inds = vg2path[label2index[vg_label]]
-            print('\n===== '+vg_label+' =====')
+            label_inds = org2path[label2index[org_label]]
+            print('\n===== ' + org_label + ' =====')
             print('\n----- answer -----')
             for label_ind in label_inds:
                 print(index2label[label_ind])
@@ -79,16 +83,17 @@ for feature_file_id in test_box_label:
                 exit(0)
         # ====== org label only =====
         else:
-            ranked_inds = np.argsort(vg_scores).tolist()
+            ranked_inds = np.argsort(org_scores).tolist()
             ranked_inds.reverse()
             pred = ranked_inds[0]
-            if vg_indexes[pred] == label2index[vg_label]:
-                TP += 1
-                print('T: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
+            expected = label2index[org_label]
+            prediction = org_indexes[pred]
+            e_a.append([expected, prediction])
+            if prediction == expected:
+                T += 1
+                print('T: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
             else:
-                print('F: ' + index2label[label2index[vg_label]] + ' : ' + index2label[vg_indexes[pred]])
+                print('F: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
 
-
-
-
-print('accuracy: %.2f' % (TP/counter))
+print('accuracy: %.2f' % (T / counter))
+pickle.dump(e_a, 'e_a.bin')
