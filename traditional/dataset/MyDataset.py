@@ -28,7 +28,16 @@ class MyDataset():
 
         # label2path
         self._label2path = pickle.load(open(label2path_path, 'rb'))
-        self._label_num = len(self._label2path.keys())
+
+        # vrd label num
+        self._org_label_num = len(self._label2path.keys())
+
+        # all label num
+        self._all_label_num = 0
+        for label in self._label2path:
+            label_inds = self._label2path[label]
+            self._label_num = max(self._label_num, max(label_inds)+1)
+
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()
         for item in flabel_list:
@@ -106,6 +115,35 @@ class MyDataset():
         vfs = torch.from_numpy(vfs).float()
         label_inds = torch.from_numpy(label_inds).long()
         return vfs, label_inds
+
+
+    def minibatch_acc1(self):
+        vfs = np.zeros((self._minibatch_size, 4096))
+        label_inds = np.zeros(self._minibatch_size, self._all_label_num)
+        v_actual_num = 0
+        for v in range(0, self._minibatch_size):
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                # current package finished, load another 4000 feature files
+                self.load_next_feature_package()
+            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
+                vfs = vfs[:v_actual_num]
+                label_inds = label_inds[:v_actual_num]
+                break
+            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
+            feature_file, offset = self._feature_indexes[fid]
+            vfs[v] = self._curr_package[feature_file][offset]
+            label_index = self._label_indexes[fid]
+            label_path = self._label2path[label_index]
+            for label_ind in label_path:
+                label_inds[v][label_ind] = 1
+            self._curr_package_cursor += 1
+            v_actual_num += 1
+
+        #  vfs: minibatch_size | lfs: one-hot label vec
+        vfs = torch.from_numpy(vfs).float()
+        label_inds = torch.from_numpy(label_inds).long()
+        return vfs, label_inds
+
 
     def minibatch_eval(self):
         # generate minibatch from current feature package

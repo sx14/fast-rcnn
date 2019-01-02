@@ -38,7 +38,9 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.SGD(params=params, lr=config['lr'])
-    loss = torch.nn.CrossEntropyLoss(size_average=True)
+    loss = torch.nn.BCELoss()               # multi-label cross entropy
+    # loss = torch.nn.CrossEntropyLoss()    # single-label cross entropy
+
 
     # recorders
     batch_counter = 0
@@ -53,13 +55,13 @@ def train():
         while train_dataset.has_next_minibatch():
             batch_counter += 1
             # load a minibatch
-            vf, lfs = train_dataset.minibatch_acc()
+            vf, lvs = train_dataset.minibatch_acc1()
             batch_vf = torch.autograd.Variable(vf).cuda()
-            batch_lfs = torch.autograd.Variable(lfs).cuda()
+            batch_lvs = torch.autograd.Variable(lvs).cuda()
             # forward
-            score_vecs = net(batch_vf)
-            t_acc = cal_acc(score_vecs.cpu().data, batch_lfs.cpu().data)
-            l = loss.forward(score_vecs, batch_lfs)
+            score_vecs = net.forward(batch_vf)
+            t_acc = cal_acc(score_vecs.cpu().data, batch_lvs.cpu().data)
+            l = loss.forward(score_vecs, batch_lvs)
             l_raw = l.cpu().data.numpy().tolist()
             training_loss.append(l_raw)
             training_acc.append(t_acc)

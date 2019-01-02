@@ -72,7 +72,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root, 
             # img_id.bin offset label_index vrd_label_index
             label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_index)+' '+str(vrd_label_index)+'\n')
 
-            wn_leaf_label = vrd2wn[vrd_label]
+            wn_leaf_label = vrd2wn[vrd_label][0]
             wn_leaf_index = label2index[wn_leaf_label]
             label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_index)+' '+str(vrd_label_index)+'\n')
 
