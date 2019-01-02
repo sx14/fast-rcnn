@@ -142,6 +142,10 @@ class MyDataset():
         pls = torch.from_numpy(pls)
         nls = torch.from_numpy(nls)
         label_vecs = torch.from_numpy(self._label_embedding).float()
+
+        # Tensor to Variable
+        label_vecs = torch.autograd.Variable(label_vecs).cuda()
+        vfs = torch.autograd.Variable(vfs).cuda()
         return vfs, pls, nls, label_vecs
 
 

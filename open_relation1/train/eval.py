@@ -45,7 +45,7 @@ print(net)
 counter = 0
 T = 0.0
 # expected -> actual
-e_a = []
+e_p = []
 
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
@@ -88,7 +88,7 @@ for feature_file_id in test_box_label:
             pred = ranked_inds[0]
             expected = label2index[org_label]
             prediction = org_indexes[pred]
-            e_a.append([expected, prediction])
+            e_p.append([expected, prediction])
             if prediction == expected:
                 T += 1
                 print('T: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
@@ -96,4 +96,4 @@ for feature_file_id in test_box_label:
                 print('F: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
 
 print('accuracy: %.2f' % (T / counter))
-pickle.dump(e_a, 'e_a.bin')
+pickle.dump(e_p, open('e_p.bin', 'wb'))

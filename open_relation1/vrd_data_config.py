@@ -26,6 +26,7 @@ vrd_object_config = {
     'vrd2path_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2path.bin'),
     'index2label_path': os.path.join(vrd_object_feature_prepare_root, 'index2label.bin'),
     'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd.h5'),
+    'vrd2weight_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2weight.bin')
 }
 
 # one-hot config

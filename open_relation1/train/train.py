@@ -25,7 +25,7 @@ def train():
         shutil.rmtree(config['log_root'])
         os.mkdir(config['log_root'])
 
-    # initialize model
+    # init model
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
     net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
@@ -46,41 +46,46 @@ def train():
     training_loss = []
     training_acc = []
 
-    # train
+    # training
     for e in range(0, config['epoch']):
         make_params_positive(params)
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             batch_counter += 1
+
             # load a minibatch
             vfs, pls, nls, label_vecs = train_dataset.minibatch_acc1()
-            label_vecs = torch.autograd.Variable(label_vecs).cuda()
-            batch_vfs = torch.autograd.Variable(vfs).cuda()
-            # batch_p_wfs = torch.autograd.Variable(p_lfs).cuda()
-            # batch_n_wfs = torch.autograd.Variable(n_lfs).cuda()
-            # forward
-            # score_vecs = net(batch_vf, batch_p_wfs, batch_n_wfs)
 
-            score_vecs = net.forward1(batch_vfs, pls, nls, label_vecs)
+            # forward
+            score_vecs = net.forward1(vfs, pls, nls, label_vecs)
+
+            # cal training acc
             t_acc = cal_acc(score_vecs.cpu().data)
             gts = torch.zeros(len(score_vecs)).long()
             gts = torch.autograd.Variable(gts).cuda()
+
+            # cal loss
             l = loss.forward(score_vecs, gts)
             l_raw = l.cpu().data.numpy().tolist()
             training_loss.append(l_raw)
             training_acc.append(t_acc)
             if batch_counter % config['print_freq'] == 0:
-                print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw))
+                # logging
                 loss_log_path = config['log_loss_path']
-                save_log_data(loss_log_path, training_loss)
+                save_log(loss_log_path, training_loss)
                 training_loss = []
                 acc_log_path = config['log_acc_path']
-                save_log_data(acc_log_path, training_acc)
+                save_log(acc_log_path, training_acc)
                 training_acc = []
                 training_loss.append(l_raw)
+                print('epoch: %d | batch: %d | acc: %.2f | loss: %.2f' % (e, batch_counter, t_acc, l_raw))
+
+            # backward propagate
             optim.zero_grad()
             l.backward()
             optim.step()
+
+            # evaluate
             if batch_counter % config['eval_freq'] == 0:
                 make_params_positive(params)
                 e_acc = eval(val_dataset, net)
@@ -91,10 +96,11 @@ def train():
                     log.write(info+'\n')
                 torch.save(net.state_dict(), latest_weights_path)
                 print('Updating weights success.')
+
                 if e_acc > best_acc:
                     torch.save(net.state_dict(), best_weights_path)
-                    print('Updating best weights success.')
                     best_acc = e_acc
+                    print('Updating best weights success.')
 
 
 def make_params_positive(params):
@@ -102,7 +108,7 @@ def make_params_positive(params):
         param.data[param.data < 0] = 0
 
 
-def save_log_data(file_path, data):
+def save_log(file_path, data):
     if not os.path.exists(file_path):
         with open(file_path, 'wb') as f:
             pickle.dump(data, f)
