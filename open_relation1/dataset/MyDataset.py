@@ -145,12 +145,13 @@ class MyDataset():
         vfs = torch.from_numpy(vfs).float()
         pls = torch.from_numpy(pls)
         nls = torch.from_numpy(nls)
-        pws = torch.from_numpy(pws)
+        pws = torch.from_numpy(pws).float()
         label_vecs = torch.from_numpy(self._label_embedding).float()
 
         # Tensor to Variable
         label_vecs = torch.autograd.Variable(label_vecs).cuda()
         vfs = torch.autograd.Variable(vfs).cuda()
+        pws = torch.autograd.Variable(pws).cuda()
         return vfs, pls, nls, label_vecs, pws
 
 
