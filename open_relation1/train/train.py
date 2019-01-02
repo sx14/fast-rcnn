@@ -39,7 +39,7 @@ def train():
     # config training hyper params
     params = net.parameters()
     optim = torch.optim.SGD(params=params, lr=config['lr'])
-    loss_func = torch.nn.CrossEntropyLoss(reduction='none')
+    loss_func = torch.nn.CrossEntropyLoss(reduce=False)
 
     # recorders
     batch_counter = 0
