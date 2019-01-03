@@ -1,5 +1,0 @@
-train_config.py
-dataset/pascaltest/data_config.py
-dataset/visualgenome/data_config.py
-dataset/visualgenome/relation/data_config.py
-wordnet-embedding/path_config.py

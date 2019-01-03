@@ -64,17 +64,3 @@ class HypernymVisual_acc(nn.Module):
         scores = self.partial_order_similarity.forward(lfs, vf_embedding)
         return scores
 
-# if __name__ == '__main__':
-#     s = PartialOrderSimilarity(2)
-#     a = np.array([[0,0,0,0], [0,0,0,0]])
-#     at = torch.from_numpy(np.array(a)).float()
-#     b = np.array([[1,2,0,0], [1,2,0,0]])
-#     bt = torch.from_numpy(np.array(b)).float()
-#     sims = s.forward(at, bt)
-#     m=1
-#     vfs = torch.from_numpy(np.array([[1,2,0,0], [1,2,0,0]])).float()
-#     plfs = torch.from_numpy(np.array([[5,6,0,0], [1,4,0,0]])).float()
-#     nlfs = torch.from_numpy(np.array([[0,0,1,2], [0,0,2,3], [0,0,3,4]])).float()
-#     n = HypernymVisual_acc(4, 4)
-#     scores = n.forward(vfs, plfs, nlfs)
-#     m = 1

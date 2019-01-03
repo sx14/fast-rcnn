@@ -3,9 +3,10 @@ import pickle
 import h5py
 import numpy as np
 import torch
+from open_relation1.infer import infer
 from open_relation1.model import model
 from open_relation1 import vrd_data_config
-from train_config import hyper_params
+from open_relation1.train.train_config import hyper_params
 
 
 # prepare feature
@@ -62,38 +63,5 @@ for feature_file_id in test_box_label:
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        org_scores = scores[org_indexes]
+        print(inf)
 
-
-        # ====== hier label =====
-        if mode == 'hier':
-            label_inds = org2path[label2index[org_label]]
-            print('\n===== ' + org_label + ' =====')
-            print('\n----- answer -----')
-            for label_ind in label_inds:
-                print(index2label[label_ind])
-
-            ranked_inds = np.argsort(scores).tolist()  # ascending
-            ranked_inds.reverse()
-            pred = ranked_inds[:20]
-            print('----- prediction -----')
-            for p in pred:
-                print('%s : %f' % (index2label[p], scores[p]))
-            if counter == 100:
-                exit(0)
-        # ====== org label only =====
-        else:
-            ranked_inds = np.argsort(org_scores).tolist()
-            ranked_inds.reverse()
-            pred = ranked_inds[0]
-            expected = label2index[org_label]
-            prediction = org_indexes[pred]
-            e_p.append([expected, prediction])
-            if prediction == expected:
-                T += 1
-                print('T: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
-            else:
-                print('F: ' + index2label[label2index[org_label]] + ' : ' + index2label[org_indexes[pred]])
-
-print('accuracy: %.2f' % (T / counter))
-pickle.dump(e_p, open('e_p.bin', 'wb'))
