@@ -3,10 +3,29 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from open_relation1.infer import infer
+from nltk.corpus import wordnet as wn
+from open_relation1.infer.infer import simple_infer
 from open_relation1.model import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
+
+
+def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
+    if pred_ind == org_label_ind:
+        return 1
+    elif pred_ind not in org2path[org_label_ind]:
+        return 0
+    else:
+        wn_node = wn.synset(wn_label)
+        hyper_paths = wn_node.hypernym_paths()
+        best_ratio = 0
+        for h_path in hyper_paths:
+            for i, node in enumerate(h_path):
+                if node.name() == pred_label:
+                    best_ratio = max((i+1) * 1.0 / len(h_path), best_ratio)
+                    break
+        return best_ratio
+
 
 
 # prepare feature
@@ -29,11 +48,9 @@ index2label = pickle.load(open(index2label_path))
 
 org_indexes = [label2index[i] for i in org2wn.keys()]
 
-mode = 'org'
-# mode = 'hier'
 
 # load model with best weights
-best_weights_path = config['best_weight_path']
+best_weights_path = config['eval_weight_path']
 net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
@@ -58,10 +75,27 @@ for feature_file_id in test_box_label:
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
+        if counter == 6613:
+            a = 1
         vf = features[i]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
+        org_label_ind = label2index[org_label]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        print(inf)
+        pred_ind, cands = simple_infer(scores, org2path, label2index)
+        pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
+        T += pred_score
+        if pred_score > 0:
+            result = str(counter).ljust(5) + ' T: '
+        else:
+            result = str(counter).ljust(5) + ' F: '
+
+        pred_str = (result + org_label + ' -> ' + index2label[pred_ind]).ljust(40) + ' %.2f | ' % pred_score
+        cand_str = ' [%s(%d) , %s(%d)]' % (index2label[cands[0][0]], cands[0][1], index2label[cands[1][0]], cands[1][1])
+        print(pred_str + cand_str)
+
+print('\n=========================================')
+print('accuracy: %.2f' % (T / counter))
+
 

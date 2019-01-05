@@ -32,7 +32,7 @@ mode = 'org'
 # mode = 'hier'
 
 # load model with best weights
-best_weights_path = config['eval_weight_path']
+best_weights_path = config['latest_weight_path']
 net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
