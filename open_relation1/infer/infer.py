@@ -2,13 +2,14 @@
 import numpy as np
 
 
+
 def simple_infer(scores, org2path, label2index):
-    # find the most precise label in top 50 predictions
+    # all original label indexes
     org_label_inds = org2path.keys()
-    ranked_inds = np.argsort(scores).tolist()
-    ranked_inds.reverse()           # descending
 
     # find the top 2 original label predictions
+    ranked_inds = np.argsort(scores).tolist()
+    ranked_inds.reverse()           # descending
     ranks = [0] * len(label2index.keys())   # label_ind 2 rank
     top_org_ind_ranks = []
     iter = 0
@@ -34,7 +35,7 @@ def simple_infer(scores, org2path, label2index):
         # 正确的几率很高，除非top1与top2非常相似
         diff_interval = 40
         overlap_ratio_thr = 0.85
-    elif top_org_ind_ranks[0][1] < 100:
+    elif top_org_ind_ranks[0][1] < 120:
         diff_interval = 80
         overlap_ratio_thr = 0.4
     else:
@@ -46,7 +47,7 @@ def simple_infer(scores, org2path, label2index):
         # top1 is close to top2
         # cal top1 and top2 overlap
         overlap = set(pred_paths[0]) & set(pred_paths[1])
-        overlap_ratio = 2.0 * len(overlap) / (len(pred_paths[0]) + len(pred_paths[1]))
+        overlap_ratio = len(overlap) * 1.0 / min(len(pred_paths[0]), len(pred_paths[1]))
 
         # overlap is large
         if overlap_ratio > overlap_ratio_thr:

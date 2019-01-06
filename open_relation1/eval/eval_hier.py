@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from nltk.corpus import wordnet as wn
 from open_relation1.infer.infer import simple_infer
+from open_relation1.infer.dual_infer import dual_infer
 from open_relation1.model import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
@@ -22,7 +23,7 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
         for h_path in hyper_paths:
             for i, node in enumerate(h_path):
                 if node.name() == pred_label:
-                    best_ratio = max((i+1) * 1.0 / len(h_path), best_ratio)
+                    best_ratio = max((i+1) * 1.0 / (len(h_path)+1), best_ratio)
                     break
         return best_ratio
 
@@ -75,7 +76,7 @@ for feature_file_id in test_box_label:
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
-        if counter == 6613:
+        if counter == 6701:
             a = 1
         vf = features[i]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
