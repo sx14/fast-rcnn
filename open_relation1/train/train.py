@@ -49,7 +49,6 @@ def train():
 
     # training
     for e in range(0, config['epoch']):
-        make_params_positive(net.parameters())
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             batch_counter += 1

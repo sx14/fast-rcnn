@@ -19,10 +19,9 @@ class PartialOrderSimilarity:
 class HypernymVisual_acc(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual_acc, self).__init__()
-        self.embedding = nn.Linear(visual_feature_dimension, embedding_dimension)
-        # hidden_d = 4096
-        # self.hidden = nn.Linear(visual_feature_dimension, hidden_d)
-        # self.embedding = nn.Linear(hidden_d, embedding_dimension)
+        hidden_d = 4096
+        self.hidden = nn.Linear(visual_feature_dimension, hidden_d)
+        self.embedding = nn.Linear(hidden_d, embedding_dimension)
         self.activate = nn.ReLU()
         self.partial_order_similarity = PartialOrderSimilarity(2)
 
@@ -41,11 +40,10 @@ class HypernymVisual_acc(nn.Module):
             score_stack[v] = scores
         return score_stack
 
-
     def forward1(self, vfs, pls, nls, label_vecs):
-        vf_embeddings = self.embedding(vfs)
-        # vf_hidden = self.hidden(vfs)
-        # vf_embeddings = self.embedding(vf_hidden)
+        vf_hidden = self.hidden(vfs)
+        vf_embeddings = self.embedding(vf_hidden)
+        vf_embeddings = self.activate(vf_embeddings)
         p_scores = self.partial_order_similarity.forward(label_vecs[pls], vf_embeddings)
         score_vec_len = len(nls[0]) + 1
         v_length = len(vfs)
