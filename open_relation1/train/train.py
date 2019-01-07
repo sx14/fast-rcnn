@@ -49,7 +49,7 @@ def train():
 
     # training
     for e in range(0, config['epoch']):
-        make_params_positive(params)
+        make_params_positive(net.parameters())
         train_dataset.init_package()
         while train_dataset.has_next_minibatch():
             batch_counter += 1
@@ -90,7 +90,7 @@ def train():
 
             # evaluate
             if batch_counter % config['eval_freq'] == 0:
-                make_params_positive(params)
+                # make_params_positive(params)
                 e_acc = eval(val_dataset, net)
                 info = '======== eval acc: %.2f ========' % e_acc
                 print(info)
