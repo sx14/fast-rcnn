@@ -36,7 +36,7 @@ class MyDataset():
         self._all_label_num = 0
         for label in self._label2path:
             label_inds = self._label2path[label]
-            self._label_num = max(self._label_num, max(label_inds)+1)
+            self._all_label_num = max(self._all_label_num, max(label_inds)+1)
 
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()

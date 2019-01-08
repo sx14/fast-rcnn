@@ -36,7 +36,7 @@ def simple_infer(scores, org2path, label2index):
         diff_interval = 40
         overlap_ratio_thr = 0.85
     elif top_org_ind_ranks[0][1] < 150:
-        diff_interval = 80
+        diff_interval = 60
         overlap_ratio_thr = 0.4
     else:
         # 正确的几率很低

@@ -19,6 +19,8 @@ def train():
     vg2path_path = config[dataset+'2path_path']
     train_dataset = MyDataset(visual_feature_root, train_list_path, vg2path_path, config['batch_size'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, vg2path_path, config['batch_size'])
+    label2index_path = config['label2index_path']
+    label2index = pickle.load(open(label2index_path, 'rb'))
 
     # prepare training log
     if os.path.isdir(config['log_root']):
@@ -28,7 +30,7 @@ def train():
     # initialize model
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
-    net = model.HypernymVisual_acc(config['visual_d'], config['class_num'])
+    net = model.HypernymVisual_acc(config['visual_d'], len(label2index.keys()))
     if os.path.isfile(best_weights_path):
         net.load_state_dict(torch.load(best_weights_path))
         print('Loading weights success.')

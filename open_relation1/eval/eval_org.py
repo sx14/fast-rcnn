@@ -28,8 +28,8 @@ index2label = pickle.load(open(index2label_path))
 
 
 
-#mode = 'org'
-mode = 'hier'
+mode = 'org'
+#mode = 'hier'
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']

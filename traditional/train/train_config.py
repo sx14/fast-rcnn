@@ -7,11 +7,11 @@ log_root = 'traditional/log'
 vrd_hyper_params = {
     'class_num': 100,
     'visual_d': 4096,
-    'epoch': 50,
+    'epoch': 200,
     'batch_size': 256,
     'eval_freq': 500,
     'print_freq': 10,
-    'lr': 0.001,
+    'lr': 0.01,
     'log_root': os.path.join(global_config.project_root, log_root),
     'log_path': os.path.join(global_config.project_root, log_root, 'vrd_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vrd_loss.bin'),

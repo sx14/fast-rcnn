@@ -37,6 +37,7 @@ print(net)
 visual_feature_root = config['visual_feature_root']
 counter = 0
 TP = 0.0
+T1 = 0.0
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
     if len(box_labels) == 0:
@@ -51,14 +52,20 @@ for feature_file_id in test_box_label:
         label = box_label[4]
         with torch.no_grad():
             scores = net.forward(vf_v).cpu().data
-            pred_ind = np.argmax(scores.numpy())
+            ranked_inds = np.argsort(scores.numpy()).tolist()
+            ranked_inds.reverse()
+
+            pred_ind = ranked_inds[0]
+            cand_ind = ranked_inds[1]
             if pred_ind == label2index[label]:
                 TP += 1
                 print('T: ' + label + ' : ' + index2label[pred_ind])
             else:
                 print('F: ' + label + ' : ' + index2label[pred_ind])
+                if cand_ind == label2index[label]:
+                    T1 += 1
 
 print('accuracy: %.2f' % (TP/counter))
-
+print('potential accuracy increment: %.2f' % (T1 / counter))
 
 

@@ -21,11 +21,11 @@ class HypernymVisual_acc(nn.Module):
     def __init__(self, visual_feature_dimension, embedding_dimension):
         super(HypernymVisual_acc, self).__init__()
         self.cls_score = nn.Linear(visual_feature_dimension, embedding_dimension)
-        self.sigmoid = nn.Sigmoid()
+        # self.sigmoid = nn.Sigmoid()
 
     def forward(self, vfs):
         scores = self.cls_score.forward(vfs)
-        scores = self.sigmoid.forward(scores)
+        # scores = self.sigmoid.forward(scores)
         return scores
 
 

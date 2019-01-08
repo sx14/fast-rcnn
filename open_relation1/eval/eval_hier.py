@@ -82,7 +82,7 @@ for feature_file_id in test_box_label:
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = dual_infer(scores, org2path, label2index, index2label)
+        pred_ind, cands = simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
         T += pred_score
         if pred_score > 0:
