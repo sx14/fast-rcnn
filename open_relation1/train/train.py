@@ -34,6 +34,7 @@ def train():
         net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
     net.cuda()
+    net.train()
     print(net)
 
     # config training hyper params

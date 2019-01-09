@@ -19,13 +19,18 @@ def try_map_wn(org_labels):
 
     # fix auto annotation
     vrd2wn['shoes'] = ['shoe.n.01']
-    vrd2wn['monitor'] = ['computer_monitor.n.01']
     vrd2wn['bike'] = ['bicycle.n.01']
     vrd2wn['plate'] = ['plate.n.04']
     vrd2wn['trash can'] = ['ashcan.n.01']
     vrd2wn['traffic light'] = ['traffic_light.n.01']
     vrd2wn['truck'] = ['truck.n.01']
     vrd2wn['van'] = ['van.n.05']
+    vrd2wn['mouse'] = ['mouse.n.04']
+    vrd2wn['hydrant'] = ['fireplug.n.01']
+    vrd2wn['pants'] = ['trouser.n.01']
+    vrd2wn['jeans'] = ['trouser.n.01']
+    vrd2wn['monitor'] = ['monitor.n.04']
+    vrd2wn['post'] = ['post.n.04']
     return vrd2wn
 
 

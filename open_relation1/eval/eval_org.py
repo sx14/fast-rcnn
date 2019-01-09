@@ -28,8 +28,8 @@ index2label = pickle.load(open(index2label_path))
 
 
 
-mode = 'org'
-#mode = 'hier'
+#mode = 'org'
+mode = 'hier'
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
@@ -41,6 +41,7 @@ else:
     print('Weights not found !')
     exit(1)
 net.cuda()
+net.eval()
 print(net)
 
 # eval
@@ -86,23 +87,26 @@ for feature_file_id in test_box_label:
                 exit(0)
         # ====== org label only =====
         else:
-            org_indexes = set([label2index[i] for i in org2wn.keys()])
+            org_indexes = set([label2index[l] for l in org2wn.keys()])
             org_pred_counter = 0
             print('\n===== ' + org_label + ' =====')
-            for i, pred in enumerate(ranked_inds):
+            for j, pred in enumerate(ranked_inds):
                 if pred in org_indexes:
                     expected = label2index[org_label]
+
+                    if org_pred_counter == 0:
+                        e_p.append([expected, pred])
+
                     if pred == expected:
                         result = 'T: '
                         if org_pred_counter == 0:
-                            e_p.append([expected, pred])
                             T += 1
                         elif org_pred_counter == 1:
                             T1 += 1
                     else:
                         result = 'F: '
                     if org_pred_counter < 2:
-                        print(result + index2label[pred] + '('+str(i+1)+')')
+                        print(result + index2label[pred] + '('+str(j+1)+')')
                     else:
                         break
                     org_pred_counter += 1

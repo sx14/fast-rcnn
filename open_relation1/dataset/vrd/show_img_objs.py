@@ -3,7 +3,7 @@ import cv2
 import os
 import json
 from matplotlib import pyplot as plt
-from open_relation1.vrd_data_config import vrd_config
+from open_relation1.vrd_data_config import vrd_config, vrd_pascal_format
 
 
 def show_boxes(im, dets, cls):
@@ -27,10 +27,10 @@ def show_boxes(im, dets, cls):
     plt.show()
 
 
-def get_objects(img_root, anno_root, img_id):
-    img_path = os.path.join(img_root, img_id + '.jpg')
+def get_objects(img_root, anno_root, img_name):
+    img_path = os.path.join(img_root, img_name)
     im = cv2.imread(img_path)
-    anno_path = os.path.join(anno_root, img_id + '.json')
+    anno_path = os.path.join(anno_root, img_name.split('.')[0] + '.json')
     with open(anno_path, 'r') as anno_file:
         anno = json.load(anno_file)
     objects = anno['objects']
@@ -46,5 +46,7 @@ if __name__ == '__main__':
     img_root = vrd_config['img_root']
     anno_root = vrd_config['clean_anno_root']
     img_id = '1602315_961e6acf72_b'
-    im, cls, boxes = get_objects(img_root, anno_root, img_id)
-    show_boxes(im, boxes, cls)
+    for img_name in os.listdir(img_root):
+        im, cls, boxes = get_objects(img_root, anno_root, img_name)
+        if u'post' in cls:
+            show_boxes(im, boxes, cls)

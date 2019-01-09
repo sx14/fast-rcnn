@@ -44,7 +44,7 @@ for item in sorted_freq:
     label_str = index2label[item[0]].ljust(15)
     print(label_str + ': %.2f (%.3f)' % (e_acc[item[0]], item[1] * 1.0 / len(e_p_list)))
 
-show_item = 'refrigerator'
+show_item = 'street'
 print('\n======== %s ========' % show_item)
 preds = e_p_mat[org2mat[label2index[show_item]], :]
 ranked_inds = np.argsort(preds)

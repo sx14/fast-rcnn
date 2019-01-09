@@ -23,6 +23,7 @@ class HypernymVisual_acc(nn.Module):
         self.hidden = nn.Linear(visual_feature_dimension, hidden_d)
         self.embedding = nn.Linear(hidden_d, embedding_dimension)
         self.activate = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.5)
         self.partial_order_similarity = PartialOrderSimilarity(2)
 
     def forward(self, vfs, p_lfs, n_lfs):
@@ -42,10 +43,15 @@ class HypernymVisual_acc(nn.Module):
 
     def forward1(self, vfs, pls, nls, label_vecs):
         vfs = self.activate(vfs)
+        vfs = self.dropout(vfs)
         vf_hidden = self.hidden(vfs)
+
         vf_hidden = self.activate(vf_hidden)
+        vf_hidden = self.dropout(vf_hidden)
         vf_embeddings = self.embedding(vf_hidden)
+
         p_scores = self.partial_order_similarity.forward(label_vecs[pls], vf_embeddings)
+
         score_vec_len = len(nls[0]) + 1
         v_length = len(vfs)
         score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len)).cuda()

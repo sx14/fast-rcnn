@@ -37,10 +37,12 @@ def index_labels(vg2wn, label2index_path, index2label_path):
     return label2index
 
 
-def vrd2path(vrd2wn, label2index, vrd2path_path):
+def vrd2path(vrd2wn, label2index, vrd2path_path, vrd2pw_path):
     vrd2path = dict()
+    vrd2pd = dict()
     for vrd_label in vrd2wn:
         path_indexes = []
+        path_weights = []
         wn_labels = vrd2wn[vrd_label]
         wn_label_set = set()
         for wn_label in wn_labels:
@@ -48,15 +50,24 @@ def vrd2path(vrd2wn, label2index, vrd2path_path):
             hypernym_paths = wn_node.hypernym_paths()
             # WordNet indexes on the hyper paths of vg_label
             for hypernym_path in hypernym_paths:
-                for w in hypernym_path:
+                # weight = a * depth^2 + 1
+                w_min = 1.0
+                w_max = 10.0
+                a = ((w_max - w_min) / (len(hypernym_path)) ** 2)
+                for d, w in enumerate(hypernym_path):
                     if w.name() not in wn_label_set:
                         wn_label_set.add(w.name())
                         wn_index = label2index[w.name()]
                         path_indexes.append(wn_index)
+                        path_weights.append(a * d ** 2 + w_min)
         # add vg_label index
         path_indexes.append(label2index[vrd_label])
-        vrd2path[label2index[vrd_label]] = list(path_indexes)
+        path_weights.append(w_max)
+        vrd2path[label2index[vrd_label]] = path_indexes
+        vrd2pd[label2index[vrd_label]] = path_weights
+
     pickle.dump(vrd2path, open(vrd2path_path, 'wb'))
+    pickle.dump(vrd2pd, open(vrd2pw_path, 'wb'))
     return vrd2path
 
 
@@ -71,6 +82,7 @@ if __name__ == '__main__':
     label2index = index_labels(vrd2wn, obj_label2index_path, obj_label_list_path)
 
     vrd2path_path = vrd_object_config['vrd2path_path']
-    vrd2path(vrd2wn, label2index, vrd2path_path)
+    vrd2pw_path = vrd_object_config['vrd2pw_path']
+    vrd2path(vrd2wn, label2index, vrd2path_path, vrd2pw_path)
 
 
