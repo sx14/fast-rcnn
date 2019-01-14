@@ -139,7 +139,7 @@ class MyDataset():
             vfs[v] = self._curr_package[feature_file][offset]
             pls[v] = self._label_indexes[fid][0]
             all_nls = list(set(range(0, len(self._label_embedding))) - set(self._org2path[self._label_indexes[fid][1]]))
-            nls[v] = random.sample(all_nls, negative_label_num)
+            nls[v] = random.sample(all_nls, self._negative_label_num)
             pws[v] = self._org2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
             v_actual_num += 1
