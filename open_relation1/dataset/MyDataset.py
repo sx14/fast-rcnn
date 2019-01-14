@@ -7,9 +7,11 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, org2path_path, org2weight_path, minibatch_size=64):
+    def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, org2path_path,
+                 org2weight_path, minibatch_size=64, negative_label_num=50):
         # whole dataset
         self._minibatch_size = minibatch_size
+        self._negative_label_num = negative_label_num
         self._raw_feature_root = raw_feature_root
         self._feature_indexes = []      # index feature: [feature file name, offset]
         self._label_indexes = []        # label index
@@ -116,10 +118,10 @@ class MyDataset():
         n_lfs = torch.from_numpy(np.array(n_lfs)).float()
         return vfs, p_lfs, n_lfs
 
-    def minibatch_acc1(self, negative_label_num=330):
+    def minibatch_acc1(self):
         vfs = np.zeros((self._minibatch_size, 4096))
         pls = np.zeros(self._minibatch_size).astype(np.int)
-        nls = np.zeros((self._minibatch_size, negative_label_num)).astype(np.int)
+        nls = np.zeros((self._minibatch_size, self._negative_label_num)).astype(np.int)
         pws = np.zeros(self._minibatch_size)
         v_actual_num = 0
         for v in range(0, self._minibatch_size):
