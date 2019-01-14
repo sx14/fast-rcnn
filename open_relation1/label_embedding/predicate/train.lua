@@ -1,11 +1,11 @@
 local argparse = require 'argparse'
 
 
-parser = argparse('Train a WordNet completion model')
+parser = argparse('Train a label completion model')
 parser:option '--seed' :description 'random seed' : default '1234' :convert(tonumber)
-parser:option '-d' :description 'dimensionality of embedding space' :default "300" :convert(tonumber)
-parser:option '--epochs' :description 'number of epochs to train for ' :default "50" :convert(tonumber)
-parser:option '--batchsize' :description 'size of minibatch to use' :default "200" :convert(tonumber)
+parser:option '-d' :description 'dimensionality of embedding space' :default "600" :convert(tonumber)
+parser:option '--epochs' :description 'number of epochs to train for ' :default "400" :convert(tonumber)
+parser:option '--batchsize' :description 'size of minibatch to use' :default "10" :convert(tonumber)
 parser:option '--eval_freq' :description 'evaluation frequency' :default "100" :convert(tonumber)
 parser:option '--lr' :description 'learning rate' :default "0.001" :convert(tonumber)
 parser:option '--train' :description 'dataset to use for training' :default 'contrastive_trans'
@@ -32,11 +32,14 @@ torch.manualSeed(args.seed)
 
 require 'Dataset'
 
-datasets = torch.load('exp_dataset/' .. args.train .. '.t7')
+dataset_name = 'vrd'
+
+datasets = torch.load(dataset_name .. '_dataset/' .. args.train .. '.t7')
+
 
 local datasets_eval = {}
 for _, name in ipairs(args.eval) do
-  datasets_eval[name] = torch.load('exp_dataset/' .. name .. '.t7')
+    datasets_eval[name] = torch.load(dataset_name .. '_dataset/' .. name .. '.t7')
 end
 local train = datasets.train
 
@@ -160,8 +163,44 @@ print("Best accuracy was at batch #" )
 print(pretty.write(best_counts,""))
 print(pretty.write(best_accuracies,""))
 
+torch.save('label_embedding_weights_' .. dataset_name .. '.t7', hypernymNet.lookupModule.weight:float())
+torch.save('label_embedding_weights_best_' .. dataset_name .. '.t7', saved_weight)
 
-torch.save('word_embedding_weights_vs.t7', saved_weight)
+if args.vis then
+    for name, dataset in pairs(datasets_eval) do
+        local index = {}
+        index.stats = {{ name = "Accuracy", value = best_accuracies[name] }}
+        index.hyperparams = hyperparams
+        index.embeddings = saved_weight:totable()
+
+        local paths = require 'paths'
+        local json = require 'cjson'
+        local function write_json(file, t)
+            local filename = file .. '.json'
+            paths.mkdir(paths.dirname(filename))
+            local f = io.open(filename, 'w')
+            f:write(json.encode(t))
+            f:close()
+        end
+
+        local saveDir = paths.concat('vis', 'static')
+        write_json(paths.concat(saveDir, name, timestampedName, 'index'), index)
+
+        -- update index file
+        local indexLoc = paths.concat(saveDir, 'index')
+
+        local all_models = {}
+        for d in paths.iterdirs(saveDir) do
+            local models = {}
+            for f in paths.iterdirs(paths.concat(saveDir, d)) do
+                table.insert(models, f)
+            end
+            all_models[d] = models
+        end
+        write_json(indexLoc, all_models)
+    end
+end
+
 
 
 

@@ -4,21 +4,19 @@ import pickle
 import numpy as np
 from open_relation1 import vrd_data_config
 
-feature_root = vrd_data_config.vrd_object_feature_root
+feature_root = vrd_data_config.vrd_predicate_feature_root
 
 # label maps
-vrd2wn_path = vrd_data_config.vrd_object_config['vrd2wn_path']
-vrd2wn = pickle.load(open(vrd2wn_path, 'rb'))
-vrd2path_path = vrd_data_config.vrd_object_config['vrd2path_path']
-vrd2path = pickle.load(open(vrd2path_path, 'rb'))
-index2label_path = vrd_data_config.vrd_object_config['index2label_path']
+raw2path_path = vrd_data_config.vrd_predicate_config['raw2path_path']
+raw2path = pickle.load(open(raw2path_path, 'rb'))
+index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
 index2label = pickle.load(open(index2label_path, 'rb'))
-label2index_path = vrd_data_config.vrd_object_config['label2index_path']
+label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
 label2index = pickle.load(open(label2index_path, 'rb'))
 
 # counter
 label_counter = np.zeros(len(index2label))
-vrd_counter = np.zeros(len(index2label))
+raw_counter = np.zeros(len(index2label))
 
 # org data
 box_label_path = os.path.join(feature_root, 'prepare', 'train_box_label.bin')
@@ -28,14 +26,14 @@ box_labels = pickle.load(open(box_label_path, 'rb'))
 for img_id in box_labels:
     img_box_labels = box_labels[img_id]
     for box_label in img_box_labels:
-        vrd_label = box_label[4]
-        vrd_counter[label2index[vrd_label]] += 1
-        label_path = vrd2path[label2index[vrd_label]]
+        raw_label = box_label[4]
+        raw_counter[label2index[raw_label]] += 1
+        label_path = raw2path[label2index[raw_label]]
         for l in label_path:
             label_counter[l] += 1
 
 
-show_counter = vrd_counter
+show_counter = label_counter
 
 ranked_counts = np.sort(show_counter).tolist()
 ranked_counts.reverse()

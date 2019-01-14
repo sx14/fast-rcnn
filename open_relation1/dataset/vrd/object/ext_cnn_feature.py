@@ -16,7 +16,7 @@ from open_relation1 import global_config
 
 def cal_sample_ratio(label2index, vrd2path, box_labels):
     # instance counter
-    label_ins_num = np.zeros(len(label2index.keys()))
+    label_ins_cnt = np.zeros(len(label2index.keys()))
 
     # counting
     for img_id in box_labels:
@@ -25,11 +25,11 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
             vrd_label = box_label[4]
             label_path = vrd2path[label2index[vrd_label]]
             for l in label_path:
-                label_ins_num[l] += 1
+                label_ins_cnt[l] += 1
 
     # sample at most 1000 instance
-    label_sample_ratio = np.ones(label_ins_num.shape)
-    for i, ins_num in enumerate(label_ins_num):
+    label_sample_ratio = np.ones(label_ins_cnt.shape)
+    for i, ins_num in enumerate(label_ins_cnt):
         if ins_num > 1000:
             label_sample_ratio[i] = 1000.0 / ins_num
     return label_sample_ratio

@@ -5,7 +5,11 @@ local method = 'contrastive'
 
 local hdf5 = require 'hdf5'
 
-f = hdf5.open('exp_dataset/wordnet_with_VS.h5', 'r')
+dataset_name = 'vrd'
+
+
+f = hdf5.open(dataset_name .. '_dataset/wordnet_with_' .. dataset_name .. '.h5', 'r')
+
 
 local originalHypernyms = f:read('hypernyms'):all():add(1) -- convert to 1-based indexing
 local numEntities = torch.max(originalHypernyms) 
@@ -20,7 +24,8 @@ local graph = require 'Graph'
 -----
 -- split hypernyms into train, dev, test
 -----
-for _, hypernymType in ipairs{'trans', 'notrans'} do
+ -- for _, hypernymType in ipairs{'trans', 'notrans'} do
+ for _, hypernymType in ipairs{'trans'} do
         local methodName = method
         local hypernyms = originalHypernyms
         if hypernymType == 'trans' then
@@ -30,7 +35,12 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
 
         local N_hypernyms = hypernyms:size(1)
         
-        splitSize = 4000
+        if dataset_name == 'vg' then
+          splitSize = 2000
+        elseif dataset_name == 'vrd' then
+          splitSize = 50
+        end
+
         
 
         -- shuffle randomly
@@ -42,7 +52,8 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
         local sets = {
                 test = hypernyms:narrow(1, 1, splitSize),
                 val = hypernyms:narrow(1, splitSize + 1, splitSize),
-                train = hypernyms:narrow(1, splitSize*2+ 1, N_hypernyms - 2*splitSize)
+                train = hypernyms
+                -- train = hypernyms:narrow(1, splitSize*2+ 1, N_hypernyms - 2*splitSize)
             }
         print("Done. Building Datasets ...")
         local datasets = {}
@@ -62,7 +73,10 @@ for _, hypernymType in ipairs{'trans', 'notrans'} do
             f:write(json.encode(t))
             f:close()
         end
-        torch.save('exp_dataset/' .. methodName .. '.t7', datasets)
+    
+        torch.save(dataset_name .. '_dataset/' .. methodName .. '.t7', datasets)
+
+        write_json('vis/static/' .. methodName .. '/hypernyms', datasets.train.hypernyms:totable())
 end
 
 

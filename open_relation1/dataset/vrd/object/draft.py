@@ -1,7 +1,8 @@
 from nltk.corpus import wordnet as wn
 
-synsets = wn.synsets('glasses')
-i = 0
+synsets = wn.synsets('with')
 print(synsets)
-print(synsets[i])
+i = 0
+
+print(synsets[i].hypernym_paths())
 print(synsets[i].definition())

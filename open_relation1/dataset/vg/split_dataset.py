@@ -1,6 +1,6 @@
 """
 step4: split the whole dataset as train, val and test.
-next: extract_cnn_feature.py
+next: ext_cnn_feature.py
 """
 import os
 import random

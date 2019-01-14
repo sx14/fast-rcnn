@@ -13,8 +13,8 @@ vrd_config = {
     'clean_anno_root': os.path.join(vrd_root, 'anno')
 }
 
+
 # object part config
-# order embedding config
 vrd_object_feature_root = os.path.join(vrd_feature_root, 'object')
 vrd_object_fc7_root = os.path.join(vrd_object_feature_root, 'fc7')
 vrd_object_label_root = os.path.join(vrd_object_feature_root, 'label')
@@ -29,6 +29,23 @@ vrd_object_config = {
     'vrd2weight_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2weight.bin'),
     'vrd2pw_path': os.path.join(vrd_object_feature_prepare_root, 'vrd2pw.bin')
 }
+
+# predicate part config
+vrd_predicate_feature_root = os.path.join(vrd_feature_root, 'predicate')
+vrd_predicate_fc7_root = os.path.join(vrd_predicate_feature_root, 'fc7')
+vrd_predicate_label_root = os.path.join(vrd_predicate_feature_root, 'label')
+vrd_predicate_feature_prepare_root = os.path.join(vrd_predicate_feature_root, 'prepare')
+vrd_predicate_config = {
+    'raw_label_list': os.path.join(vrd_predicate_feature_prepare_root, 'predicate_labels.txt'),
+    'raw2wn_path': os.path.join(vrd_predicate_feature_prepare_root, 'raw2wn.bin'),
+    'label2index_path': os.path.join(vrd_predicate_feature_prepare_root, 'label2index.bin'),
+    'raw2path_path': os.path.join(vrd_predicate_feature_prepare_root, 'raw2path.bin'),
+    'index2label_path': os.path.join(vrd_predicate_feature_prepare_root, 'index2label.bin'),
+    'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'predicate', 'label_vec_vrd.h5'),
+    'raw2weight_path': os.path.join(vrd_predicate_feature_prepare_root, 'raw2weight.bin'),
+    'raw2pw_path': os.path.join(vrd_predicate_feature_prepare_root, 'raw2pw.bin')
+}
+
 
 # one-hot config
 vrd_object_label_root_t = os.path.join(vrd_object_feature_root, 'label_t')
