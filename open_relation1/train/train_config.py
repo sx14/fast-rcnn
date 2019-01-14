@@ -51,10 +51,10 @@ vrd_obj_hyper_params = {
 vrd_pre_hyper_params = {
     'visual_d': 4096,
     'embedding_d': 600,
-    'epoch': 200,
+    'epoch': 400,
     'batch_size': 256,
     'negative_label_num': 78,
-    'eval_freq': 1000,
+    'eval_freq': 500,
     'print_freq': 10,
     'lr': 0.01,
     'log_root': os.path.join(global_config.project_root, log_root),
