@@ -4,10 +4,8 @@ import h5py
 import numpy as np
 import torch
 from nltk.corpus import wordnet as wn
-from open_relation1.infer.simple_infer import simple_infer
-from open_relation1.infer.dual_infer import dual_infer
-from open_relation1.infer import tree_infer
-from open_relation1.model import model
+from open_relation1.infer import tree_infer, simple_infer
+from open_relation1.model.object import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
 
@@ -31,7 +29,7 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
 
 
 # prepare feature
-config = hyper_params['vrd']
+config = hyper_params['vrd']['object']
 test_list_path = os.path.join(vrd_data_config.vrd_object_feature_prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
@@ -55,7 +53,7 @@ org_indexes = [label2index[i] for i in org2wn.keys()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')
@@ -87,8 +85,8 @@ for feature_file_id in test_box_label:
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
-        # pred_ind, cands = simple_infer(scores, org2path, label2index)
+        # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
+        pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
         T += pred_score
         if pred_score > 0:

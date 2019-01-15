@@ -3,15 +3,15 @@ import shutil
 import pickle
 import torch
 from open_relation1.dataset.MyDataset import MyDataset
-from open_relation1.model import model
+from open_relation1.model.object import model
 from train_config import hyper_params
 
 
 def train():
     dataset = 'vrd'
-
+    target = 'predicate'
     # prepare data
-    config = hyper_params[dataset]
+    config = hyper_params[dataset][target]
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'small_val.txt')
@@ -32,7 +32,7 @@ def train():
     # init model
     latest_weights_path = config['latest_weight_path']
     best_weights_path = config['best_weight_path']
-    net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+    net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
     if os.path.isfile(latest_weights_path):
         net.load_state_dict(torch.load(latest_weights_path))
         print('Loading weights success.')
@@ -59,7 +59,7 @@ def train():
             batch_counter += 1
 
             # load a minibatch
-            vfs, pls, nls, label_vecs, pws = train_dataset.minibatch_acc1()
+            vfs, pls, nls, label_vecs, pws = train_dataset.minibatch_acc1(vf_d=config['visual_d'])
 
             # forward
             score_vecs = net.forward1(vfs, pls, nls, label_vecs)
@@ -151,9 +151,6 @@ def eval(dataset, model):
             vfs, pls, nls, label_vecs, pws = dataset.minibatch_acc1()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             label_vecs = torch.autograd.Variable(label_vecs).cuda()
-            # batch_p_wf = torch.autograd.Variable(p_wf).cuda()
-            # batch_n_wf = torch.autograd.Variable(n_wf).cuda()
-            # scores = model(batch_vf, batch_p_wf, batch_n_wf)
             scores = model.forward1(batch_vf, pls, nls, label_vecs)
             batch_acc = cal_acc(scores.cpu().data)
             acc_sum += batch_acc

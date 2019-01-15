@@ -3,11 +3,8 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from nltk.corpus import wordnet as wn
-from open_relation1.infer.simple_infer import simple_infer
-from open_relation1.infer.dual_infer import dual_infer
 from open_relation1.infer import tree_infer
-from open_relation1.model import model
+from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
 from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
@@ -32,7 +29,7 @@ def score_pred(pred_ind, raw_label_ind, pred_label, raw_label, raw2path, pre_net
 
 
 # prepare feature
-config = hyper_params['vrd']
+config = hyper_params['vrd']['predicate']
 test_list_path = os.path.join(vrd_data_config.vrd_predicate_feature_prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
@@ -55,7 +52,7 @@ org_indexes = [label2index[i] for i in pn.get_raw_labels()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')

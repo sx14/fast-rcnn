@@ -118,8 +118,8 @@ class MyDataset():
         n_lfs = torch.from_numpy(np.array(n_lfs)).float()
         return vfs, p_lfs, n_lfs
 
-    def minibatch_acc1(self):
-        vfs = np.zeros((self._minibatch_size, 4096))
+    def minibatch_acc1(self, vf_d=4096):
+        vfs = np.zeros((self._minibatch_size, vf_d))
         pls = np.zeros(self._minibatch_size).astype(np.int)
         nls = np.zeros((self._minibatch_size, self._negative_label_num)).astype(np.int)
         pws = np.zeros(self._minibatch_size)

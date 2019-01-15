@@ -26,6 +26,7 @@ vg_hyper_params = {
 
 vrd_obj_hyper_params = {
     'visual_d': 4096,
+    'hidden_d': 4096,
     'embedding_d': 600,
     'epoch': 200,
     'batch_size': 256,
@@ -49,7 +50,8 @@ vrd_obj_hyper_params = {
 }
 
 vrd_pre_hyper_params = {
-    'visual_d': 4096,
+    'visual_d': 4096*3,
+    'hidden_d': 4096,
     'embedding_d': 600,
     'epoch': 400,
     'batch_size': 256,
@@ -74,5 +76,6 @@ vrd_pre_hyper_params = {
 
 hyper_params = {
     'vg': vg_hyper_params,
-    'vrd': vrd_pre_hyper_params
+    'vrd': {'predicate': vrd_pre_hyper_params,
+            'object': vrd_obj_hyper_params}
 }

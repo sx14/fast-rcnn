@@ -3,14 +3,14 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from open_relation1.model import model
+from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
 from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 
 # prepare feature
-config = hyper_params['vrd']
+config = hyper_params['vrd']['predicate']
 test_list_path = os.path.join(vrd_data_config.vrd_predicate_feature_prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
@@ -33,7 +33,7 @@ mode = 'org'
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual_acc(config['visual_d'], config['embedding_d'])
+net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')
