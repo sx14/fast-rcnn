@@ -164,7 +164,8 @@ print(pretty.write(best_counts,""))
 print(pretty.write(best_accuracies,""))
 
 
-torch.save('label_embedding_weights_' .. dataset_name .. '.t7', saved_weight)
+torch.save('label_embedding_weights_best_' .. dataset_name .. '.t7', saved_weight)
+torch.save('label_embedding_weights_' .. dataset_name .. '.t7', hypernymNet.lookupModule.weight:float())
 
 if args.vis then
     for name, dataset in pairs(datasets_eval) do
