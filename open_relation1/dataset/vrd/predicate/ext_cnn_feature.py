@@ -158,8 +158,8 @@ if __name__ == '__main__':
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
     # prepare
-    target = 'relation'
-    if target == 'relation':
+    target = 'predicate'
+    if target == 'predicate':
         label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
         raw2path_path = vrd_data_config.vrd_predicate_config['raw2path_path']
         feature_root = vrd_data_config.vrd_predicate_feature_root

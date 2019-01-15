@@ -1,7 +1,7 @@
 import os
 import pickle
 import numpy as np
-from open_relation1.dataset.vrd.relation.pre_hier import PreNet
+from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 from open_relation1.vrd_data_config import vrd_predicate_config
 from open_relation1 import global_config
 

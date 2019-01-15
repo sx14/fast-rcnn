@@ -121,7 +121,7 @@ if __name__ == '__main__':
     vg2path_path = vg_object_config['vg2path_path']
     vg2path(vg2wn, label2index, vg2path_path)
 
-    # relation
+    # predicate
     # rlt_vg2wn_path = vg_relation_config['vg2wn_path']
     # vglabel2wnleaf(anno_root, rlt_vg2wn_path, 'relationships')
 

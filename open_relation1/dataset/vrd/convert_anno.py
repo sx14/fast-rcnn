@@ -61,13 +61,13 @@ for i, anno_name in enumerate(anno_list):
     org_anno_path = os.path.join(org_anno_root, anno_name)
     org_anno = json.load(open(org_anno_path, 'r'))
 
-    # for removing redundant objects from relation
+    # for removing redundant objects from predicate
     obj_label_boxes = []
 
     # clean anno collection
     rlts = []
     for rlt in org_anno:
-        # convert relation anno
+        # convert predicate anno
         new_rlt = rlt_reformat(rlt, obj_ind2label, pre_ind2label)
         rlts.append(new_rlt)
 

@@ -6,7 +6,7 @@ import torch
 from open_relation1.model import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
-from open_relation1.dataset.vrd.relation.pre_hier import PreNet
+from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 
 # prepare feature
@@ -19,7 +19,7 @@ label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
 pn = PreNet()
-org2path_path = config['raw2path_path']
+org2path_path = config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
 label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
 label2index = pickle.load(open(label2index_path))

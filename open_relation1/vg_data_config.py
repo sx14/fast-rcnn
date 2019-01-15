@@ -26,8 +26,8 @@ vg_object_config = {
     'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vg1.h5'),
 }
 
-# relation part config
-vg_relation_feature_root = os.path.join(vg_feature_root, 'relation')
+# predicate part config
+vg_relation_feature_root = os.path.join(vg_feature_root, 'predicate')
 vg_relation_config = {
     'vg2wn_path': os.path.join(vg_relation_feature_root, 'prepare', 'vg2wn.bin'),
     'label2index_path': os.path.join(vg_relation_feature_root, 'prepare', 'label2index.bin'),

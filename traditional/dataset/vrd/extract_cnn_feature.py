@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     # prepare
     target = 'object'
-    # target = 'relation'
+    # target = 'predicate'
     if target == 'object':
         label2index_path = vrd_data_config.vrd_object_config_t['label2index_path']
         vg2wn_path = vrd_data_config.vrd_object_config_t['vrd2wn_path']

@@ -117,7 +117,7 @@ if __name__ == '__main__':
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
     # prepare
-    target = 'object'  # relation
+    target = 'object'  # predicate
     if target == 'object':
         label2index_path = vg_data_config.vg_object_config['label2index_path']
         vg2wn_path = vg_data_config.vg_object_config['vg2wn_path']

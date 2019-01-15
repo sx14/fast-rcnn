@@ -67,8 +67,8 @@ class PreNet:
 
     def _construct_hier(self):
         # root node
-        root = PreNode('relation')
-        self._nodes['relation'] = root
+        root = PreNode('predicate')
+        self._nodes['predicate'] = root
 
         # abstract level
         abs_labels = ['act', 'spa', 'ass', 'cmp']

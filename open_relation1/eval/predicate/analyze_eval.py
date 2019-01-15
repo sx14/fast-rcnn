@@ -1,13 +1,13 @@
 import pickle
 import numpy as np
 from open_relation1 import vrd_data_config
-from open_relation1.dataset.vrd.relation.pre_hier import PreNet
+from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 # prepare label maps
 pn = PreNet()
-label2index_path = vrd_data_config.vrd_object_config['label2index_path']
+label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
 label2index = pickle.load(open(label2index_path))
-index2label_path = vrd_data_config.vrd_object_config['index2label_path']
+index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
 index2label = pickle.load(open(index2label_path))
 
 
