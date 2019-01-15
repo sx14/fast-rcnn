@@ -106,8 +106,20 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         if not os.path.exists(feature_path):
             # extract fc7
             img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
+
+            # pre fc7
             im_detect(net, img, curr_img_boxes[:, :4])
-            fc7s = np.array(net.blobs['fc7'].data)
+            pre_fc7s = np.array(net.blobs['fc7'].data)
+
+            # sbj fc7
+            im_detect(net, img, curr_img_boxes[:, 5:9])
+            sbj_fc7s = np.array(net.blobs['fc7'].data)
+
+            # obj fc7
+            im_detect(net, img, curr_img_boxes[:, 10:14])
+            obj_fc7s = np.array(net.blobs['fc7'].data)
+
+            fc7s = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
 
             # dump feature file
             with open(feature_path, 'w') as feature_file:
