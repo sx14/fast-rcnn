@@ -70,6 +70,10 @@ class MyDataset():
         return True
 
     def load_next_feature_package(self):
+        if self._next_package_start_fid == len(self._feature_indexes):
+            # No more package
+            return
+
         print('Loading features into memory ......')
         del self._curr_package          # release memory
         self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
@@ -91,37 +95,6 @@ class MyDataset():
         random.shuffle(self._curr_package_feature_indexes)
         # init package index cursor
         self._curr_package_cursor = 0
-
-    def minibatch_acc(self, negative_label_num=1000):
-        negative_label_num = min(negative_label_num, len(self._label_embedding))
-        vfs = np.zeros((self._minibatch_size, 4096))
-        p_lfs = np.zeros((self._minibatch_size, self._label_feature_length))
-        v_actual_num = 0
-        p_label_set = set()
-        for v in range(0, self._minibatch_size):
-            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-                # current package finished, load another 4000 feature files
-                self.load_next_feature_package()
-            if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-                vfs = vfs[:v_actual_num]
-                p_lfs = p_lfs[:v_actual_num]
-                break
-            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-            feature_file, offset = self._feature_indexes[fid]
-            vfs[v] = self._curr_package[feature_file][offset]
-            p_label_index = self._label_indexes[fid][0]
-            p_lfs[v] = self._label_embedding[p_label_index]
-            p_label_set = p_label_set | set(self._org2path[self._label_indexes[fid][1]])
-            self._curr_package_cursor += 1
-            v_actual_num += 1
-        all_n_labels = list(set(range(0, len(self._label_embedding))) - p_label_set)
-        n_labels = random.sample(all_n_labels, min(negative_label_num, len(all_n_labels)))
-        n_lfs = self._label_embedding[n_labels]
-        #  vfs: minibatch_size | p_lfs: minibatch_size | n_lfs: negative_label_num
-        vfs = torch.from_numpy(np.array(vfs)).float()
-        p_lfs = torch.from_numpy(np.array(p_lfs)).float()
-        n_lfs = torch.from_numpy(np.array(n_lfs)).float()
-        return vfs, p_lfs, n_lfs
 
     def minibatch_acc1(self, vf_d=4096):
         vfs = np.zeros((self._minibatch_size, vf_d))
