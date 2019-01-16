@@ -26,9 +26,14 @@ def train():
 
     # clean last log
     if os.path.isdir(config['log_root']):
-        os.remove(config['log_path'])
-        os.remove(config['log_loss_path'])
-        os.remove(config['log_acc_path'])
+        if os.path.exists(config['log_path']):
+            os.remove(config['log_path'])
+        if os.path.exists(config['log_loss_path']):
+            os.remove(config['log_loss_path'])
+        if os.path.exists(config['log_acc_path']):
+            os.remove(config['log_acc_path'])
+    else:
+        os.mkdir(config['log_root'])
 
     # init model
     latest_weights_path = config['latest_weight_path']
