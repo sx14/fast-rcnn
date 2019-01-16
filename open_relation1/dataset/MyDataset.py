@@ -49,11 +49,14 @@ class MyDataset():
             self._feature_indexes.append([item_feature_file, item_id])
 
     def init_package(self):
-        self._next_package_start_fid = 0
-        self._curr_package_start_fid = 0
-        self._curr_package_cursor = 0
-        # self._curr_package_feature_indexes = []
-        random.shuffle(self._curr_package_feature_indexes)
+        if self._curr_package_capacity < self._raw_feature_file_num:
+            self._next_package_start_fid = 0
+            self._curr_package_start_fid = 0
+            self._curr_package_feature_indexes = []
+            self._curr_package_cursor = 0
+        else:
+            self._curr_package_cursor = 0
+            random.shuffle(self._curr_package_feature_indexes)
 
     def __len__(self):
         return len(self._feature_indexes)
@@ -66,7 +69,7 @@ class MyDataset():
                 return False
         return True
 
-    def _load_next_feature_package(self):
+    def load_next_feature_package(self):
         print('Loading features into memory ......')
         del self._curr_package          # release memory
         self._curr_package = dict()     # feature_file -> [f1,f2,f3,...]
@@ -98,7 +101,7 @@ class MyDataset():
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
-                self._load_next_feature_package()
+                self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
                 p_lfs = p_lfs[:v_actual_num]
@@ -129,10 +132,7 @@ class MyDataset():
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
-                if self._raw_feature_file_num > self._curr_package_capacity or len(self._curr_package_feature_indexes) == 0:
-                    self._load_next_feature_package()
-                else:
-                    self.init_package()
+                self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
                 pls = pls[:v_actual_num]
@@ -169,7 +169,7 @@ class MyDataset():
         n_lfs = []
         if self._curr_package_cursor == len(self._curr_package_feature_indexes):
             # current package finished, load another 4000 feature files
-            self._load_next_feature_package()
+            self.load_next_feature_package()
         if self._curr_package_cursor < len(self._curr_package_feature_indexes):
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
