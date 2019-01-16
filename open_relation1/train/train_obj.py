@@ -24,7 +24,7 @@ def train():
     val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path,
                             vg2path_path, vg2weight_path, config['batch_size'], config['negative_label_num'])
 
-    # prepare training log
+    # clean last log
     if os.path.isdir(config['log_root']):
         shutil.rmtree(config['log_root'])
         os.mkdir(config['log_root'])
