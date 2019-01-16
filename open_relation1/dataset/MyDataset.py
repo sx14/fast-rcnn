@@ -13,6 +13,7 @@ class MyDataset():
         self._minibatch_size = minibatch_size
         self._negative_label_num = negative_label_num
         self._raw_feature_root = raw_feature_root
+        self._raw_feature_file_num = len(os.listdir(raw_feature_root))
         self._feature_indexes = []      # index feature: [feature file name, offset]
         self._label_indexes = []        # label index
         # cached feature package
@@ -51,7 +52,8 @@ class MyDataset():
         self._next_package_start_fid = 0
         self._curr_package_start_fid = 0
         self._curr_package_cursor = 0
-        self._curr_package_feature_indexes = []
+        # self._curr_package_feature_indexes = []
+        random.shuffle(self._curr_package_feature_indexes)
 
     def __len__(self):
         return len(self._feature_indexes)
@@ -127,7 +129,10 @@ class MyDataset():
         for v in range(0, self._minibatch_size):
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
-                self.load_next_feature_package()
+                if self._raw_feature_file_num > self._curr_package_capacity:
+                    self.load_next_feature_package()
+                else:
+                    self.init_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
                 pls = pls[:v_actual_num]

@@ -71,7 +71,7 @@ vrd_pre_hyper_params = {
     'vrd2weight_path': vrd_data_config.vrd_predicate_config['raw2weight_path'],
     'latest_weight_path': os.path.join(global_config.our_model_root, 'predicate', 'vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'predicate', 'vrd_weights_best.pkl'),
-    'eval_weight_path':os.path.join(global_config.our_model_root, 'best', 'vrd_obj_weights.pkl'),
+    'eval_weight_path':os.path.join(global_config.our_model_root, 'best', 'vrd_pre_weights.pkl'),
 }
 
 hyper_params = {

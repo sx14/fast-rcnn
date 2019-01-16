@@ -9,7 +9,7 @@ from train_config import hyper_params
 
 def train():
     dataset = 'vrd'
-    target = 'predicate'
+    target = 'object'
     # prepare data
     config = hyper_params[dataset][target]
     visual_feature_root = config['visual_feature_root']
