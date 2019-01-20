@@ -52,7 +52,7 @@ org_indexes = [label2index[i] for i in pn.get_raw_labels()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
+net = model.PredicateVisual_acc()
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')
@@ -79,6 +79,7 @@ for feature_file_id in test_box_label:
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
         vf = features[i]
+        vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]

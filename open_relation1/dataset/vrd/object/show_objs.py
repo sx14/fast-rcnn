@@ -45,8 +45,11 @@ def get_objects(img_root, anno_root, img_name):
 if __name__ == '__main__':
     img_root = vrd_config['img_root']
     anno_root = vrd_config['clean_anno_root']
-    img_id = '1602315_961e6acf72_b'
-    for img_name in os.listdir(img_root):
-        im, cls, boxes = get_objects(img_root, anno_root, img_name)
-        if u'post' in cls:
-            show_boxes(im, boxes, cls)
+    img_id = '146360903_8da58c454f_o'
+    im, cls, boxes = get_objects(img_root, anno_root, img_id)
+    show_boxes(im, boxes, cls)
+
+    # for img_name in os.listdir(img_root):
+    #     im, cls, boxes = get_objects(img_root, anno_root, img_name)
+    #     if u'post' in cls:
+    #         show_boxes(im, boxes, cls)

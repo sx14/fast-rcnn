@@ -2,6 +2,7 @@ import os
 import pickle
 import h5py
 import numpy as np
+from matplotlib import pyplot as plt
 import torch
 from open_relation1.model.object import model
 from open_relation1 import vrd_data_config
@@ -51,6 +52,8 @@ T = 0.0
 T1 = 0.0
 # expected -> actual
 e_p = []
+T_ranks = []
+F_ranks = []
 
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
@@ -101,16 +104,25 @@ for feature_file_id in test_box_label:
                         result = 'T: '
                         if org_pred_counter == 0:
                             T += 1
+                            T_ranks.append(j+1)
                         elif org_pred_counter == 1:
                             T1 += 1
                     else:
                         result = 'F: '
+                        F_ranks.append(j+1)
                     if org_pred_counter < 2:
                         print(result + index2label[pred] + '('+str(j+1)+')')
                     else:
                         break
                     org_pred_counter += 1
-
+print('\n=========================================')
 print('accuracy: %.2f' % (T / counter))
 print('potential accuracy increment: %.2f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
+
+
+plt.hist(F_ranks, 100)
+plt.xlabel('rank')
+plt.ylabel('num')
+plt.show()
+

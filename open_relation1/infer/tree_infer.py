@@ -68,6 +68,13 @@ def cal_rank_scores(label_num):
         rank_scores[r] = a*(r-b)**2 + c
     return rank_scores
 
+def cal_rank_scores1(n_item):
+    s_max = 10
+    ranks = np.arange(1, n_item+1).astype(np.float)
+
+    s = (np.cos(ranks / n_item * np.pi) + 1) * (s_max * 1.0 / 2)
+    return s
+
 
 def my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores):
     index2label = np.array(index2label)
