@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
 import numpy as np
-from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
 
 
 def cal_rank_scores(label_num):

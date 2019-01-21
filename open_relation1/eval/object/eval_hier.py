@@ -4,11 +4,11 @@ import h5py
 import numpy as np
 import torch
 from nltk.corpus import wordnet as wn
-from open_relation1.infer import tree_infer, simple_infer
+from open_relation1.infer import tree_infer2, simple_infer
 from open_relation1.model.object import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
-
+from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
 
 def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
     if pred_ind == org_label_ind:
@@ -68,7 +68,7 @@ T = 0.0
 # expected -> actual
 e_p = []
 
-rank_scores = tree_infer.cal_rank_scores1(len(index2label))
+rank_scores = tree_infer2.cal_rank_scores1(len(index2label))
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
@@ -85,7 +85,8 @@ for feature_file_id in test_box_label:
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
+        pred_ind, cands = tree_infer2.my_infer(objnet, scores, rank_scores)
+        # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
         T += pred_score
