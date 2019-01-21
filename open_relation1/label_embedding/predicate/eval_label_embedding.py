@@ -5,7 +5,8 @@ import h5py
 import numpy as np
 from nltk.corpus import wordnet as wn
 from open_relation1.vrd_data_config import vrd_predicate_config
-from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
+# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 
 dataset_name = 'vrd'
@@ -29,7 +30,7 @@ def eval2(label_vecs, index2label, label2index, pnet):
         pred = np.argsort(E)[:20]
         print('\n===== '+label+' =====')
         print('---answer---')
-        pre = pnet.get_pre(label)
+        pre = pnet.get_node_by_name(label)
         wn_label_set = set()
         for hyper_path in pre.hyper_paths():
             for w in hyper_path:
@@ -51,7 +52,7 @@ def eval3(label_vecs, index2label, label2index, pnet, label):
     print('\n===== '+label+' =====')
     print('---answer---')
 
-    pre = pnet.get_pre(label)
+    pre = pnet.get_node_by_name(label)
     wn_label_set = set()
     for hyper_path in pre.hyper_paths():
         for w in hyper_path:
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     index2label = pickle.load(open(index2label_path, 'rb'))
     raw2path_path = vrd_predicate_config['raw2path_path']
     raw2path = pickle.load(open(raw2path_path, 'rb'))
-    pn = PreNet()
+    # prenet = PreNet()
 
-    eval2(label_vecs, index2label, label2index, pn)
+    eval2(label_vecs, index2label, label2index, prenet)
     # eval3(label_vecs, index2label, label2index, pn, 'sleep next to')

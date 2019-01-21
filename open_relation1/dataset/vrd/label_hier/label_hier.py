@@ -60,6 +60,10 @@ class LabelNode(object):
 
 class LabelHier:
 
+    def root(self):
+        raw_label_node = self._label2node[self._raw_labels[0]]
+        return raw_label_node.hyper_paths()[0][0]
+
     def label2index(self):
         l2i = dict()
         for l in self._label2node:

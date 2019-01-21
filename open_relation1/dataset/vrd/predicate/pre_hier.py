@@ -1,11 +1,13 @@
 import os
 from open_relation1.vrd_data_config import vrd_predicate_config
 
+# ATTENTION: THIS IS DEPRECATED
+# USE: open_relation1.dataset.vrd.label_hier.pre_hier.prenet
 
 class PreNode:
     def __init__(self, name):
         self._name = name
-        self.hypers = []
+        self._hypers = []
 
     def __str__(self):
         return self._name
@@ -13,16 +15,19 @@ class PreNode:
     def name(self):
         return self._name
 
-    def get_hypers(self):
-        return self.hypers
+    def hypers(self):
+        return self._hypers
+
+    def append_hyper(self, hyper):
+        self._hypers.append(hyper)
 
     def hyper_paths(self):
-        if len(self.hypers) == 0:
+        if len(self._hypers) == 0:
             # root
             return [[self]]
         else:
             paths = []
-            for hyper in self.hypers:
+            for hyper in self._hypers:
                 sub_paths = hyper.hyper_paths()
                 for sub_path in sub_paths:
                     sub_path.append(self)
@@ -48,7 +53,7 @@ class PreNet:
     def get_raw_labels(self):
         return self._raw_labels
 
-    def get_pre(self, name):
+    def get_node_by_name(self, name):
         if name in self._nodes:
             return self._nodes[name]
         else:
@@ -74,7 +79,7 @@ class PreNet:
         abs_labels = ['act', 'spa', 'ass', 'cmp']
         for abs_label in abs_labels:
             node = PreNode(abs_label)
-            node.hypers.append(root)
+            node.append_hyper(root)
             self._nodes[abs_label] = node
 
         # basic level
@@ -107,7 +112,7 @@ class PreNet:
             # link basic level to abstract level
             for basic_label in basic_labels:
                 pre = PreNode(basic_label)
-                pre.hypers.append(abs_pre)
+                pre.append_hyper(abs_pre)
                 self._nodes[basic_label] = pre
 
         # concrete level
@@ -123,7 +128,7 @@ class PreNet:
                 for part in phrase:
                     if part in self._nodes:
                         hyper = self._nodes[part]
-                        node.hypers.append(hyper)
+                        node.append_hyper(hyper)
                     else:
                         # print(' <%s> -> <%s> miss' % (raw_pre, part))
                         pass
@@ -137,7 +142,9 @@ class PreNet:
         self._construct_hier()
 
 
-if __name__ == '__main__':
-    a = PreNet()
-    n = a.get_pre('stand next to')
-    n.show_hyper_paths()
+
+#
+# if __name__ == '__main__':
+#     a = PreNet()
+#     n = a.get_node_by_name('stand next to')
+#     n.show_hyper_paths()

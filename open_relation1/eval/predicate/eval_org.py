@@ -6,7 +6,8 @@ import torch
 from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
-from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
+# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 
 # prepare feature
@@ -18,7 +19,7 @@ label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
-pn = PreNet()
+# prent = PreNet()
 org2path_path = config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
 label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
@@ -89,7 +90,7 @@ for feature_file_id in test_box_label:
                 exit(0)
         # ====== org label only =====
         else:
-            org_indexes = set([label2index[l] for l in pn.get_raw_labels()])
+            org_indexes = set([label2index[l] for l in prent.get_raw_labels()])
             org_pred_counter = 0
             print('\n===== ' + org_label + ' =====')
             for j, pred in enumerate(ranked_inds):

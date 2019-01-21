@@ -3,11 +3,12 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from open_relation1.infer import tree_infer
+from open_relation1.infer import tree_infer2
 from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
-from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
+# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
 
 
 def score_pred(pred_ind, raw_label_ind, pred_label, raw_label, raw2path, pre_net):
@@ -16,7 +17,7 @@ def score_pred(pred_ind, raw_label_ind, pred_label, raw_label, raw2path, pre_net
     elif pred_ind not in raw2path[raw_label_ind]:
         return 0
     else:
-        pre = pre_net.get_pre(raw_label)
+        pre = pre_net.get_node_by_name(raw_label)
         hyper_paths = pre.hyper_paths()
         best_ratio = 0
         for h_path in hyper_paths:
@@ -37,7 +38,7 @@ label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
-pn = PreNet()
+# prenet = PreNet()
 org2path_path = config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
 org2pw_path = vrd_data_config.vrd_predicate_config['raw2pw_path']
@@ -47,7 +48,7 @@ label2index = pickle.load(open(label2index_path))
 index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
 index2label = pickle.load(open(index2label_path))
 
-org_indexes = [label2index[i] for i in pn.get_raw_labels()]
+org_indexes = [label2index[i] for i in prenet.get_raw_labels()]
 
 
 # load model with best weights
@@ -67,7 +68,7 @@ T = 0.0
 # expected -> actual
 e_p = []
 
-rank_scores = tree_infer.cal_rank_scores(len(index2label))
+rank_scores = tree_infer2.cal_rank_scores(len(index2label))
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
@@ -85,9 +86,10 @@ for feature_file_id in test_box_label:
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
         scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
+        pred_ind, cands = tree_infer2.my_infer(prenet, scores, rank_scores)
+        # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer(scores, org2path, label2index)
-        pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org_label, org2path, pn)
+        pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org_label, org2path, prenet)
         T += pred_score
         if pred_score > 0:
             result = str(counter).ljust(5) + ' T: '

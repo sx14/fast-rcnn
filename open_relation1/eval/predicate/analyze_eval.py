@@ -1,10 +1,11 @@
 import pickle
 import numpy as np
 from open_relation1 import vrd_data_config
-from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
+# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+
 
 # prepare label maps
-pn = PreNet()
 label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
 label2index = pickle.load(open(label2index_path))
 index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
@@ -20,7 +21,7 @@ e_freq = dict()
 e_acc = dict()
 
 # prediction matrix : expected -> prediction
-mat2org = [label2index[i] for i in pn.get_raw_labels()]
+mat2org = [label2index[i] for i in prenet.get_raw_labels()]
 org2mat = dict()
 for i, org in enumerate(mat2org):
     org2mat[org] = i
