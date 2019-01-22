@@ -49,13 +49,13 @@ class ObjNet(LabelHier):
                             if w.name() not in wn_label_set:
                                 wn_label_set.add(w.name())
                                 # create new label node
-                                node = LabelNode(w.name(), next_label_index)
+                                node = LabelNode(w.name(), next_label_index, False)
                                 self._label2node[w.name()] = node
                                 self._index2node.append(node)
                                 next_label_index += 1
 
             # raw label is unique
-            node = LabelNode(raw_label, next_label_index)
+            node = LabelNode(raw_label, next_label_index, True)
             self._label2node[raw_label] = node
             self._index2node.append(node)
             next_label_index += 1

@@ -2,14 +2,21 @@ import os
 
 
 class LabelNode(object):
-    def __init__(self, name, index):
+    def __init__(self, name, index, is_raw):
         self._weight = -1
         self._index = index
         self._name = name
         self._hypers = []
+        self._is_raw = is_raw
 
     def __str__(self):
         return self._name
+
+    def set_raw(self, is_raw):
+        self._is_raw = is_raw
+
+    def is_raw(self):
+        return self._is_raw
 
     def name(self):
         return self._name
@@ -76,12 +83,16 @@ class LabelHier:
             i2l.append(n.name())
         return i2l
 
+
+
     def raw2path(self):
-        r2p = dict()
-        for r in self._raw_labels:
-            rn = self.get_node_by_name(r)
-            r2p[r] = rn.trans_hyper_inds()
-        return r2p
+        if self._raw2path is None:
+            r2p = dict()
+            for r in self._raw_labels:
+                rn = self.get_node_by_name(r)
+                r2p[r] = rn.trans_hyper_inds()
+            self._raw2path = r2p
+        return self._raw2path
 
     def label_sum(self):
         return len(self._index2node)
@@ -124,4 +135,5 @@ class LabelHier:
         bk = LabelNode('__background__', 0)
         self._label2node = {'__background__': bk}
         self._index2node = [bk]
+        self._raw2path = None
         self._construct_hier()

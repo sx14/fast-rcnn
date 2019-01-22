@@ -9,7 +9,7 @@ class PreNet(LabelHier):
         # root node
         # 0 is background
         next_label_ind = 1
-        root = LabelNode('predicate', next_label_ind)
+        root = LabelNode('predicate', next_label_ind, False)
         self._index2node.append(root)
         self._label2node['predicate'] = root
         next_label_ind += 1
@@ -18,7 +18,7 @@ class PreNet(LabelHier):
         # action, spatial, association, comparison
         abs_labels = ['act', 'spa', 'ass', 'cmp']
         for abs_label in abs_labels:
-            node = LabelNode(abs_label, next_label_ind)
+            node = LabelNode(abs_label, next_label_ind, False)
             self._index2node.append(node)
             next_label_ind += 1
             node.append_hyper(root)
@@ -53,7 +53,7 @@ class PreNet(LabelHier):
             basic_labels = basic_label_lists[i]
             # link basic level to abstract level
             for basic_label in basic_labels:
-                node = LabelNode(basic_label, next_label_ind)
+                node = LabelNode(basic_label, next_label_ind, False)
                 next_label_ind += 1
                 self._index2node.append(node)
                 node.append_hyper(abs_pre)
@@ -63,7 +63,7 @@ class PreNet(LabelHier):
         for raw_label in self._raw_labels:
             if raw_label not in self._label2node:
                 # predicate phrase
-                node = LabelNode(raw_label, next_label_ind)
+                node = LabelNode(raw_label, next_label_ind, True)
                 next_label_ind += 1
                 self._index2node.append(node)
                 first_space_pos = raw_label.find(' ')
@@ -79,6 +79,9 @@ class PreNet(LabelHier):
                         # print(' <%s> -> <%s> miss' % (raw_pre, part))
                         pass
                 self._label2node[raw_label] = node
+            else:
+                raw_node = self._label2node[raw_label]
+                raw_node.set_raw(True)
 
     def __init__(self, pre_label_path):
         LabelHier.__init__(self, pre_label_path)
