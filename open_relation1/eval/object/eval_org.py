@@ -121,7 +121,7 @@ print('potential accuracy increment: %.2f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
 
 
-plt.hist(F_ranks, 100)
+plt.hist(T_ranks, 100)
 plt.xlabel('rank')
 plt.ylabel('num')
 plt.show()

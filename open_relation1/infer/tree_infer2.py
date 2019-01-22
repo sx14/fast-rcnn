@@ -88,7 +88,7 @@ def top_down(tree, label_hier):
         if len(children) == 1:
             choice = children[0]
         elif len(children) > 1:
-            ranked_children = sorted(children, key=children.rank())
+            ranked_children = sorted(children, key=lambda c: c.rank())
             r1 = ranked_children[0].rank()
             r2 = ranked_children[1].rank()
             if (r1 - parent_rank) < 5 and (r2 - r1) > r1:
@@ -100,8 +100,9 @@ def top_down(tree, label_hier):
     root_ind = label_hier.root().index()
     tnode = tree[root_ind]
     while tnode:
+        choice = tnode
         tnode = choose_child(tnode.children(), 0)
-    return [tnode.index(), tnode.rank()]
+    return [choice.index(), choice.rank()]
 
 
 def bottom_up(tree, label_hier, top2_raw):
@@ -109,8 +110,13 @@ def bottom_up(tree, label_hier, top2_raw):
     node2 = label_hier.get_node_by_index(top2_raw[1][0])
     n1_path = node1.trans_hyper_inds()
     n2_path = node2.trans_hyper_inds()
-    pred_ind = max(set(n1_path) & set(n2_path))
-    return [pred_ind, tree[pred_ind].rank()]
+    common_path = set(n1_path) & set(n2_path)
+    if len(common_path) * 1.0 / len(n1_path) > (len(n1_path) * 1.0 - 2 / len(n1_path)):
+        pred_ind = max(common_path)
+        return [pred_ind, tree[pred_ind].rank()]
+    else:
+        return top2_raw[0]
+
 
 
 def my_infer(label_hier, scores, rank_scores):
@@ -122,7 +128,7 @@ def my_infer(label_hier, scores, rank_scores):
     # top2 raw label as default predictions
     raw_top2 = []
     for r, ind in enumerate(ranked_inds):
-        if label_hier.get_node_by_index[ind].is_raw() and len(raw_top2) < 2:
+        if label_hier.get_node_by_index(ind).is_raw() and len(raw_top2) < 2:
             raw_top2.append([ind, r+1])
 
     # half
@@ -139,6 +145,6 @@ def my_infer(label_hier, scores, rank_scores):
         else:
             # top1 is confident, but confuses with top2
             # do bottom up search
-            cands = [bottom_up(ind2node), raw_top2[0]]
-    return cands
+            cands = [bottom_up(ind2node, label_hier, raw_top2), raw_top2[0]]
+    return cands[0][0], cands
 
