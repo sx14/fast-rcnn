@@ -84,7 +84,11 @@ for feature_file_id in test_box_label:
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
-        scores = net.forward2(vf_v, lfs_v).cpu().data
+        scores = net.forward2(vf_v, lfs_v).cpu().data\
+
+        if counter == 6:
+            a = 1
+
         pred_ind, cands = tree_infer2.my_infer(objnet, scores, rank_scores)
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)

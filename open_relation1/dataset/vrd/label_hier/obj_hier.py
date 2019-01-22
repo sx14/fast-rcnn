@@ -84,7 +84,7 @@ class ObjNet(LabelHier):
 label_path = os.path.join(vrd_root, 'object_labels.txt')
 objnet = ObjNet(label_path)
 
-# if __name__ == '__main__':
-#     a = ObjNet(label_path)
-#     n = a.get_node_by_name('pants')
-#     n.show_hyper_paths()
+if __name__ == '__main__':
+    a = ObjNet(label_path)
+    n = a.get_node_by_name('road')
+    n.show_hyper_paths()

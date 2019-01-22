@@ -91,7 +91,7 @@ def top_down(tree, label_hier):
             ranked_children = sorted(children, key=lambda c: c.rank())
             r1 = ranked_children[0].rank()
             r2 = ranked_children[1].rank()
-            if (r1 - parent_rank) < 5 and (r2 - r1) > r1:
+            if (r2 - r1) > r1:
                 # r1 is confident, and doesn't confuse with r2
                 choice = ranked_children[0]
         return choice
@@ -105,13 +105,14 @@ def top_down(tree, label_hier):
     return [choice.index(), choice.rank()]
 
 
-def bottom_up(tree, label_hier, top2_raw):
+def bottom_up(tree, label_hier, top2_raw, thr):
     node1 = label_hier.get_node_by_index(top2_raw[0][0])
     node2 = label_hier.get_node_by_index(top2_raw[1][0])
     n1_path = node1.trans_hyper_inds()
     n2_path = node2.trans_hyper_inds()
+    min_plength = min(len(n1_path), len(n2_path))
     common_path = set(n1_path) & set(n2_path)
-    if len(common_path) * 1.0 / len(n1_path) > (len(n1_path) * 1.0 - 2 / len(n1_path)):
+    if len(common_path) * 1.0 / min_plength > thr:
         pred_ind = max(common_path)
         return [pred_ind, tree[pred_ind].rank()]
     else:
@@ -131,20 +132,20 @@ def my_infer(label_hier, scores, rank_scores):
         if label_hier.get_node_by_index(ind).is_raw() and len(raw_top2) < 2:
             raw_top2.append([ind, r+1])
 
-    # half
-    half_rank = len(rank_scores) / 2
-    if raw_top2[0][1] < half_rank and (raw_top2[0][1] - raw_top2[1][1]) > 40:
-        # top1 is confident, and doesn't confuse
+    # confident part
+    half_rank = len(rank_scores) / 3
+    if raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) > label_hier.label_sum() / 7:
         cands = raw_top2
-    else:
-        # construct tree
+    elif raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= label_hier.label_sum() / 7:
         ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
-        if raw_top2[0][1] >= half_rank:
-            # top1 is so bad, do top down search
+        cands = [bottom_up(ind2node, label_hier, raw_top2, 0.75), raw_top2[0]]
+    elif raw_top2[0][1] >= half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= label_hier.label_sum() / 7:
+        ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
+        cands = [bottom_up(ind2node, label_hier, raw_top2, 0.5), raw_top2[0]]
+        if cands[0][0] == raw_top2[0][0]:
             cands = [top_down(ind2node, label_hier), raw_top2[0]]
-        else:
-            # top1 is confident, but confuses with top2
-            # do bottom up search
-            cands = [bottom_up(ind2node, label_hier, raw_top2), raw_top2[0]]
-    return cands[0][0], cands
+    else:
+        ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
+        cands = [top_down(ind2node, label_hier), raw_top2[0]]
+    return cands[0][0], raw_top2
 
