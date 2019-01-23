@@ -1,7 +1,7 @@
 import os
 from label_hier import LabelHier
 from label_hier import LabelNode
-from open_relation1.vrd_data_config import vrd_root
+from open_relation1.vrd_data_config import vrd_predicate_feature_prepare_root
 
 class PreNet(LabelHier):
 
@@ -126,7 +126,7 @@ class PreNet(LabelHier):
         LabelHier.__init__(self, pre_label_path)
 
 
-label_path = os.path.join(vrd_root, 'predicate_labels.txt')
+label_path = os.path.join(vrd_predicate_feature_prepare_root, 'predicate_labels.txt')
 prenet = PreNet(label_path)
 
 # if __name__ == '__main__':
