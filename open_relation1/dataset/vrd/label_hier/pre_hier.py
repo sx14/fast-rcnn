@@ -25,26 +25,24 @@ class PreNet(LabelHier):
             self._label2node[abs_label] = node
 
         # basic level
-        act_labels = ['wear',    'sleep',    'sit',      'stand',
-                        'park',    'walk',     'hold',     'ride',
-                        'carry',   'look',     'use',      'cover',
-                        'touch',   'watch',    'drive',    'eat',
-                        'lying',   'pull',     'talk',     'lean',
-                        'fly',     'face',     'rest',     'skate',
-                        'follow',  'hit',      'feed',     'kick',
-                        'play with']
+        act_labels = [  'kick',    'sit',       'stand',
+                        'park',    'walk',     'hold',      'ride',
+                        'carry',   'look',     'use',       'cover',
+                        'touch',   'watch',    'drive',     'eat',
+                        'pull',     'talk',    'lean',
+                        'fly',     'face',     'rest',      'skate',
+                        'follow',  'hit',      'feed',      'play with']
 
-        spa_labels = ['on',      'next to',  'above',    'behind',
-                        'under',   'near',     'in',       'below',
-                        'beside',  'over',     'by',       'beneath',
-                        'on the top of',        'in the front of',
-                        'on the left of',       'on the right of',
-                        'at',      'against',  'inside',   'adjacent to',
-                        'across',  'outside of' ]
+        spa_labels = [  'on.s',     'under.s',
+                        'near',     'in.s',
+                        'in the front of',  'behind',
+                        'at',      'against',
+                        'across',  'outside of']
 
-        ass_labels = ['has',     'with',     'attach to',    'contain']
+        ass_labels = [  'has',     'with.a',     'attach to',    'contain']
 
-        cmp_labels = ['than']
+        cmp_labels = [  'than']
+
 
         basic_label_lists = [act_labels, spa_labels, ass_labels, cmp_labels]
         for i in range(len(abs_labels)):
@@ -58,6 +56,47 @@ class PreNet(LabelHier):
                 self._index2node.append(node)
                 node.append_hyper(abs_pre)
                 self._label2node[basic_label] = node
+
+        # supply basic level
+        supplement = [
+            # action
+            ('sleep', 'rest'),
+            ('lying', 'rest'),
+            # spatial
+            ('on', 'on.s'),
+            ('above', 'on.s'),
+            ('over', 'on.s'),
+            ('on the top of', 'on.s'),
+            ('under', 'under.s'),
+            ('below', 'under.s'),
+            ('beneath', 'under.s'),
+            ('in', 'in.s'),
+            ('inside', 'in.s'),
+            ('beside.s', 'near'),
+            ('beside', 'beside.s'),
+            ('by', 'beside.s'),
+            ('on the left of', 'beside.s'),
+            ('on the right of', 'beside.s'),
+            ('next to', 'beside.s'),
+            ('adjacent to', 'beside.s'),
+            # association
+            ('with', 'with.a'),
+            ('wear', 'with.a'),
+        ]
+
+        for s in supplement:
+            child_label = s[0]
+            parent_label = s[1]
+            if parent_label not in self._label2node:
+                print(parent_label + ' not create !')
+                exit(-1)
+            parent_node = self._label2node[parent_label]
+            child_node = LabelNode(child_label, next_label_ind, False)
+            next_label_ind += 1
+            self._index2node.append(child_node)
+            self._label2node[child_label] = child_node
+            child_node.append_hyper(parent_node)
+
 
         # concrete level
         for raw_label in self._raw_labels:
@@ -76,7 +115,7 @@ class PreNet(LabelHier):
                         hyper = self._label2node[part]
                         node.append_hyper(hyper)
                     else:
-                        # print(' <%s> -> <%s> miss' % (raw_pre, part))
+                        # print(' <%s> -> <%s> miss' % (raw_label, part))
                         pass
                 self._label2node[raw_label] = node
             else:
