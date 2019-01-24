@@ -34,7 +34,7 @@ class PreNet(LabelHier):
                         'follow',  'hit',      'feed',      'play with']
 
         spa_labels = [  'on.s',     'under.s',
-                        'near',     'in.s',
+                        'near.s',     'in.s',
                         'in the front of',  'behind',
                         'at',      'against',
                         'across',  'outside of']
@@ -72,7 +72,8 @@ class PreNet(LabelHier):
             ('beneath', 'under.s'),
             ('in', 'in.s'),
             ('inside', 'in.s'),
-            ('beside.s', 'near'),
+            ('near', 'near.s'),
+            ('beside.s', 'near.s'),
             ('beside', 'beside.s'),
             ('by', 'beside.s'),
             ('on the left of', 'beside.s'),
