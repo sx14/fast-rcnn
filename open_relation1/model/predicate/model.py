@@ -85,6 +85,7 @@ class HypernymVisual_acc(nn.Module):
         vf_embedding = self.embedding.forward(vf_hidden)
         return vf_embedding
 
+
 class PredicateVisual_acc(nn.Module):
     def __init__(self):
         super(PredicateVisual_acc, self).__init__()
@@ -157,7 +158,7 @@ class PredicateVisual_acc(nn.Module):
 
         return score_stack
 
-    def forward2(self, vfs, lfs):
+    def forward2(self, vfs, pre_lfs, obj_lfs):
         sbj_vfs = vfs[:, :obj_config['visual_d']]
         pre_vfs = vfs
         obj_vfs = vfs[:, -obj_config['visual_d']:]
@@ -172,6 +173,9 @@ class PredicateVisual_acc(nn.Module):
         vf_hidden = self.hidden.forward(vf)
         vf_hidden = self.activate(vf_hidden)
         vf_embedding = self.embedding.forward(vf_hidden)
-        scores = self.partial_order_similarity.forward(lfs, vf_embedding)
-        return scores
+        pre_scores = self.partial_order_similarity.forward(pre_lfs, vf_embedding)
+        sbj_scores = self.partial_order_similarity.forward(obj_lfs, sbj_embedding)
+        obj_scores = self.partial_order_similarity.forward(obj_lfs, obj_embedding)
+
+        return pre_scores, sbj_scores, obj_scores
 

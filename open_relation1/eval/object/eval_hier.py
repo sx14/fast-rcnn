@@ -65,6 +65,7 @@ print(net)
 # simple TF counter
 counter = 0
 T = 0.0
+T_C = 0.0
 # expected -> actual
 e_p = []
 
@@ -84,17 +85,14 @@ for feature_file_id in test_box_label:
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
-        scores = net.forward2(vf_v, lfs_v).cpu().data\
-
-        if counter == 6:
-            a = 1
-
-        pred_ind, cands = tree_infer2.my_infer(objnet, scores, rank_scores)
+        scores = net.forward2(vf_v, lfs_v).cpu().data
+        pred_ind, cands = tree_infer2.my_infer(objnet, scores, rank_scores, 'obj')
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
         T += pred_score
         if pred_score > 0:
+            T_C += 1
             result = str(counter).ljust(5) + ' T: '
         else:
             result = str(counter).ljust(5) + ' F: '
@@ -104,6 +102,6 @@ for feature_file_id in test_box_label:
         print(pred_str + cand_str)
 
 print('\n=========================================')
-print('accuracy: %.2f' % (T / counter))
+print('accuracy: %.2f (%.2f)' % (T / counter, T_C / counter))
 
 

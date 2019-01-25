@@ -98,7 +98,6 @@ class PreNet(LabelHier):
             self._label2node[child_label] = child_node
             child_node.append_hyper(parent_node)
 
-
         # concrete level
         for raw_label in self._raw_labels:
             if raw_label not in self._label2node:

@@ -3,6 +3,9 @@ import sys
 import numpy as np
 
 
+
+
+
 def cal_rank_scores(label_num):
     # rank scores [1 - 10]
     # s = a(x - b)^2 + c
@@ -55,6 +58,9 @@ class TreeNode:
 
     def index(self):
         return self._index
+
+    def name(self):
+        return self._name
 
 
 def construct_tree(label_hier, ranked_inds, ind2rank):
@@ -112,7 +118,7 @@ def bottom_up(tree, label_hier, top2_raw, thr):
     n2_path = node2.trans_hyper_inds()
     min_plength = min(len(n1_path), len(n2_path))
     common_path = set(n1_path) & set(n2_path)
-    if len(common_path) * 1.0 / min_plength > thr:
+    if len(common_path) * 1.0 / min_plength >= thr:
         pred_ind = max(common_path)
         return [pred_ind, tree[pred_ind].rank()]
     else:
@@ -120,7 +126,21 @@ def bottom_up(tree, label_hier, top2_raw, thr):
 
 
 
-def my_infer(label_hier, scores, rank_scores):
+
+def my_infer(label_hier, scores, rank_scores, target):
+    obj_thr = {'b_u': 0.75,
+               't_d': 0.5,
+               'min_dis': label_hier.label_sum() / 7,
+               'half': label_hier.label_sum() / 3}
+    pre_thr = {'b_u': 0.6,
+               't_d': 0.25,
+               'min_dis': 1,
+               'half': 10}
+    thr = {'obj': obj_thr,
+           'pre': pre_thr}
+
+    threshold = thr[target]
+
     # label_ind 2 rank
     ind2rank = [0] * label_hier.label_sum()
     ranked_inds = np.argsort(scores).tolist()
@@ -133,15 +153,15 @@ def my_infer(label_hier, scores, rank_scores):
             raw_top2.append([ind, r+1])
 
     # confident part
-    half_rank = len(rank_scores) / 3
-    if raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) > label_hier.label_sum() / 7:
+    half_rank = threshold['half']
+    if raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) > threshold['min_dis']:
         cands = raw_top2
-    elif raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= label_hier.label_sum() / 7:
+    elif raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= threshold['min_dis']:
         ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
-        cands = [bottom_up(ind2node, label_hier, raw_top2, 0.75), raw_top2[0]]
-    elif raw_top2[0][1] >= half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= label_hier.label_sum() / 7:
+        cands = [bottom_up(ind2node, label_hier, raw_top2, threshold['b_u']), raw_top2[0]]
+    elif raw_top2[0][1] >= half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= threshold['min_dis']:
         ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
-        cands = [bottom_up(ind2node, label_hier, raw_top2, 0.5), raw_top2[0]]
+        cands = [bottom_up(ind2node, label_hier, raw_top2, threshold['t_d']), raw_top2[0]]
         if cands[0][0] == raw_top2[0][0]:
             cands = [top_down(ind2node, label_hier), raw_top2[0]]
     else:

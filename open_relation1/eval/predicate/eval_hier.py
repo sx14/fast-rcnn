@@ -30,16 +30,21 @@ def score_pred(pred_ind, raw_label_ind, pred_label, raw_label, raw2path, pre_net
 
 
 # prepare feature
-config = hyper_params['vrd']['predicate']
+pre_config = hyper_params['vrd']['predicate']
+obj_config = hyper_params['vrd']['object']
 test_list_path = os.path.join(vrd_data_config.vrd_predicate_feature_prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
-label_vec_path = config['label_vec_path']
+# predicate label vec
+label_vec_path = pre_config['label_vec_path']
 label_embedding_file = h5py.File(label_vec_path, 'r')
-label_vecs = np.array(label_embedding_file['label_vec'])
-
+pre_label_vecs = np.array(label_embedding_file['label_vec'])
+# object label vec
+label_vec_path = obj_config['label_vec_path']
+label_embedding_file = h5py.File(label_vec_path, 'r')
+obj_label_vecs = np.array(label_embedding_file['label_vec'])
 # prepare label maps
 # prenet = PreNet()
-org2path_path = config['vrd2path_path']
+org2path_path = pre_config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
 org2pw_path = vrd_data_config.vrd_predicate_config['raw2pw_path']
 org2pw = pickle.load(open(org2pw_path))
@@ -52,7 +57,7 @@ org_indexes = [label2index[i] for i in prenet.get_raw_labels()]
 
 
 # load model with best weights
-best_weights_path = config['latest_weight_path']
+best_weights_path = pre_config['best_weight_path']
 net = model.PredicateVisual_acc()
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
@@ -65,11 +70,12 @@ print(net)
 # simple TF counter
 counter = 0
 T = 0.0
+T_C = 0.0
 # expected -> actual
 e_p = []
 
 rank_scores = tree_infer2.cal_rank_scores(len(index2label))
-visual_feature_root = config['visual_feature_root']
+visual_feature_root = pre_config['visual_feature_root']
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
     if len(box_labels) == 0:
@@ -82,17 +88,21 @@ for feature_file_id in test_box_label:
         vf = features[i]
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
-        lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
+        pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
+        obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
-        scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = tree_infer2.my_infer(prenet, scores, rank_scores)
+        p_scores, _, _ = net.forward2(vf_v, pre_lfs_v, obj_lfs_v).cpu().data
+        if counter == 3:
+            a = 1
+        pred_ind, cands = tree_infer2.my_infer(prenet, p_scores, rank_scores, 'pre')
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org_label, org2path, prenet)
         T += pred_score
         if pred_score > 0:
             result = str(counter).ljust(5) + ' T: '
+            T_C += 1
         else:
             result = str(counter).ljust(5) + ' F: '
 
@@ -101,6 +111,6 @@ for feature_file_id in test_box_label:
         print(pred_str + cand_str)
 
 print('\n=========================================')
-print('accuracy: %.2f' % (T / counter))
+print('accuracy: %.2f (%.2f)' % ((T / counter), (T_C / counter)))
 
 

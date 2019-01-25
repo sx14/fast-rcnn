@@ -5,6 +5,7 @@ import h5py
 import numpy as np
 from nltk.corpus import wordnet as wn
 from open_relation1.vrd_data_config import vrd_object_config
+from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
 
 
 dataset_name = 'vrd'
@@ -50,7 +51,7 @@ def eval3(label_vecs, index2label, label2index, vg2wn, label):
     sub[sub < 0] = 0
     sub_square = sub * sub
     E = np.sum(sub_square, axis=1)
-    pred = np.argsort(E)[:20]
+    pred = np.argsort(E)[:50]
     print('\n===== '+label+' =====')
     print('---answer---')
     if label in vg2wn:
@@ -69,6 +70,19 @@ def eval3(label_vecs, index2label, label2index, vg2wn, label):
         print(index2label[p] + '| %f' % E[p])
 
 
+def eval4(label_vecs, label2index, label1, label2):
+    ind1 = label2index[label1]
+    ind2=  label2index[label2]
+    vec1 = label_vecs[ind1]
+    vec2 = label_vecs[ind2]
+    sub = vec1 - vec2
+    sub[sub < 0] = 0
+    sub_square = sub * sub
+    E = np.sqrt(np.sum(sub_square))
+    print('P( %s , %s ) = %.2f' % (label1, label2, E))
+
+
+
 if __name__ == '__main__':
     # label vectors
     weight_path = vrd_object_config['label_vec_path']
@@ -83,5 +97,7 @@ if __name__ == '__main__':
     vg2wn_path = vrd_object_config['vrd2wn_path']
     vg2wn = pickle.load(open(vg2wn_path, 'rb'))
 
-    eval2(label_vecs, index2label, label2index, vg2wn)
-    eval3(label_vecs, index2label, label2index, vg2wn, 'living_thing.n.01')
+    # eval2(label_vecs, index2label, label2index, vg2wn)
+    # eval3(label_vecs, index2label, label2index, vg2wn, 'jeans')
+    # eval4(label_vecs, label2index, 'shirt', 'garment.n.01')
+    objnet.get_node_by_name('person').show_hyper_paths()
