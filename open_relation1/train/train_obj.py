@@ -59,7 +59,7 @@ def train():
 
     # optimizer
     optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
-                           {'params': bias_p, 'weight_decay': 0}],
+                             {'params': bias_p, 'weight_decay': 0}],
                           lr=config['lr'])
     loss_func = torch.nn.CrossEntropyLoss(reduce=False)
 

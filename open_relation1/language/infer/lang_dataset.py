@@ -12,6 +12,14 @@ from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
 
 class LangDataset(Dataset):
 
+    def update_pos_neg_pairs(self):
+        obj_label_num = objnet.label_sum()
+        random_obj_labels = np.random.choice(range(obj_label_num), self._pos_rlts.shape[0])
+        neg_rlts = copy.deepcopy(self._pos_rlts)
+        neg_rlts[:neg_rlts.shape[0] / 2, 0] = random_obj_labels[:neg_rlts.shape[0] / 2]
+        neg_rlts[neg_rlts.shape[0] / 2:, 2] = random_obj_labels[neg_rlts.shape[0] / 2:]
+        self._rlt_pairs = [self._pos_rlts, neg_rlts]
+
     def __init__(self, rlt_path):
         obj_vec_file = h5py.File(obj_config['label_vec_path'], 'r')
         self._obj_vecs = torch.from_numpy(np.array(obj_vec_file['label_vec']))
@@ -20,15 +28,9 @@ class LangDataset(Dataset):
         self._pre_vecs = torch.from_numpy(np.array(pre_vec_file['label_vec']))
 
         pos_rlts = np.load(rlt_path+'.npy')
-        pos_rlts = np.array(pos_rlts)
-
-        obj_label_num = objnet.label_sum()
-        random_obj_labels = np.random.choice(range(obj_label_num), pos_rlts.shape[0])
-        neg_rlts = copy.deepcopy(pos_rlts)
-        neg_rlts[:neg_rlts.shape[0]/2, 0] = random_obj_labels[:neg_rlts.shape[0]/2]
-        neg_rlts[neg_rlts.shape[0]/2:, 2] = random_obj_labels[neg_rlts.shape[0]/2:]
-
-        self._rlt_pairs = [pos_rlts, neg_rlts]
+        self._pos_rlts = np.array(pos_rlts)
+        self._rlt_pairs = []
+        self.update_pos_neg_pairs()
 
     def __getitem__(self, item):
         rlt1 = self._rlt_pairs[0][item]

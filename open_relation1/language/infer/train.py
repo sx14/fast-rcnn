@@ -89,5 +89,6 @@ for epoch in range(epoch_num):
         torch.save(model.state_dict(), best_path)
     print('============ acc: % .2f' % avg_acc + ' ============\n')
     torch.save(model.state_dict(), save_path)
+    train_set.update_pos_neg_pairs()
 
 
