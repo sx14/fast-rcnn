@@ -3,8 +3,9 @@ import numpy as np
 from torch import nn
 
 
-class PartialOrderSimilarity:
-    def __init__(self, norm):
+class PartialOrderSimilarity(nn.Module):
+    def __init__(self, norm=2):
+        super(PartialOrderSimilarity, self).__init__()
         self._norm = norm
         self.activate = nn.ReLU()
 
