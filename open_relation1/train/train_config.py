@@ -28,7 +28,7 @@ vrd_obj_hyper_params = {
     'visual_d': 4096,
     'hidden_d': 4096,
     'embedding_d': 600,
-    'epoch': 200,
+    'epoch': 400,
     'batch_size': 256,
     'negative_label_num': 330,
     'eval_freq': 1000,

@@ -114,7 +114,7 @@ def train():
             if batch_counter % config['eval_freq'] == 0:
                 # make_params_positive(params)
                 e_acc = eval(val_dataset, net)
-                info = '======== eval acc: %.2f ========' % e_acc
+                info = 'batch: %d >>> acc %.2f' % (batch_counter, e_acc)
                 print(info)
                 log_path = config['log_path']
                 with open(log_path, 'a') as log:
