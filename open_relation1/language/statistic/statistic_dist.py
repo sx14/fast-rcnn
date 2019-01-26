@@ -84,13 +84,6 @@ dist = np.zeros((objnet.label_sum(), objnet.label_sum(), prenet.label_sum()))
 obj_tree = construct_tree(objnet)
 pre_tree = construct_tree(prenet)
 
-#
-# c = fill_dist(objnet.get_node_by_name('person.n.01').index(),
-#               objnet.get_node_by_name('shirt').index(),
-#               prenet.get_node_by_name('wear').index(), raw_dist, dist, obj_tree, pre_tree)
-raw_dist_copy = deepcopy(raw_dist)
-
-
 rlt_class_num = (objnet.label_sum()-1) * (objnet.label_sum()-1) * (prenet.label_sum()-1)
 proc_count = 0.0
 for s in range(1, objnet.label_sum()):
@@ -108,16 +101,15 @@ for s in range(1, objnet.label_sum()):
             print('<%s, %s, %s> = %d' % (s_node.name(), p_node.name(), o_node.name(), dist[s, o, p]))
 
 
-pickle.dump(dist, open('dist.bin', 'w'))
-# for s in range(objnet.label_sum()):
-#     for o in range(objnet.label_sum()):
-#         for p in range(prenet.label_sum()):
-#             c = dist[s, o, p]
-#             if c > 0:
-#                 s_node = objnet.get_node_by_index(s)
-#                 o_node = objnet.get_node_by_index(o)
-#                 p_node = prenet.get_node_by_index(p)
-#                 print('<%s, %s, %s> = %d' % (s_node.name(), p_node.name(), o_node.name(), c))
+pickle.dump(dist, open('dist.bin', 'wb'))
+
+
+for s in range(objnet.label_sum()):
+    for o in range(objnet.label_sum()):
+        rlt_num = dist[s, o, 1]
+        dist[s, o, :] = dist[s, o, :] / rlt_num
+
+pickle.dump(dist, open('cond_probs.bin', 'wb'))
 
 
 

@@ -25,13 +25,13 @@ class PreNet(LabelHier):
             self._label2node[abs_label] = node
 
         # basic level
-        act_labels = [  'kick',    'sit',       'stand',
-                        'park',    'walk',     'hold',      'ride',
-                        'carry',   'look',     'use',       'cover',
-                        'touch',   'watch',    'drive',     'eat',
-                        'pull',     'talk',    'lean',
-                        'fly',     'face',     'rest',      'skate',
-                        'follow',  'hit',      'feed',      'play with']
+        act_labels = [  'kick',     'sit',      'stand',
+                        'park',     'walk',     'hold',      'ride',
+                        'carry',    'look',     'use',       'cover',
+                        'touch',    'watch',    'drive',     'eat',
+                        'pull',     'talk',     'lean',
+                        'fly',      'face',     'rest',      'skate',
+                        'follow',   'hit',      'feed',      'play with']
 
         spa_labels = [  'on.s',     'under.s',
                         'near.s',     'in.s',
