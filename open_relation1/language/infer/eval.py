@@ -35,7 +35,8 @@ save_path = train_params['model_save_path']
 best_path = train_params['best_model_path']
 
 gt_vecs = test_set.get_gt_vecs().float().cuda()
-
+raw_inds = prenet.get_raw_indexes()
+acc = 0.0
 for batch in test_dl:
     batch_num += 1
     sbj1, pre1, obj1, _, _, _, rlts = batch
@@ -47,6 +48,8 @@ for batch in test_dl:
 
     batch_ranks = rank_test(pre_emb1, gt_vecs)
 
+    find_first_raw = False
+    print_counter = 0
     for ranks in batch_ranks:
         gt_node = prenet.get_node_by_index(rlts[0][1])
         gt_label = gt_node.name()
@@ -55,9 +58,21 @@ for batch in test_dl:
         for gt_h_ind in gt_hyper_inds:
             gt_h_node = prenet.get_node_by_index(gt_h_ind)
             print(gt_h_node.name())
-        print('===== predicate =====')
+        print('===== predict =====')
+
         for pre_ind in ranks:
+            if pre_ind in raw_inds:
+                if not find_first_raw:
+                    if pre_ind == gt_node.index():
+                        acc += 1
+                        find_first_raw = True
             pre_node = prenet.get_node_by_index(pre_ind)
             print(pre_node.name())
+            if print_counter == 9:
+                break
+            else:
+                print_counter += 1
+
+print('raw acc >>> %.2f' % (acc / batch_num))
 
 

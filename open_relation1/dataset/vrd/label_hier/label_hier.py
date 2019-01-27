@@ -83,6 +83,11 @@ class LabelHier:
             i2l.append(n.name())
         return i2l
 
+    def get_raw_indexes(self):
+        raw_ind_set = set()
+        for node in self._index2node:
+            if node.is_raw():
+                raw_ind_set.add(node.index())
 
 
     def raw2path(self):
