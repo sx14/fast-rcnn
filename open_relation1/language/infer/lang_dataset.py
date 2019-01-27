@@ -1,9 +1,10 @@
 import copy
 import h5py
 import numpy as np
+import random
 import torch
 from torch.utils.data import Dataset
-from lang_config import lang_config
+from lang_config import lang_config, train_params
 from open_relation1.vrd_data_config import vrd_predicate_config as pre_config
 from open_relation1.vrd_data_config import vrd_object_config as obj_config
 from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
@@ -33,6 +34,11 @@ class LangDataset(Dataset):
         pos_rlts = np.load(rlt_path+'.npy')
         self._pos_rlts = np.array(pos_rlts)
         self._rlt_pairs = []
+
+        self._raw2path = prenet.raw2path()
+        self._label_sum = prenet.label_sum()
+        self._neg_sample_num = train_params['neg_sample_num']
+
         self.update_pos_neg_pairs()
 
     def __getitem__(self, item):
@@ -49,7 +55,12 @@ class LangDataset(Dataset):
         obj_vec1 = self._obj_vecs[rlt1[2]]
         obj_vec2 = self._obj_vecs[rlt2[2]]
 
-        return [sbj_vec1, pre_vec1, obj_vec1, sbj_vec2, pre_vec2, obj_vec2, rlts]
+        pos_inds = self._raw2path[rlt1[3]]
+        all_neg_inds = list(set(range(self._label_sum)) - set(pos_inds))
+        neg_inds = random.sample(all_neg_inds, self._neg_sample_num)
+        pos_neg_inds = [rlt1[1]] + neg_inds
+
+        return [sbj_vec1, pre_vec1, obj_vec1, sbj_vec2, pre_vec2, obj_vec2, rlts, pos_neg_inds]
 
     def __len__(self):
         return len(self._rlt_pairs[0])

@@ -14,6 +14,7 @@ train_params = {
     'epoch_num': 400,
     'batch_size': 1000,
     'embedding_dim': 600,
+    'neg_sample_num': 80,
     'model_save_path': 'lan_weights.pkl',
     'best_model_path': 'lan_weights_best.pkl'
 }

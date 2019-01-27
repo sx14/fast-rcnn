@@ -88,12 +88,12 @@ class LabelHier:
         for node in self._index2node:
             if node.is_raw():
                 raw_ind_set.add(node.index())
-
+        return raw_ind_set
 
     def raw2path(self):
         if self._raw2path is None:
             r2p = dict()
-            for r in self._raw_labels:
+            for r in self.get_raw_indexes():
                 rn = self.get_node_by_name(r)
                 r2p[r] = rn.trans_hyper_inds()
             self._raw2path = r2p

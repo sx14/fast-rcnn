@@ -6,8 +6,10 @@ from lang_dataset import LangDataset
 from lang_config import train_params, lang_config
 from model import RelationEmbedding
 # from model import relation_embedding_loss as loss_func
-from model import order_rank_loss as loss_func
+# from model import order_rank_loss as loss_func
+from model import order_softmax_loss as loss_func
 from model import order_rank_eval as rank_test
+
 
 
 def eval(model, test_dl):
@@ -63,7 +65,7 @@ best_path = train_params['best_model_path']
 for epoch in range(epoch_num):
     for batch in train_dl:
         batch_num += 1
-        sbj1, pre1, obj1, sbj2, pre2, obj2, _ = batch
+        sbj1, pre1, obj1, sbj2, pre2, obj2, _, pos_neg_inds = batch
         v_sbj1 = Variable(sbj1).float().cuda()
         v_pre1 = Variable(pre1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()
@@ -72,9 +74,13 @@ for epoch in range(epoch_num):
         v_obj2 = Variable(obj2).float().cuda()
 
         pre_emb1 = model(v_sbj1, v_obj1)
-        pre_emb2 = model(v_sbj2, v_obj2)
-        acc, pos_sim, neg_sim = rank_test(pre_emb1, pre_emb2, v_pre1)
-        loss = loss_func(pos_sim, neg_sim)
+        # pre_emb2 = model(v_sbj2, v_obj2)
+
+        loss = loss_func(pre_emb1, pos_neg_inds, train_set.get_gt_vecs())
+
+
+        # acc, pos_sim, neg_sim = rank_test(pre_emb1, pre_emb2, v_pre1)
+        # loss = loss_func(pos_sim, neg_sim)
 
         print('Epoch %d | Batch %d | Loss %.2f | acc: %.2f' % (epoch + 1, batch_num + 1, loss.cpu().data, acc))
 

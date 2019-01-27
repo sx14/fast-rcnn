@@ -4,6 +4,7 @@ from torch import nn
 from torch.autograd import Variable
 from torch.nn.functional import cosine_similarity as cos
 from torch.nn.functional import pairwise_distance as euc
+from torch.nn.functional import cross_entropy
 from torch.nn.functional import margin_ranking_loss as rank_loss
 
 
@@ -50,6 +51,16 @@ def order_rank_loss(pos_sim, neg_sim):
     loss = rank_loss(pos_sim, neg_sim, y, margin=1)
     return loss
 
+
+def order_softmax_loss(pos_embs, pos_neg_inds, gt_vecs):
+    score_stack = Variable(torch.zeros(len(pos_embs), len(pos_neg_inds[0]))).cuda()
+    for i in range(len(pos_embs)):
+        gt_vecs_t = gt_vecs[pos_neg_inds[i]]
+        pos_neg_sims = order_sim(gt_vecs_t, pos_embs[i])
+        score_stack[i] = pos_neg_sims
+    y = Variable(torch.zeros(len(pos_embs))).cuda()
+    loss = cross_entropy(score_stack, y)
+    return loss
 
 def order_rank_eval(pos_vecs, neg_vecs, gt_vecs):
     pos_sim = order_sim(gt_vecs, pos_vecs)

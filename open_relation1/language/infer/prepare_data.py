@@ -64,7 +64,8 @@ def extend_rlts(raw_rlts, rlt_save_path):
         obj_sample_num = 5
         # extend hyper predicate
         for p_ind in pre_hyper_inds:
-            new_rlts.append([raw_rlt[0], p_ind, raw_rlt[2]])
+            # raw subject, hyper_pre, raw object, raw pre
+            new_rlts.append([raw_rlt[0], p_ind, raw_rlt[2], pre_ind])
             sbj_hyper_inds = objnet.get_node_by_index(raw_rlt[0]).trans_hyper_inds()
             sbj_sample_probs = equal_interval_prob(len(sbj_hyper_inds))
             sbj_samples = np.random.choice(sbj_hyper_inds, obj_sample_num, p=sbj_sample_probs)
@@ -74,7 +75,9 @@ def extend_rlts(raw_rlts, rlt_save_path):
 
             # extend hyper object
             for i in range(obj_sample_num):
-                new_rlts.append([sbj_samples[i], p_ind, obj_samples[i]])
+                # hyper subject, hyper_pre, hyper object, raw pre
+                new_rlts.append([sbj_samples[i], p_ind, obj_samples[i], pre_ind])
+
     new_rlts = np.array(new_rlts)
     np.save(rlt_save_path, new_rlts)
     return new_rlts
