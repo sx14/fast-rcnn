@@ -7,8 +7,9 @@ from lang_config import train_params, lang_config
 from model import RelationEmbedding
 # from model import relation_embedding_loss as loss_func
 # from model import order_rank_loss as loss_func
-from model import order_softmax_loss as loss_func
-from model import order_rank_eval as rank_test
+from torch.nn.functional import cross_entropy as loss_func
+from model import order_softmax_test as rank_test
+# from model import order_rank_eval as rank_test
 
 
 
@@ -18,7 +19,7 @@ def eval(model, test_dl):
     batch_num = 0
     for batch in test_dl:
         batch_num += 1
-        sbj1, pre1, obj1, sbj2, pre2, obj2 = batch
+        sbj1, pre1, obj1, sbj2, pre2, obj2, _, pos_neg_inds = batch
         v_sbj1 = Variable(sbj1).float().cuda()
         v_pre1 = Variable(pre1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()
@@ -27,9 +28,9 @@ def eval(model, test_dl):
         v_obj2 = Variable(obj2).float().cuda()
 
         pre_emb1 = model(v_sbj1, v_obj1)
-        pre_emb2 = model(v_sbj2, v_obj2)
-
-        acc, _, _ = rank_test(pre_emb1, pre_emb2, v_pre1)
+        # pre_emb2 = model(v_sbj2, v_obj2)
+        acc, _, _ = rank_test(pre_emb1, pos_neg_inds, test_set.get_gt_vecs())
+        # acc, _, _ = rank_test(pre_emb1, pre_emb2, v_pre1)
         acc_sum += acc
     avg_acc = acc_sum / batch_num
     model.train()
@@ -46,7 +47,7 @@ rlt_path = lang_config['train']['rlt_save_path']
 train_set = LangDataset(rlt_path)
 train_dl = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
-rlt_path = lang_config['test']['rlt_save_path']
+rlt_path = lang_config['test']['raw_rlt_path']
 test_set = LangDataset(rlt_path)
 test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 
@@ -76,13 +77,14 @@ for epoch in range(epoch_num):
         pre_emb1 = model(v_sbj1, v_obj1)
         # pre_emb2 = model(v_sbj2, v_obj2)
 
-        loss = loss_func(pre_emb1, pos_neg_inds, train_set.get_gt_vecs())
+        acc, score_stack, y = rank_test(pre_emb1, pos_neg_inds, train_set.get_gt_vecs())
+        loss = loss_func(score_stack, y)
 
 
         # acc, pos_sim, neg_sim = rank_test(pre_emb1, pre_emb2, v_pre1)
         # loss = loss_func(pos_sim, neg_sim)
 
-        print('Epoch %d | Batch %d | Loss %.2f | acc: %.2f' % (epoch + 1, batch_num + 1, loss.cpu().data, acc))
+        print('Epoch %d | Batch %d | Loss %.2f | acc: %.2f' % (epoch + 1, batch_num, loss.cpu().data, acc))
 
         optim.zero_grad()
         loss.backward()

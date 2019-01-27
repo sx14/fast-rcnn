@@ -36,7 +36,7 @@ def collect_raw_rlts(anno_root, id_list_path, rlt_save_path):
             obj_ind = objnet.get_node_by_name(anno_obj['name']).index()
             sbj_ind = objnet.get_node_by_name(anno_sbj['name']).index()
             pre_ind = prenet.get_node_by_name(anno_pre['name']).index()
-            raw_rlts.append([sbj_ind, pre_ind, obj_ind])
+            raw_rlts.append([sbj_ind, pre_ind, obj_ind, pre_ind])
     raw_rlts = np.array(raw_rlts)
     np.save(rlt_save_path, raw_rlts)
     return raw_rlts

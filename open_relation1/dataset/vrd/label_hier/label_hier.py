@@ -94,7 +94,7 @@ class LabelHier:
         if self._raw2path is None:
             r2p = dict()
             for r in self.get_raw_indexes():
-                rn = self.get_node_by_name(r)
+                rn = self.get_node_by_index(r)
                 r2p[r] = rn.trans_hyper_inds()
             self._raw2path = r2p
         return self._raw2path

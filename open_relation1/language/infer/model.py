@@ -52,15 +52,27 @@ def order_rank_loss(pos_sim, neg_sim):
     return loss
 
 
-def order_softmax_loss(pos_embs, pos_neg_inds, gt_vecs):
+def order_softmax_test(pos_embs, pos_neg_inds, gt_vecs):
+    gt_vecs_v = Variable(gt_vecs).float().cuda()
     score_stack = Variable(torch.zeros(len(pos_embs), len(pos_neg_inds[0]))).cuda()
     for i in range(len(pos_embs)):
-        gt_vecs_t = gt_vecs[pos_neg_inds[i]]
+        gt_vecs_t = gt_vecs_v[pos_neg_inds[i]]
         pos_neg_sims = order_sim(gt_vecs_t, pos_embs[i])
         score_stack[i] = pos_neg_sims
-    y = Variable(torch.zeros(len(pos_embs))).cuda()
-    loss = cross_entropy(score_stack, y)
-    return loss
+    y = Variable(torch.zeros(len(pos_embs))).long().cuda()
+    acc = 0.0
+    for scores in score_stack:
+        p_score = scores[0]
+        true = 1
+        for i in range(1, len(scores)):
+            if scores[i] >= p_score:
+                true = 0
+                break
+        acc += true
+    acc = acc / len(score_stack)
+
+    return acc, score_stack, y
+
 
 def order_rank_eval(pos_vecs, neg_vecs, gt_vecs):
     pos_sim = order_sim(gt_vecs, pos_vecs)

@@ -58,7 +58,7 @@ class LangDataset(Dataset):
         pos_inds = self._raw2path[rlt1[3]]
         all_neg_inds = list(set(range(self._label_sum)) - set(pos_inds))
         neg_inds = random.sample(all_neg_inds, self._neg_sample_num)
-        pos_neg_inds = [rlt1[1]] + neg_inds
+        pos_neg_inds = np.array([rlt1[1]] + neg_inds)
 
         return [sbj_vec1, pre_vec1, obj_vec1, sbj_vec2, pre_vec2, obj_vec2, rlts, pos_neg_inds]
 
