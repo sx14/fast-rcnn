@@ -7,7 +7,7 @@ from lang_config import train_params, lang_config
 from model import RelationEmbedding
 # from model import relation_embedding_loss as loss_func
 from model import order_rank_loss as loss_func
-from model import order_rank_test as rank_test
+from model import order_rank_eval as rank_test
 
 
 def eval(model, test_dl):
@@ -63,7 +63,7 @@ best_path = train_params['best_model_path']
 for epoch in range(epoch_num):
     for batch in train_dl:
         batch_num += 1
-        sbj1, pre1, obj1, sbj2, pre2, obj2 = batch
+        sbj1, pre1, obj1, sbj2, pre2, obj2, _ = batch
         v_sbj1 = Variable(sbj1).float().cuda()
         v_pre1 = Variable(pre1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()

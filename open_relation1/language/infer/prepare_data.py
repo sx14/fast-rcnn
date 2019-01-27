@@ -8,7 +8,12 @@ from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
 
 
-def collect_raw_rlts(anno_root, id_list_path):
+def collect_raw_rlts(anno_root, id_list_path, rlt_save_path):
+
+    if os.path.exists(rlt_save_path+'.npy'):
+        raw_rlts = np.load(rlt_save_path+'.npy')
+        return raw_rlts
+
     # load id list
     with open(id_list_path, 'r') as id_list_file:
         anno_list = id_list_file.read().splitlines()
@@ -33,6 +38,7 @@ def collect_raw_rlts(anno_root, id_list_path):
             pre_ind = prenet.get_node_by_name(anno_pre['name']).index()
             raw_rlts.append([sbj_ind, pre_ind, obj_ind])
     raw_rlts = np.array(raw_rlts)
+    np.save(rlt_save_path, raw_rlts)
     return raw_rlts
 
 
@@ -79,8 +85,9 @@ if __name__ == '__main__':
     split = ['train', 'test']
     for d in split:
         list_path = os.path.join(vrd_data_config.vrd_pascal_format['ImageSets'], d+'.txt')
-        rlt_save_path = lang_config[d]['rlt_save_path']
-        raw_rlts = collect_raw_rlts(anno_root, list_path)
+        rlt_save_path = lang_config[d]['raw_rlt_path']
+        raw_rlts = collect_raw_rlts(anno_root, list_path, rlt_save_path)
         print('raw relationship tuple num: %d' % len(raw_rlts))
+        rlt_save_path = lang_config[d]['rlt_save_path']
         ext_rlts = extend_rlts(raw_rlts, rlt_save_path)
         print('extended relationship tuple num: %d' % len(ext_rlts))

@@ -6,3 +6,5 @@ utils/*.so
 .idea/
 *.pkl
 global_config.py
+
+*.npz

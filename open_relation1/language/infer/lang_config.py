@@ -1,9 +1,11 @@
 lang_config = {
     'train': {
-        'rlt_save_path': 'train_ext_rlts'
+        'rlt_save_path': 'train_ext_rlts',
+        'raw_rlt_path': 'train_raw_rlts'
     },
     'test': {
-        'rlt_save_path': 'test_ext_rlts'
+        'rlt_save_path': 'test_ext_rlts',
+        'raw_rlt_path': 'test_raw_rlts',
     }
 }
 

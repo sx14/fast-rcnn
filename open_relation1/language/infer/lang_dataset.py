@@ -12,6 +12,9 @@ from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
 
 class LangDataset(Dataset):
 
+    def get_gt_vecs(self):
+        return self._pre_vecs
+
     def update_pos_neg_pairs(self):
         obj_label_num = objnet.label_sum()
         random_obj_labels = np.random.choice(range(obj_label_num), self._pos_rlts.shape[0])
@@ -35,6 +38,7 @@ class LangDataset(Dataset):
     def __getitem__(self, item):
         rlt1 = self._rlt_pairs[0][item]
         rlt2 = self._rlt_pairs[1][item]
+        rlts = rlt1 + rlt2
 
         sbj_vec1 = self._obj_vecs[rlt1[0]]
         sbj_vec2 = self._obj_vecs[rlt2[0]]
@@ -45,7 +49,7 @@ class LangDataset(Dataset):
         obj_vec1 = self._obj_vecs[rlt1[2]]
         obj_vec2 = self._obj_vecs[rlt2[2]]
 
-        return [sbj_vec1, pre_vec1, obj_vec1, sbj_vec2, pre_vec2, obj_vec2]
+        return [sbj_vec1, pre_vec1, obj_vec1, sbj_vec2, pre_vec2, obj_vec2, rlts]
 
     def __len__(self):
         return len(self._rlt_pairs[0])

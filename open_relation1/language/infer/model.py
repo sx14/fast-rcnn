@@ -51,10 +51,20 @@ def order_rank_loss(pos_sim, neg_sim):
     return loss
 
 
-def order_rank_test(pos_vecs, neg_vecs, gt_vecs):
+def order_rank_eval(pos_vecs, neg_vecs, gt_vecs):
     pos_sim = order_sim(gt_vecs, pos_vecs)
     neg_sim = order_sim(gt_vecs, neg_vecs)
     diff = pos_sim - neg_sim
     true_count = np.where(diff > 0)[0].shape[0] * 1.0
     acc = true_count / pos_sim.shape[0]
     return acc, pos_sim, neg_sim
+
+
+def order_rank_test(pred_vecs, gt_label_vecs):
+    ranks = []
+    for pred_vec in pred_vecs:
+        emb_sim = order_sim(gt_label_vecs, pred_vec)
+        ranked_inds = np.argsort(emb_sim)
+        ranked_inds.reverse()
+        ranks.append(ranked_inds[:10])
+    return ranks
