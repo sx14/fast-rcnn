@@ -71,15 +71,16 @@ else:
 model.cuda()
 
 # optimizer
-optim = torch.optim.SGD(model.parameters(), lr=lr)
-# weight_p, bias_p = [], []
-# for name, p in model.named_parameters():
-#     if 'bias' in name:
-#         bias_p += [p]
-#     else:
-#         weight_p += [p]
-# optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
-#                          {'params': bias_p, 'weight_decay': 0}], lr=lr)
+
+weight_p, bias_p = [], []
+for name, p in model.named_parameters():
+    if 'bias' in name:
+        bias_p += [p]
+    else:
+        weight_p += [p]
+optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
+                         {'params': bias_p, 'weight_decay': 0}], lr=lr)
+# optim = torch.optim.SGD(model.parameters(), lr=lr)
 
 # training process record
 sw = SummaryWriter()
