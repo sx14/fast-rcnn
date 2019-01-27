@@ -8,8 +8,9 @@ from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
 from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
-# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
-
+from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
+from open_relation1.language.infer.model import RelationEmbedding
+from open_relation1.language.infer.lang_config import train_params
 
 # prepare feature
 pre_config = hyper_params['vrd']['predicate']
@@ -18,18 +19,17 @@ test_list_path = os.path.join(vrd_data_config.vrd_predicate_feature_prepare_root
 test_box_label = pickle.load(open(test_list_path))
 
 
-label_vec_path = pre_config['label_vec_path']
-label_embedding_file = h5py.File(label_vec_path, 'r')
+pre_label_vec_path = pre_config['label_vec_path']
+label_embedding_file = h5py.File(pre_label_vec_path, 'r')
 pre_label_vecs = np.array(label_embedding_file['label_vec'])
+label_embedding_file.close()
 
-label_vec_path = obj_config['label_vec_path']
-label_embedding_file = h5py.File(label_vec_path, 'r')
+obj_label_vec_path = obj_config['label_vec_path']
+label_embedding_file = h5py.File(obj_label_vec_path, 'r')
 obj_label_vecs = np.array(label_embedding_file['label_vec'])
-
-
+label_embedding_file.close()
 
 # prepare label maps
-# prent = PreNet()
 org2path_path = pre_config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
 label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
@@ -37,24 +37,34 @@ label2index = pickle.load(open(label2index_path))
 index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
 index2label = pickle.load(open(index2label_path))
 
-
-
 mode = 'org'
 # mode = 'hier'
 
-# load model with best weights
-best_weights_path = pre_config['best_weight_path']
-# net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
-net = model.PredicateVisual_acc()
-if os.path.isfile(best_weights_path):
-    net.load_state_dict(torch.load(best_weights_path))
-    print('Loading weights success.')
+# load visual model with best weights
+vmodel_best_weights_path = pre_config['best_weight_path']
+vmodel = model.PredicateVisual_acc()
+if os.path.isfile(vmodel_best_weights_path):
+    vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
+    print('Loading visual model weights success.')
 else:
     print('Weights not found !')
     exit(1)
-net.cuda()
-net.eval()
-print(net)
+vmodel.cuda()
+vmodel.eval()
+# print(vmodel)
+
+# load language model with best weights
+lmodel_best_weights_path = train_params['best_model_path']
+lmodel = RelationEmbedding(train_params['embedding_dim'] * 2, train_params['embedding_dim'], pre_label_vec_path)
+if os.path.isfile(lmodel_best_weights_path):
+    lmodel.load_state_dict(torch.load(lmodel_best_weights_path))
+    print('Loading language model weights success.')
+else:
+    print('Weights not found !')
+    exit(1)
+lmodel.cuda()
+lmodel.eval()
+# print(lmodel)
 
 # eval
 # simple TF counter
@@ -82,15 +92,29 @@ for feature_file_id in test_box_label:
         pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
         obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
 
-        org_label = box_label[4]
-        pre_scores, _, _ = net.forward2(vf_v, pre_lfs_v, obj_lfs_v)
+        # visual prediction
+        v_pre_scores, _, _ = vmodel.forward2(vf_v, pre_lfs_v, obj_lfs_v)
+
+        # language prediction
+        sbj_label = box_label[9]
+        sbj_ind = objnet.get_node_by_name(sbj_label).index()
+        sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
+
+        obj_label = box_label[14]
+        obj_ind = objnet.get_node_by_name(obj_label).index()
+        obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
+
+        l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
+
+        pre_scores = (v_pre_scores + l_pre_scores) / 2
         ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
         ranked_inds.reverse()   # descending
 
         # ====== hier label =====
+        pre_label = box_label[4]
         if mode == 'hier':
-            label_inds = org2path[label2index[org_label]]
-            print('\n===== ' + org_label + ' =====')
+            label_inds = org2path[label2index[pre_label]]
+            print('\n===== ' + pre_label + ' =====')
             print('\n----- answer -----')
             for label_ind in label_inds:
                 print(index2label[label_ind])
@@ -99,17 +123,17 @@ for feature_file_id in test_box_label:
             preds = ranked_inds[:20]
             print('----- prediction -----')
             for p in preds:
-                print('%s : %f' % (index2label[p], pre_scores[p]))
+                print('%s : %f' % (index2label[p], v_pre_scores[p]))
             if counter == 100:
                 exit(0)
         # ====== org label only =====
         else:
             org_indexes = set([label2index[l] for l in prenet.get_raw_labels()])
             org_pred_counter = 0
-            print('\n===== ' + org_label + ' =====')
+            print('\n===== ' + pre_label + ' =====')
             for j, pred in enumerate(ranked_inds):
                 if pred in org_indexes:
-                    expected = label2index[org_label]
+                    expected = label2index[pre_label]
 
                     if org_pred_counter == 0:
                         e_p.append([expected, pred])

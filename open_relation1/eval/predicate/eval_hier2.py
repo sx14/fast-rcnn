@@ -3,12 +3,15 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from open_relation1.infer import tree_infer2
+from matplotlib import pyplot as plt
 from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
 from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
-# from open_relation1.dataset.vrd.predicate.pre_hier import PreNet
+from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
+from open_relation1.language.infer.model import RelationEmbedding
+from open_relation1.language.infer.lang_config import train_params
+from open_relation1.infer import tree_infer2
 
 
 def score_pred(pred_ind, raw_label_ind, pred_label, raw_label, raw2path, pre_net):
@@ -34,37 +37,54 @@ pre_config = hyper_params['vrd']['predicate']
 obj_config = hyper_params['vrd']['object']
 test_list_path = os.path.join(vrd_data_config.vrd_predicate_feature_prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
-# predicate label vec
-label_vec_path = pre_config['label_vec_path']
-label_embedding_file = h5py.File(label_vec_path, 'r')
+
+
+pre_label_vec_path = pre_config['label_vec_path']
+label_embedding_file = h5py.File(pre_label_vec_path, 'r')
 pre_label_vecs = np.array(label_embedding_file['label_vec'])
-# object label vec
-label_vec_path = obj_config['label_vec_path']
-label_embedding_file = h5py.File(label_vec_path, 'r')
+label_embedding_file.close()
+
+obj_label_vec_path = obj_config['label_vec_path']
+label_embedding_file = h5py.File(obj_label_vec_path, 'r')
 obj_label_vecs = np.array(label_embedding_file['label_vec'])
+label_embedding_file.close()
+
 # prepare label maps
-# prenet = PreNet()
 org2path_path = pre_config['vrd2path_path']
 org2path = pickle.load(open(org2path_path))
-org2pw_path = vrd_data_config.vrd_predicate_config['raw2pw_path']
-org2pw = pickle.load(open(org2pw_path))
 label2index_path = vrd_data_config.vrd_predicate_config['label2index_path']
 label2index = pickle.load(open(label2index_path))
 index2label_path = vrd_data_config.vrd_predicate_config['index2label_path']
 index2label = pickle.load(open(index2label_path))
 
-org_indexes = [label2index[i] for i in prenet.get_raw_labels()]
+mode = 'org'
+# mode = 'hier'
 
+# load visual model with best weights
+vmodel_best_weights_path = pre_config['best_weight_path']
+vmodel = model.PredicateVisual_acc()
+if os.path.isfile(vmodel_best_weights_path):
+    vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
+    print('Loading visual model weights success.')
+else:
+    print('Weights not found !')
+    exit(1)
+vmodel.cuda()
+vmodel.eval()
+# print(vmodel)
 
-# load model with best weights
-best_weights_path = pre_config['best_weight_path']
-net = model.PredicateVisual_acc()
-if os.path.isfile(best_weights_path):
-    net.load_state_dict(torch.load(best_weights_path))
-    print('Loading weights success.')
-net.cuda()
-net.eval()
-print(net)
+# load language model with best weights
+lmodel_best_weights_path = train_params['best_model_path']
+lmodel = RelationEmbedding(train_params['embedding_dim'] * 2, train_params['embedding_dim'], pre_label_vec_path)
+if os.path.isfile(lmodel_best_weights_path):
+    lmodel.load_state_dict(torch.load(lmodel_best_weights_path))
+    print('Loading language model weights success.')
+else:
+    print('Weights not found !')
+    exit(1)
+lmodel.cuda()
+lmodel.eval()
+# print(lmodel)
 
 # eval
 # simple TF counter
@@ -73,6 +93,9 @@ T = 0.0
 T_C = 0.0
 # expected -> actual
 e_p = []
+T_ranks = []
+F_ranks = []
+
 
 rank_scores = tree_infer2.cal_rank_scores(len(index2label))
 visual_feature_root = pre_config['visual_feature_root']
@@ -90,14 +113,26 @@ for feature_file_id in test_box_label:
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
         obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
+
+        # visual prediction
+        v_pre_scores, _, _ = vmodel.forward2(vf_v, pre_lfs_v, obj_lfs_v)
+
+        # language prediction
+        sbj_label = box_label[9]
+        sbj_ind = objnet.get_node_by_name(sbj_label).index()
+        sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
+
+        obj_label = box_label[14]
+        obj_ind = objnet.get_node_by_name(obj_label).index()
+        obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
+
+        l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
+
+        pre_scores = (v_pre_scores + l_pre_scores) / 2
+
+        pred_ind, cands = tree_infer2.my_infer(prenet, pre_scores.cpu().data, rank_scores, 'pre')
         org_label = box_label[4]
-        org_label_ind = label2index[org_label]
-        p_scores, _, _ = net.forward2(vf_v, pre_lfs_v, obj_lfs_v)
-        if counter == 3:
-            a = 1
-        pred_ind, cands = tree_infer2.my_infer(prenet, p_scores.cpu().data, rank_scores, 'pre')
-        # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
-        # pred_ind, cands = simple_infer(scores, org2path, label2index)
+        org_label_ind = prenet.get_node_by_name(org_label).index()
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org_label, org2path, prenet)
         T += pred_score
         if pred_score > 0:
@@ -110,7 +145,6 @@ for feature_file_id in test_box_label:
         cand_str = ' [%s(%d) , %s(%d)]' % (index2label[cands[0][0]], cands[0][1], index2label[cands[1][0]], cands[1][1])
         print(pred_str + cand_str)
 
+
 print('\n=========================================')
 print('accuracy: %.2f (%.2f)' % ((T / counter), (T_C / counter)))
-
-

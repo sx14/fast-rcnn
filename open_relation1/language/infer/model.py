@@ -1,3 +1,4 @@
+import h5py
 import numpy as np
 import torch
 from torch import nn
@@ -17,7 +18,7 @@ def order_sim(hypers, hypos):
 
 
 class RelationEmbedding(nn.Module):
-    def __init__(self, input_len, output_len):
+    def __init__(self, input_len, output_len, label_vec_path):
         super(RelationEmbedding, self).__init__()
         self.hidden = nn.Sequential(
             nn.ReLU(),
@@ -28,11 +29,19 @@ class RelationEmbedding(nn.Module):
             nn.Dropout(p=0.5),
             nn.Linear(output_len, output_len))
 
+        label_vec_file = h5py.File(label_vec_path, 'r')
+        gt_label_vecs = np.array(label_vec_file['label_vec'])
+        self._gt_label_vecs = Variable(torch.from_numpy(gt_label_vecs)).float().cuda()
+
     def forward(self, sbj_vec, obj_vec):
-        sbj_obj_vec = torch.cat((sbj_vec, obj_vec), 1)
+        sbj_obj_vec = torch.cat([sbj_vec, obj_vec], 1)
         hidden = self.hidden(sbj_obj_vec)
         embedding = self.output(hidden)
-        return embedding
+        score_stack = Variable(torch.zeros(len(embedding), len(self._gt_label_vecs))).cuda()
+        for i in range(len(embedding)):
+            order_sims = order_sim(self._gt_label_vecs, embedding[i])
+            score_stack[i] = order_sims
+        return score_stack
 
 
 def relation_embedding_loss(sbj_vec1, pre_vec1, obj_vec1, pre_emb1,
@@ -52,26 +61,19 @@ def order_rank_loss(pos_sim, neg_sim):
     return loss
 
 
-def order_softmax_test(pos_embs, pos_neg_inds, gt_vecs):
-    gt_vecs_v = Variable(gt_vecs).float().cuda()
-    score_stack = Variable(torch.zeros(len(pos_embs), len(pos_neg_inds[0]))).cuda()
-    for i in range(len(pos_embs)):
-        gt_vecs_t = gt_vecs_v[pos_neg_inds[i]]
-        pos_neg_sims = order_sim(gt_vecs_t, pos_embs[i])
-        score_stack[i] = pos_neg_sims
-    y = Variable(torch.zeros(len(pos_embs))).long().cuda()
+def order_softmax_test(batch_scores, pos_neg_inds):
+    loss_scores = Variable(torch.zeros(len(batch_scores), len(pos_neg_inds[0]))).float().cuda()
+    for i in range(len(batch_scores)):
+        loss_scores[i] = batch_scores[i, pos_neg_inds[i]]
+    y = Variable(torch.zeros(len(batch_scores))).long().cuda()
     acc = 0.0
-    for scores in score_stack:
+    for scores in loss_scores:
         p_score = scores[0]
-        true = 1
-        for i in range(1, len(scores)):
-            if scores[i] >= p_score:
-                true = 0
-                break
-        acc += true
-    acc = acc / len(score_stack)
-
-    return acc, score_stack, y
+        n_score_max = torch.max(scores[1:])
+        if p_score > n_score_max:
+            acc += 1
+    acc = acc / len(batch_scores)
+    return acc, loss_scores, y
 
 
 def order_rank_eval(pos_vecs, neg_vecs, gt_vecs):
@@ -83,11 +85,10 @@ def order_rank_eval(pos_vecs, neg_vecs, gt_vecs):
     return acc, pos_sim, neg_sim
 
 
-def order_rank_test(pred_vecs, gt_label_vecs):
+def order_rank_test(pred_scores, gt_label_vecs):
     ranks = []
-    for pred_vec in pred_vecs:
-        emb_sim = order_sim(gt_label_vecs, pred_vec)
-        ranked_inds = np.argsort(emb_sim).tolist()
+    for scores in pred_scores:
+        ranked_inds = np.argsort(scores).tolist()
         ranked_inds.reverse()
         ranks.append(ranked_inds)
     return ranks

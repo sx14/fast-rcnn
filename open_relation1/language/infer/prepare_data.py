@@ -56,7 +56,7 @@ def extend_rlts(raw_rlts, rlt_save_path):
     new_rlts = []
     raw_rlt_num = len(raw_rlts)
     for i, raw_rlt in enumerate(raw_rlts):
-        print('processing [%d/%d]' % (i+1, raw_rlt_num))
+        print('processing [%d/%d]' % (raw_rlt_num, i+1))
         pre_ind = raw_rlt[1]
         pre_node = prenet.get_node_by_index(pre_ind)
         pre_hyper_inds = pre_node.trans_hyper_inds()

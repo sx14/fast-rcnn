@@ -30,6 +30,7 @@ class MyDataset():
         # word2vec
         label_embedding_file = h5py.File(label_embedding_path, 'r')
         self._label_embedding = np.array(label_embedding_file['label_vec'])
+        label_embedding_file.close()
         self._label_feature_length = len(self._label_embedding[0])
         # label2path
         self._org2path = pickle.load(open(org2path_path, 'rb'))

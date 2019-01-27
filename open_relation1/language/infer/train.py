@@ -12,6 +12,7 @@ from model import RelationEmbedding
 from torch.nn.functional import cross_entropy as loss_func
 from model import order_softmax_test as rank_test
 # from model import order_rank_eval as rank_test
+from open_relation1.vrd_data_config import vrd_predicate_config
 
 
 
@@ -30,10 +31,10 @@ def eval(model, test_dl):
         v_pre2 = Variable(pre2).float().cuda()
         v_obj2 = Variable(obj2).float().cuda()
         with torch.no_grad():
-            pre_emb1 = model(v_sbj1, v_obj1)
+            pre_scores1 = model(v_sbj1, v_obj1)
         # pre_emb2 = model(v_sbj2, v_obj2)
-        acc, score_stack, y = rank_test(pre_emb1, pos_neg_inds, test_set.get_gt_vecs())
-        loss = loss_func(score_stack, y)
+        acc, loss_scores, y = rank_test(pre_scores1, pos_neg_inds)
+        loss = loss_func(loss_scores, y)
         # acc, _, _ = rank_test(pre_emb1, pre_emb2, v_pre1)
         acc_sum += acc
         loss_sum += loss
@@ -62,7 +63,8 @@ test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 save_model_path = train_params['save_model_path']
 new_model_path = train_params['latest_model_path']
 best_model_path = train_params['best_model_path']
-model = RelationEmbedding(embedding_dim*2, embedding_dim)
+gt_label_vec_path = vrd_predicate_config['label_vec_path']
+model = RelationEmbedding(embedding_dim*2, embedding_dim, gt_label_vec_path)
 if os.path.exists(new_model_path):
     model.load_state_dict(torch.load(new_model_path))
     print('Loading weights success.')
@@ -97,11 +99,11 @@ for epoch in range(epoch_num):
         v_pre2 = Variable(pre2).float().cuda()
         v_obj2 = Variable(obj2).float().cuda()
 
-        pre_emb1 = model(v_sbj1, v_obj1)
-        # pre_emb2 = model(v_sbj2, v_obj2)
+        pre_scores1 = model(v_sbj1, v_obj1)
+        # pre_scores2 = model(v_sbj2, v_obj2)
 
-        acc, score_stack, y = rank_test(pre_emb1, pos_neg_inds, train_set.get_gt_vecs())
-        loss = loss_func(score_stack, y)
+        acc, loss_scores, y = rank_test(pre_scores1, pos_neg_inds)
+        loss = loss_func(loss_scores, y)
         sw.add_scalars('acc', {'train': acc}, batch_num)
         sw.add_scalars('loss', {'train': loss}, batch_num)
 
