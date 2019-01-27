@@ -2,7 +2,7 @@ import os
 import numpy as np
 import json
 import pickle
-from lang_config import lang_config
+from lang_config import data_config
 from open_relation1 import vrd_data_config
 from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     split = ['train', 'test']
     for d in split:
         list_path = os.path.join(vrd_data_config.vrd_pascal_format['ImageSets'], d+'.txt')
-        rlt_save_path = lang_config[d]['raw_rlt_path']
+        rlt_save_path = data_config[d]['raw_rlt_path']
         raw_rlts = collect_raw_rlts(anno_root, list_path, rlt_save_path)
         print('raw relationship tuple num: %d' % len(raw_rlts))
-        rlt_save_path = lang_config[d]['rlt_save_path']
+        rlt_save_path = data_config[d]['rlt_save_path']
         ext_rlts = extend_rlts(raw_rlts, rlt_save_path)
         print('extended relationship tuple num: %d' % len(ext_rlts))

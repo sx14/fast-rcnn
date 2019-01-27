@@ -8,3 +8,4 @@ utils/*.so
 global_config.py
 
 *.npz
+runs

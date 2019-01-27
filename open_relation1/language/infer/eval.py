@@ -3,7 +3,7 @@ import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from lang_dataset import LangDataset
-from lang_config import train_params, lang_config
+from lang_config import train_params, data_config
 from model import RelationEmbedding
 from model import order_rank_test as rank_test
 from open_relation1.dataset.vrd.label_hier.pre_hier import prenet
@@ -15,7 +15,7 @@ epoch_num = 1
 embedding_dim = train_params['embedding_dim']
 batch_size = 1
 
-rlt_path = lang_config['test']['raw_rlt_path']
+rlt_path = data_config['test']['raw_rlt_path']
 test_set = LangDataset(rlt_path)
 test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 
@@ -39,7 +39,7 @@ raw_inds = prenet.get_raw_indexes()
 acc = 0.0
 for batch in test_dl:
     batch_num += 1
-    sbj1, pre1, obj1, _, _, _, rlts = batch
+    sbj1, pre1, obj1, _, _, _, rlts, _ = batch
     v_sbj1 = Variable(sbj1).float().cuda()
     v_pre1 = Variable(pre1).float().cuda()
     v_obj1 = Variable(obj1).float().cuda()
@@ -54,25 +54,24 @@ for batch in test_dl:
         gt_node = prenet.get_node_by_index(rlts[0][1])
         gt_label = gt_node.name()
         gt_hyper_inds = gt_node.trans_hyper_inds()
-        print('===== GT: %s =====' % gt_label)
+        # print('\n===== GT: %s =====' % gt_label)
         for gt_h_ind in gt_hyper_inds:
             gt_h_node = prenet.get_node_by_index(gt_h_ind)
-            print(gt_h_node.name())
-        print('===== predict =====')
+            # print(gt_h_node.name())
+        # print('===== predict =====')
 
         for pre_ind in ranks:
-            if pre_ind in raw_inds:
-                if not find_first_raw:
-                    if pre_ind == gt_node.index():
-                        acc += 1
-                        find_first_raw = True
             pre_node = prenet.get_node_by_index(pre_ind)
-            print(pre_node.name())
-            if print_counter == 9:
-                break
-            else:
-                print_counter += 1
 
-print('raw acc >>> %.2f' % (acc / batch_num))
+            if pre_ind in raw_inds:
+                if pre_ind == gt_node.index():
+                    acc += 1
+                    print('T: %s >>> %s' % (gt_label, pre_node.name()))
+                else:
+                    print('F: %s >>> %s' % (gt_label, pre_node.name()))
+                break
+
+
+print('\nraw acc >>> %.2f' % (acc / batch_num))
 
 

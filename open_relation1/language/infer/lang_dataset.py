@@ -4,7 +4,7 @@ import numpy as np
 import random
 import torch
 from torch.utils.data import Dataset
-from lang_config import lang_config, train_params
+from lang_config import data_config, train_params
 from open_relation1.vrd_data_config import vrd_predicate_config as pre_config
 from open_relation1.vrd_data_config import vrd_object_config as obj_config
 from open_relation1.dataset.vrd.label_hier.obj_hier import objnet
