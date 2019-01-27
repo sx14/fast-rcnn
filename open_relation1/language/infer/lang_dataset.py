@@ -38,7 +38,7 @@ class LangDataset(Dataset):
     def __getitem__(self, item):
         rlt1 = self._rlt_pairs[0][item]
         rlt2 = self._rlt_pairs[1][item]
-        rlts = rlt1 + rlt2
+        rlts = np.append(rlt1, rlt2)
 
         sbj_vec1 = self._obj_vecs[rlt1[0]]
         sbj_vec2 = self._obj_vecs[rlt2[0]]

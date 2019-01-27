@@ -64,7 +64,7 @@ def order_rank_test(pred_vecs, gt_label_vecs):
     ranks = []
     for pred_vec in pred_vecs:
         emb_sim = order_sim(gt_label_vecs, pred_vec)
-        ranked_inds = np.argsort(emb_sim)
+        ranked_inds = np.argsort(emb_sim).tolist()
         ranked_inds.reverse()
         ranks.append(ranked_inds[:10])
     return ranks
