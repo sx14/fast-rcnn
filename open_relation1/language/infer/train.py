@@ -29,8 +29,8 @@ def eval(model, test_dl):
         v_sbj2 = Variable(sbj2).float().cuda()
         v_pre2 = Variable(pre2).float().cuda()
         v_obj2 = Variable(obj2).float().cuda()
-
-        pre_emb1 = model(v_sbj1, v_obj1)
+        with torch.no_grad():
+            pre_emb1 = model(v_sbj1, v_obj1)
         # pre_emb2 = model(v_sbj2, v_obj2)
         acc, score_stack, y = rank_test(pre_emb1, pos_neg_inds, test_set.get_gt_vecs())
         loss = loss_func(score_stack, y)
@@ -50,7 +50,7 @@ embedding_dim = train_params['embedding_dim']
 batch_size = train_params['batch_size']
 
 # init dataset
-rlt_path = data_config['train']['rlt_save_path']
+rlt_path = data_config['train']['ext_rlt_path']
 train_set = LangDataset(rlt_path)
 train_dl = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
@@ -115,8 +115,8 @@ for epoch in range(epoch_num):
 
     print('\nevaluating ......')
     avg_acc, avg_loss = eval(model, test_dl)
-    sw.add_scalars('acc', {'eval': avg_acc})
-    sw.add_scalars('loss', {'eval': avg_loss})
+    sw.add_scalars('acc', {'eval': avg_acc}, batch_num)
+    sw.add_scalars('loss', {'eval': avg_loss}, batch_num)
     if avg_acc > best_acc:
         best_acc = avg_acc
         torch.save(model.state_dict(), best_model_path)
