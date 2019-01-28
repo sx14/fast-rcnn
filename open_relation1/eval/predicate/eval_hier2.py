@@ -3,7 +3,6 @@ import pickle
 import h5py
 import numpy as np
 import torch
-from matplotlib import pyplot as plt
 from open_relation1.model.predicate import model
 from open_relation1 import vrd_data_config
 from open_relation1.train.train_config import hyper_params
@@ -61,7 +60,7 @@ mode = 'org'
 # mode = 'hier'
 
 # load visual model with best weights
-vmodel_best_weights_path = pre_config['best_weight_path']
+vmodel_best_weights_path = pre_config['latest_weight_path']
 vmodel = model.PredicateVisual_acc()
 if os.path.isfile(vmodel_best_weights_path):
     vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
@@ -147,4 +146,4 @@ for feature_file_id in test_box_label:
 
 
 print('\n=========================================')
-print('accuracy: %.2f (%.2f)' % ((T / counter), (T_C / counter)))
+print('accuracy: %.4f (%.4f)' % ((T / counter), (T_C / counter)))

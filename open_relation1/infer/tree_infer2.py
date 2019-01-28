@@ -125,8 +125,6 @@ def bottom_up(tree, label_hier, top2_raw, thr):
         return top2_raw[0]
 
 
-
-
 def my_infer(label_hier, scores, rank_scores, target):
     obj_thr = {'b_u': 0.75,
                't_d': 0.5,
