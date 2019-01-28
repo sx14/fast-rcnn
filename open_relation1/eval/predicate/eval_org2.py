@@ -106,7 +106,7 @@ for feature_file_id in test_box_label:
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
 
-        pre_scores = (v_pre_scores + l_pre_scores) / 2
+        pre_scores = (v_pre_scores * 0.6 + l_pre_scores * 0.4) / 2
         ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
         ranked_inds.reverse()   # descending
 

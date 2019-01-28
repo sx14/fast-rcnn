@@ -133,8 +133,8 @@ def my_infer(label_hier, scores, rank_scores, target):
                'min_dis': label_hier.label_sum() / 7,
                'half': label_hier.label_sum() / 3}
     pre_thr = {'b_u': 0.6,
-               't_d': 0.25,
-               'min_dis': 1,
+               't_d': 0.4,
+               'min_dis': 3,
                'half': 10}
     thr = {'obj': obj_thr,
            'pre': pre_thr}

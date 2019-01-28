@@ -128,7 +128,7 @@ for feature_file_id in test_box_label:
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
 
-        pre_scores = (v_pre_scores + l_pre_scores) / 2
+        pre_scores = (v_pre_scores * 0.6 + l_pre_scores * 0.4) / 2
 
         pred_ind, cands = tree_infer2.my_infer(prenet, pre_scores.cpu().data, rank_scores, 'pre')
         org_label = box_label[4]
