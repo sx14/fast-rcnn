@@ -47,8 +47,15 @@ def train():
     print(net)
 
     # config training hyper params
-    bias_p = filter(lambda n_p: ('bias' in n_p[0]) and n_p[1].requires_grad, net.named_parameters())
-    weight_p = filter(lambda n_p: ('bias' not in n_p[0]) and n_p[1].requires_grad, net.named_parameters())
+    bias_p = []
+    weight_p = []
+
+    for name, p in net.named_parameters():
+        if p.requires_grad:
+            if 'bias' in name:
+                bias_p += [p]
+            else:
+                weight_p += [p]
 
     optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
                              {'params': bias_p, 'weight_decay': 0}], lr=config['lr'])
