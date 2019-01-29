@@ -1,9 +1,8 @@
-import numpy as np
 import cv2
 import os
 import json
 from matplotlib import pyplot as plt
-from open_relation.vg_data_config import vg_config
+from open_relation.dataset.vg.vg_data_config import vg_config
 
 
 def show_proposals(im, dets, cls):

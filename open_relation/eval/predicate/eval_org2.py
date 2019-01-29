@@ -16,7 +16,7 @@ from open_relation.language.infer.lang_config import train_params
 dataset_config = DatasetConfig('vrd')
 pre_config = hyper_params['vrd']['predicate']
 obj_config = hyper_params['vrd']['object']
-test_list_path = os.path.join(dataset_config.extra_config['object'].prepare_root, 'test_box_label.bin')
+test_list_path = os.path.join(dataset_config.extra_config['predicate'].prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 
 

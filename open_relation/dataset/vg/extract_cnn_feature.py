@@ -10,7 +10,7 @@ import cv2
 from nltk.corpus import wordnet as wn
 from lib.fast_rcnn.test import im_detect
 import vg_anno_2_dict as org
-from open_relation import vg_data_config
+from open_relation.dataset.vg import vg_data_config
 from open_relation import global_config
 
 

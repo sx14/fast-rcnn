@@ -3,7 +3,7 @@ import h5py
 import pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
-from open_relation.vg_data_config import vg_object_config
+from open_relation.dataset.vg.vg_data_config import vg_object_config
 
 def max_children_num(vg2wn):
     # count children

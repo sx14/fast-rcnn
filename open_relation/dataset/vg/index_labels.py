@@ -6,7 +6,7 @@ import os
 import json
 import pickle
 from nltk.corpus import wordnet as wn
-from open_relation.vg_data_config import vg_config, vg_object_config, vg_relation_config
+from open_relation.dataset.vg.vg_data_config import vg_config, vg_object_config
 
 
 def vglabel2wnleaf(anno_root, vg2wn_path, target_key):

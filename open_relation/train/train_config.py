@@ -1,5 +1,6 @@
 import os
-from open_relation import vg_data_config, global_config
+from open_relation import global_config
+from open_relation.dataset.vg import vg_data_config
 from open_relation.dataset.dataset_config import DatasetConfig
 
 log_root = 'open_relation1/log'

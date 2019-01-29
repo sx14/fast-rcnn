@@ -5,7 +5,7 @@ next: index_labels.py
 import os
 import copy
 import json
-from open_relation.vg_data_config import vg_config
+from open_relation.dataset.dataset_config import DatasetConfig
 
 
 def clean_anno1(dirty_anno_path, clean_anno_path):
@@ -129,12 +129,12 @@ def clean_anno(dirty_anno_path, clean_anno_path):
 
 
 if __name__ == '__main__':
-    dirty_anno_root = vg_config['dirty_anno_root']
-    clean_anno_root = vg_config['clean_anno_root']
+    vg_config = DatasetConfig('vg')
+    dirty_anno_root = vg_config.data_config['dirty_anno_root']
+    clean_anno_root = vg_config.data_config['clean_anno_root']
     anno_list = os.listdir(dirty_anno_root)
     anno_list = sorted(anno_list)
     anno_sum = len(anno_list)
-    # anno_sum = 1000
     for i in range(0, anno_sum):
         print('processing wash_anno [%d/%d]' % (anno_sum, i+1))
         dirty_anno_path = os.path.join(dirty_anno_root, anno_list[i])

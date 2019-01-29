@@ -4,7 +4,7 @@ next: wash_anno.py
 """
 import json
 import os
-from open_relation.vg_data_config import vg_config
+from open_relation.dataset.dataset_config import DatasetConfig
 
 
 def split_json(json_path, output_json_root, key, has_key):
@@ -30,14 +30,13 @@ def split_json(json_path, output_json_root, key, has_key):
             json.dump(img_json_content, img_json_file, sort_keys=False, indent=4)
 
 
-
-
-if __name__ == '__main__':
-    org_anno_root = vg_config['org_anno_root']
+def split_anno_pkg():
+    vg_config = DatasetConfig('vg')
+    org_anno_root = vg_config.data_config['raw_anno_root']
     image_data_path = os.path.join(org_anno_root, 'image_data.json')
     object_path = os.path.join(org_anno_root, 'objects.json')
     relationship_path = os.path.join(org_anno_root, 'relationships.json')
-    output_json_root = vg_config['dirty_anno_root']
+    output_json_root = vg_config.data_config['dirty_anno_root']
 
     split_json(image_data_path, output_json_root, u'image_info', False)
     split_json(object_path, output_json_root, u'objects', True)
