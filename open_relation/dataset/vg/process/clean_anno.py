@@ -73,6 +73,7 @@ def rlt_reformat(rlt_anno):
     obj = obj_reformat(obj_anno)
     pre = dict()
     pre['name'] = rlt_anno['predicate']
+    pre['synsets'] = rlt_anno['synsets']
     # predicate box is union of obj box and sbj box
     pre['ymin'] = min(obj['ymin'], sbj['ymin'])
     pre['ymax'] = max(obj['ymax'], sbj['ymax'])
@@ -105,14 +106,14 @@ def wash_anno(dirty_anno_path, clean_anno_path):
             if len('synsets') > 0:
                 # object must have wn synset
                 reg_label = regularize_obj_label(obj['name'])
-                print('%s | %s' % (obj['name'], reg_label))
+                # print('%s | %s' % (obj['name'], reg_label))
                 obj['name'] = reg_label
                 id2obj[obj['object_id']] = obj
             else:
                 objs_have_synset = False
         if objs_have_synset:
             reg_label = regularize_pre_label(new_rlt['predicate']['name'], lemmatizer)
-            print('%s | %s' % (new_rlt['predicate']['name'], reg_label))
+            # print('%s | %s' % (new_rlt['predicate']['name'], reg_label))
             new_rlt['predicate']['name'] = reg_label
             id2rlt[new_rlt['relationship_id']] = new_rlt
 
