@@ -9,3 +9,6 @@ global_config.py
 
 *.npz
 runs
+
+VRD/
+VG/
