@@ -34,11 +34,9 @@ def split_anno_pkg():
     vg_config = DatasetConfig('vg')
     org_anno_root = vg_config.data_config['raw_anno_root']
     image_data_path = os.path.join(org_anno_root, 'image_data.json')
-    object_path = os.path.join(org_anno_root, 'objects.json')
     relationship_path = os.path.join(org_anno_root, 'relationships.json')
     output_json_root = vg_config.data_config['dirty_anno_root']
 
     split_json(image_data_path, output_json_root, u'image_info', False)
-    split_json(object_path, output_json_root, u'objects', True)
     split_json(relationship_path, output_json_root, u'relationships', True)
 
