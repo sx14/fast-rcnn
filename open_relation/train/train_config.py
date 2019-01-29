@@ -1,6 +1,6 @@
 import os
 from open_relation import vg_data_config, global_config
-from open_relation.dataset import dataset_config
+from open_relation.dataset.dataset_config import DatasetConfig
 
 log_root = 'open_relation1/log'
 vg_hyper_params = {
@@ -24,6 +24,8 @@ vg_hyper_params = {
     'best_weight_path': os.path.join(global_config.our_model_root, 'object', 'vg_weights_best.pkl'),
 }
 
+vrd_dataset_config = DatasetConfig('vrd')
+
 vrd_obj_hyper_params = {
     'visual_d': 4096,
     'hidden_d': 4096,
@@ -38,12 +40,10 @@ vrd_obj_hyper_params = {
     'log_path': os.path.join(global_config.project_root, log_root, 'vrd_obj_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vrd_obj_loss.bin'),
     'log_acc_path': os.path.join(global_config.project_root, log_root, 'vrd_obj_acc.bin'),
-    'visual_feature_root': dataset_config.vrd_object_fc7_root,
-    'list_root': dataset_config.vrd_object_label_root,
-    'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd.h5'),
-    'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'object', 'label_vec_vrd1.h5'),
-    'vrd2path_path': dataset_config.vrd_object_config['vrd2path_path'],
-    'vrd2weight_path': dataset_config.vrd_object_config['vrd2weight_path'],
+    'visual_feature_root': vrd_dataset_config.extra_config['object'].fc7_root,
+    'list_root': vrd_dataset_config.extra_config['object'].label_root,
+    'label_vec_path': os.path.join(global_config.project_root, 'open_relation', 'label_embedding', 'object', 'label_vec_vrd.h5'),
+    'label_vec_path1': os.path.join(global_config.project_root, 'open_relation', 'label_embedding', 'object', 'label_vec_vrd1.h5'),
     'latest_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'object', 'vrd_weights_best.pkl'),
     'eval_weight_path':os.path.join(global_config.our_model_root, 'best', 'vrd_obj_weights.pkl'),
@@ -63,12 +63,10 @@ vrd_pre_hyper_params = {
     'log_path': os.path.join(global_config.project_root, log_root, 'vrd_pre_loss.txt'),
     'log_loss_path': os.path.join(global_config.project_root, log_root, 'vrd_pre_loss.bin'),
     'log_acc_path': os.path.join(global_config.project_root, log_root, 'vrd_pre_acc.bin'),
-    'visual_feature_root': dataset_config.vrd_predicate_fc7_root,
-    'list_root': dataset_config.vrd_predicate_label_root,
-    'label_vec_path': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'predicate', 'label_vec_vrd.h5'),
-    'label_vec_path1': os.path.join(global_config.project_root, 'open_relation1', 'label_embedding', 'predicate', 'label_vec_vrd1.h5'),
-    'vrd2path_path': dataset_config.vrd_predicate_config['raw2path_path'],
-    'vrd2weight_path': dataset_config.vrd_predicate_config['raw2weight_path'],
+    'visual_feature_root': vrd_dataset_config.extra_config['predicate'].fc7_root,
+    'list_root': vrd_dataset_config.extra_config['predicate'].label_root,
+    'label_vec_path': os.path.join(global_config.project_root, 'open_relation', 'label_embedding', 'predicate', 'label_vec_vrd.h5'),
+    'label_vec_path1': os.path.join(global_config.project_root, 'open_relation', 'label_embedding', 'predicate', 'label_vec_vrd1.h5'),
     'latest_weight_path': os.path.join(global_config.our_model_root, 'predicate', 'vrd_weights.pkl'),
     'best_weight_path': os.path.join(global_config.our_model_root, 'predicate', 'vrd_weights_best.pkl'),
     'eval_weight_path':os.path.join(global_config.our_model_root, 'best', 'vrd_obj_weights.pkl'),

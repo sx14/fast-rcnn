@@ -2,7 +2,7 @@ import os
 import global_config
 
 #global config
-vg_root = global_config.vg_root
+vg_root = global_config.dataset_root['vg']
 vg_feature_root = os.path.join(vg_root, 'feature')
 vg_config = {
     # dataset preprocess

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from open_relation.model.predicate import model
-from open_relation.dataset import dataset_config
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
@@ -13,9 +13,10 @@ from open_relation.language.infer.model import RelationEmbedding
 from open_relation.language.infer.lang_config import train_params
 
 # prepare feature
+dataset_config = DatasetConfig('vrd')
 pre_config = hyper_params['vrd']['predicate']
 obj_config = hyper_params['vrd']['object']
-test_list_path = os.path.join(dataset_config.vrd_predicate_feature_prepare_root, 'test_box_label.bin')
+test_list_path = os.path.join(dataset_config.extra_config['object'].prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 
 
@@ -30,12 +31,9 @@ obj_label_vecs = np.array(label_embedding_file['label_vec'])
 label_embedding_file.close()
 
 # prepare label maps
-org2path_path = pre_config['vrd2path_path']
-org2path = pickle.load(open(org2path_path))
-label2index_path = dataset_config.vrd_predicate_config['label2index_path']
-label2index = pickle.load(open(label2index_path))
-index2label_path = dataset_config.vrd_predicate_config['index2label_path']
-index2label = pickle.load(open(index2label_path))
+org2path = prenet.raw2path()
+label2index = prenet.label2index()
+index2label = prenet.index2label()
 
 mode = 'raw'
 # mode = 'hier'
@@ -94,9 +92,9 @@ for feature_file_id in test_box_label:
 
         # visual prediction
         v_pre_scores, _, _ = vmodel.forward2(vf_v, pre_lfs_v, obj_lfs_v)
-        v_ranked_inds = np.argsort(v_pre_scores.cpu().data).tolist()    # ascend
+        v_ranked_inds = np.argsort(v_pre_scores.cpu().data).tolist()  # ascend
         v_ind2score = np.zeros(len(v_ranked_inds))
-        for s, ind in enumerate(v_ranked_inds):     # ascending rank as score
+        for s, ind in enumerate(v_ranked_inds):  # ascending rank as score
             v_ind2score[ind] = s
 
         # language prediction
@@ -115,13 +113,13 @@ for feature_file_id in test_box_label:
         for s, ind in enumerate(l_ranked_inds):
             l_ind2score[ind] = s
 
-        ind2score = np.max([v_ind2score, l_ind2score])
-        ranked_inds = np.argsort(ind2score).tolist()
-        ranked_inds.reverse()   # descending
+        # ind2score = np.max(np.stack((l_ind2score, v_ind2score), axis=1), axis=1)
+        # ranked_inds = np.argsort(ind2score).tolist()
+        # ranked_inds.reverse()  # descending
 
-        # pre_scores = (v_pre_scores * 0.6 + l_pre_scores * 0.4) / 2
-        # ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
-        # ranked_inds.reverse()   # descending
+        pre_scores = (v_pre_scores * 0.6 + l_pre_scores * 0.4) / 2
+        ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
+        ranked_inds.reverse()   # descending
 
         # ====== hier label =====
         pre_label = box_label[4]
