@@ -56,11 +56,11 @@ raw2weight_path = config['raw2weight_path']
 visual_feat_root = config['visual_feature_root']
 train_list_path = os.path.join(config['list_root'], 'train.txt')
 train_dataset = MyDataset(visual_feat_root, train_list_path, raw2path, config['visual_d'],
-                          raw2weight_path, config['batch_size'], config['negative_label_num'])
+                          raw2weight_path, labelnet.label_sum(), config['batch_size'], config['negative_label_num'])
 
 val_list_path = os.path.join(config['list_root'], 'val.txt')
 val_dataset = MyDataset(visual_feat_root, val_list_path, raw2path, config['visual_d'],
-                        raw2weight_path, config['batch_size'], config['negative_label_num'])
+                        raw2weight_path, labelnet.label_sum(), config['batch_size'], config['negative_label_num'])
 
 # init model
 latest_weights_path = config['latest_weight_path']
