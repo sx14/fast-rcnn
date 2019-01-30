@@ -7,19 +7,8 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 class ObjNet(LabelHier):
 
-    def _raw_to_wn(self):
-        raw2wn = dict()
-        raw_labels = []
-        for vg_label in self._raw_labels:
-            raw_label, wn_labels = vg_label.split('|')
-            raw_labels.append(raw_label)
-            wn_labels = wn_labels.split(' ')
-            raw2wn[raw_label] = wn_labels
-        self._raw_labels = raw_labels
-        return raw2wn
-
     def raw2wn(self):
-        return self._raw_to_wn()
+        return self._raw2wn
 
     def _create_label_nodes(self, raw2wn):
         # keep wn label unique
@@ -48,7 +37,7 @@ class ObjNet(LabelHier):
             next_label_index += 1
 
     def _construct_hier(self):
-        raw2wn = self._raw_to_wn()
+        raw2wn = self._raw2wn
         self._create_label_nodes(raw2wn)
         # link the nodes
         for i in range(1, len(self._index2node)):
@@ -64,8 +53,21 @@ class ObjNet(LabelHier):
                     if h.name() in self._label2node:
                         node.append_hyper(self._label2node[h.name()])
 
+    def _raw_to_wn(self):
+        raw2wn = dict()
+        raw_labels = []
+        for vg_label in self._raw_labels:
+            raw_label, wn_labels = vg_label.split('|')
+            raw_labels.append(raw_label)
+            wn_labels = wn_labels.split(' ')
+            raw2wn[raw_label] = wn_labels
+        return raw2wn, raw_labels
+
     def __init__(self, pre_label_path):
         LabelHier.__init__(self, pre_label_path)
+        raw2wn, raw_labels = self._raw_to_wn()
+        self._raw_labels = raw_labels
+        self._raw2wn = raw2wn
 
 
 dataset_config = DatasetConfig('vg')
