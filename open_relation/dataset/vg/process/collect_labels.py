@@ -71,7 +71,7 @@ def collect_labels():
         for i, (name, c) in enumerate(sorted_count):
             # retain top N
             if i < top:
-                raw_label_list.append(name)
+                raw_label_list.append(name+'\n')
                 line = name + '|'
                 syns = raw2wn[name]
                 for syn in syns:

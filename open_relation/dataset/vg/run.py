@@ -9,8 +9,8 @@ if __name__ == '__main__':
     # split_anno_pkg()
     # clean_anno()
     # collect_labels()
-    filter_anno()
+    # filter_anno()
     # split_dataset()
-    # ext_obj_cnn_feat.ext_cnn_feat()
+    ext_obj_cnn_feat.ext_cnn_feat()
     # TODO: predicate part
     pass

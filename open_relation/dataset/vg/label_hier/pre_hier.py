@@ -6,17 +6,6 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 class PreNet(LabelHier):
 
-    def _raw_to_wn(self):
-        raw2wn = dict()
-        raw_labels = []
-        for vg_label in self._raw_labels:
-            raw_label, wn_labels = vg_label.split('|')
-            raw_labels.append(raw_label)
-            wn_labels = wn_labels.split(' ')
-            raw2wn[raw_label] = wn_labels
-        self._raw_labels = raw_labels
-        return raw2wn
-
     def _construct_hier(self):
         # root node
         # 0 is background
@@ -25,7 +14,6 @@ class PreNet(LabelHier):
 
     def __init__(self, raw_label_path):
         LabelHier.__init__(self, raw_label_path)
-        self._raw_to_wn()
 
 
 dataset_config = DatasetConfig('vg')
