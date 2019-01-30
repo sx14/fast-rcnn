@@ -16,6 +16,27 @@ legal_pos_tags = {
     'predicate': {'VERB': 'v',
                   'ADP': 'v',
                   'NOUN': 'v'}
+    # 'object': {
+    #     'NN': None,
+    #     'NNS': None,
+    #     'NNP': None,
+    #     'NNPS': None
+    # },
+    # 'predicate': {
+    #     'IN': None,
+    #     'JJR': None,
+    #     'NN': 'v',
+    #     'NNS': 'v',
+    #     'RBR': None,
+    #     'RP': None,
+    #     'TO': None,
+    #     'VB': 'v',
+    #     'VBD': 'v',
+    #     'VBG': 'v',
+    #     'VBN': None,
+    #     'VBP': 'v',
+    #     'VBZ': 'v',
+    # }
 }
 
 

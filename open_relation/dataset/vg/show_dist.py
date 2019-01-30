@@ -43,18 +43,18 @@ obj_counts = [item[1] for item in sorted_obj_count]
 for name, c in sorted_obj_count:
     print('%s: %d' % (name, c))
 
-sorted_pre_count = sorted(pre_counter.items(), key=lambda a: a[1])
-sorted_pre_count.reverse()
-pre_counts = [item[1] for item in sorted_pre_count]
-for name, c in sorted_pre_count:
-    print('%s: %d' % (name, c))
-
-
 plt.plot(range(len(obj_counts)), obj_counts)
 plt.title('distribution')
 plt.xlabel('object')
 plt.ylabel('count')
 plt.show()
+
+
+sorted_pre_count = sorted(pre_counter.items(), key=lambda a: a[1])
+sorted_pre_count.reverse()
+pre_counts = [item[1] for item in sorted_pre_count]
+for name, c in sorted_pre_count:
+    print('%s: %d' % (name, c))
 
 plt.plot(range(len(pre_counts)), pre_counts)
 plt.title('distribution')
