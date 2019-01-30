@@ -127,16 +127,16 @@ def wash_anno(dirty_anno_path, clean_anno_path):
             if obj['object_id'] not in id2obj:
                 if len(obj['synsets']) > 0:
                     # object must have wn synset
-                    reg_label = regularize_obj_label(obj['name'])
+                    # reg_label = regularize_obj_label(obj['name'])
                     # print('%s | %s' % (obj['name'], reg_label))
-                    obj['name'] = reg_label
+                    # obj['name'] = reg_label
                     id2obj[obj['object_id']] = obj
                 else:
                     objs_have_synset = False
         if objs_have_synset:
-            reg_label = regularize_pre_label(new_rlt['predicate']['name'], lemmatizer)
+            # reg_label = regularize_pre_label(new_rlt['predicate']['name'], lemmatizer)
             # print('%s | %s' % (new_rlt['predicate']['name'], reg_label))
-            new_rlt['predicate']['name'] = reg_label
+            # new_rlt['predicate']['name'] = reg_label
             id2rlt[new_rlt['relationship_id']] = new_rlt
 
     clean_anno['objects'] = id2obj.values()
