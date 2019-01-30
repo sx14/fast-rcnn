@@ -178,8 +178,3 @@ def ext_cnn_feat():
 
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root,
                              label_save_path, label2index, raw2wn, raw2path, sample_ratio, d)
-
-    # split a small val list for quick evaluation
-    small_val_path = os.path.join(label_save_root, 'small_val.txt')
-    val_path = os.path.join(label_save_root, 'test.txt')
-    split_a_small_val(val_path, 1000, small_val_path)

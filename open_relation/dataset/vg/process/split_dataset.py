@@ -12,7 +12,7 @@ def split_dataset():
 
     # train : test = 4 : 1
     test_capacity = anno_sum / 5
-    val_capacity = 1000
+    val_capacity = 400
     train_capacity = anno_sum - val_capacity - test_capacity
 
     random.shuffle(anno_list)
