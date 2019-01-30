@@ -122,8 +122,8 @@ class PreNet(LabelHier):
                 raw_node = self._label2node[raw_label]
                 raw_node.set_raw(True)
 
-    def __init__(self, pre_label_path):
-        LabelHier.__init__(self, pre_label_path)
+    def __init__(self, raw_label_path):
+        LabelHier.__init__(self, raw_label_path)
 
 
 dataset_config = DatasetConfig('vrd')

@@ -53,28 +53,28 @@ class ObjNet(LabelHier):
                     if h.name() in self._label2node:
                         node.append_hyper(self._label2node[h.name()])
 
-    def _raw_to_wn(self):
+    def _raw_to_wn(self, raw2wn_path):
+        vg_labels = self._load_raw_label(raw2wn_path)
         raw2wn = dict()
         raw_labels = []
-        for vg_label in self._raw_labels:
+        for vg_label in vg_labels:
             raw_label, wn_labels = vg_label.split('|')
             raw_labels.append(raw_label)
             wn_labels = wn_labels.split(' ')
             raw2wn[raw_label] = wn_labels
-        return raw2wn, raw_labels
+        return raw2wn
 
-    def __init__(self, pre_label_path):
-        LabelHier.__init__(self, pre_label_path)
-        raw2wn, raw_labels = self._raw_to_wn()
-        self._raw_labels = raw_labels
-        self._raw2wn = raw2wn
+    def __init__(self, raw_label_path, raw2wn_path):
+        self._raw2wn = self._raw_to_wn(raw2wn_path)
+        LabelHier.__init__(self, raw_label_path)
 
 
 dataset_config = DatasetConfig('vg')
-label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
-objnet = ObjNet(label_path)
+raw_label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
+raw2wn_path = os.path.join(dataset_config.dataset_root, 'object_label2wn.txt')
+objnet = ObjNet(raw_label_path, raw2wn_path)
 
 # if __name__ == '__main__':
-#     a = ObjNet(label_path)
+#     a = ObjNet(raw_label_path, raw2wn_path)
 #     n = a.get_node_by_name('road')
 #     n.show_hyper_paths()

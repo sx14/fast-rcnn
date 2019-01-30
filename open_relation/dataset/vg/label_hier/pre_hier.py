@@ -23,8 +23,8 @@ class PreNet(LabelHier):
         # TODO: construct predicate label hierarchy
         pass
 
-    def __init__(self, pre_label_path):
-        LabelHier.__init__(self, pre_label_path)
+    def __init__(self, raw_label_path):
+        LabelHier.__init__(self, raw_label_path)
         self._raw_to_wn()
 
 

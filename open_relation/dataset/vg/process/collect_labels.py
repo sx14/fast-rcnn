@@ -64,13 +64,15 @@ def collect_labels():
     for target in counters:
         counter, raw2wn, top = counters[target]
         label_list = []
+        raw_label_list = []
         sorted_count = sorted(counter.items(), key=lambda a: a[1])
         sorted_count.reverse()
 
         for i, (name, c) in enumerate(sorted_count):
             # retain top N
             if i < top:
-                line = '%s|' % name
+                raw_label_list.append(name)
+                line = name + '|'
                 syns = raw2wn[name]
                 for syn in syns:
                     line = line + syn + ' '
@@ -81,7 +83,11 @@ def collect_labels():
                 break
 
         # save label list
-        label_list_path = os.path.join(vg_config.dataset_root, target+'_labels.txt')
+        raw_label_list_path = os.path.join(vg_config.dataset_root, target+'_labels.txt')
+        with open(raw_label_list_path, 'w') as f:
+            f.writelines(raw_label_list)
+
+        label_list_path = os.path.join(vg_config.dataset_root, target+'_label2wn.txt')
         with open(label_list_path, 'w') as f:
             f.writelines(label_list)
 

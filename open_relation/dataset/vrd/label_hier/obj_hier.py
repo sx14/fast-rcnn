@@ -77,8 +77,8 @@ class ObjNet(LabelHier):
                     if h.name() in self._label2node:
                         node.append_hyper(self._label2node[h.name()])
 
-    def __init__(self, pre_label_path):
-        LabelHier.__init__(self, pre_label_path)
+    def __init__(self, raw_label_path):
+        LabelHier.__init__(self, raw_label_path)
 
 
 dataset_config = DatasetConfig('vrd')
