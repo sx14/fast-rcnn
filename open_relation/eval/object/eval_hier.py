@@ -6,9 +6,10 @@ import torch
 from nltk.corpus import wordnet as wn
 from open_relation.infer import tree_infer2
 from open_relation.model.object import model
-from open_relation.dataset import dataset_config
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+dataset_config = DatasetConfig('vrd')
 
 def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
     if pred_ind == org_label_ind:
@@ -30,23 +31,22 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
 
 # prepare feature
 config = hyper_params['vrd']['object']
-test_list_path = os.path.join(dataset_config.vrd_object_feature_prepare_root, 'test_box_label.bin')
+test_list_path = os.path.join(dataset_config.extra_config['object'].prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
 label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
-org2wn_path = dataset_config.vrd_object_config['vrd2wn_path']
-org2wn = pickle.load(open(org2wn_path))
-org2path_path = config['vrd2path_path']
-org2path = pickle.load(open(org2path_path))
-org2pw_path = dataset_config.vrd_object_config['vrd2pw_path']
-org2pw = pickle.load(open(org2pw_path))
-label2index_path = dataset_config.vrd_object_config['label2index_path']
-label2index = pickle.load(open(label2index_path))
-index2label_path = dataset_config.vrd_object_config['index2label_path']
-index2label = pickle.load(open(index2label_path))
+
+org2wn = objnet.raw2wn()
+
+org2path = objnet.raw2path()
+
+
+label2index = objnet.label2index()
+
+index2label = objnet.index2label()
 
 org_indexes = [label2index[i] for i in org2wn.keys()]
 
@@ -81,12 +81,13 @@ for feature_file_id in test_box_label:
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
         vf = features[i]
+        vf = vf[np.newaxis:]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
-        scores = net.forward2(vf_v, lfs_v).cpu().data
-        pred_ind, cands = tree_infer2.my_infer(objnet, scores, rank_scores, 'obj')
+        scores = net(vf_v).cpu().data
+        pred_ind, cands = tree_infer2.my_infer(objnet, scores[0], rank_scores, 'obj')
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)

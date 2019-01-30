@@ -181,22 +181,3 @@ class PredicateVisual_acc(nn.Module):
 
 
 
-
-class TeacherStudentNet(nn.Module):
-    def __init__(self, cond_probs):
-        super(TeacherStudentNet, self).__init__()
-        self.drop_out = nn.Dropout(p=0.5)
-        self.activate = nn.ReLU()
-        self.hidden = nn.Linear(pre_config['embedding_d'], pre_config['embedding_d'])
-        self.teacher = nn.Linear(pre_config['embedding_d'], pre_config['embedding_d'])
-        self.similarity = PartialOrderSimilarity()
-        self.cond_probs = cond_probs
-
-    def forward(self, stu_out, gt_label):
-        stu_out = self.activate(stu_out)
-        stu_out = self.drop_out(stu_out)
-        hidden = self.hidden(stu_out)
-        hidden = self.activate(hidden)
-        hidden = self.drop_out(hidden)
-        tea_out = self.teacher(hidden)
-        return tea_out

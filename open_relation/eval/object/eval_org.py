@@ -37,7 +37,7 @@ mode = 'raw'
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual(config['visual_d'], config['visual_d'], config['embedding_d'])
+net = model.HypernymVisual(config['visual_d'], config['visual_d'], config['embedding_d'], label_vec_path)
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')
@@ -69,11 +69,12 @@ for feature_file_id in test_box_label:
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
         vf = features[i]
+        vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         scores = net(vf_v).cpu().data
-        ranked_inds = np.argsort(scores).tolist()
+        ranked_inds = np.argsort(scores[0]).tolist()
         ranked_inds.reverse()   # descending
 
         # ====== hier label =====

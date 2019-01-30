@@ -1,5 +1,4 @@
 import os
-import pickle
 import torch
 from tensorboardX import SummaryWriter
 from open_relation.dataset.MyDataset import MyDataset
