@@ -48,6 +48,6 @@ if __name__ == '__main__':
     label2index = objnet.label2index()
 
     hypernym_save_path = os.path.join(global_config.project_root,
-                                      'open_relation1', 'label_embedding', 'object',
+                                      'open_relation', 'label_embedding', 'object',
                                       dataset+'_dataset', 'wordnet_with_'+dataset+'.h5')
     generate_direct_hypernyms(raw2wn, label2index, hypernym_save_path)

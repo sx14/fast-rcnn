@@ -2,17 +2,25 @@ import pickle
 import h5py
 import numpy as np
 from nltk.corpus import wordnet as wn
-from open_relation.dataset.dataset_config import vrd_object_config
-from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+from open_relation.dataset.dataset_config import DatasetConfig
 
 
-dataset_name = 'vrd'
+dataset_name = 'vg'
 target = 'object'
+
+data_config = DatasetConfig(dataset_name)
+
+if dataset_name == 'vrd' and target == 'object':
+    from open_relation.dataset.vrd.label_hier.obj_hier import objnet as classnet
+elif dataset_name == 'vrd' and target == 'predicate':
+    from open_relation.dataset.vrd.label_hier.pre_hier import prenet as classnet
+elif dataset_name == 'vg' and target == 'object':
+    from open_relation.dataset.vg.label_hier.obj_hier import objnet as classnet
+else:
+    from open_relation.dataset.vg.label_hier.pre_hier import prenet as classnet
 
 
 def eval2(label_vecs, index2label, label2index, vg2wn):
-
-
     vg_labels = vg2wn.keys()
     for vg_label in vg_labels:
         vg_label_index = label2index[vg_label]
@@ -83,19 +91,16 @@ def eval4(label_vecs, label2index, label1, label2):
 
 if __name__ == '__main__':
     # label vectors
-    weight_path = vrd_object_config['label_vec_path']
+    weight_path = data_config.extra_config[target].config['label_vec_path']
     label_vec_file = h5py.File(weight_path, 'r')
     label_vecs = np.array(label_vec_file['label_vec'])
 
     # label mapping
-    label2index_path = vrd_object_config['label2index_path']
-    label2index = pickle.load(open(label2index_path, 'rb'))
-    index2label_path = vrd_object_config['index2label_path']
-    index2label = pickle.load(open(index2label_path, 'rb'))
-    vg2wn_path = vrd_object_config['vrd2wn_path']
-    vg2wn = pickle.load(open(vg2wn_path, 'rb'))
+    label2index = classnet.label2index()
+    index2label = classnet.index2label()
+    raw2wn = classnet.raw2wn()
 
-    # eval2(label_vecs, index2label, label2index, vg2wn)
-    # eval3(label_vecs, index2label, label2index, vg2wn, 'jeans')
+    eval2(label_vecs, index2label, label2index, raw2wn)
+    # eval3(label_vecs, index2label, label2index, raw2wn, 'jeans')
     # eval4(label_vecs, label2index, 'shirt', 'garment.n.01')
-    objnet.get_node_by_name('person').show_hyper_paths()
+    # objnet.get_node_by_name('person').show_hyper_paths()
