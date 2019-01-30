@@ -11,13 +11,16 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 legal_pos_tags = {
     # 名词
-    'object': {'NOUN': 'n',
-               'ADJ': None,
-               'VERB': None},
+    'object': {u'NOUN': 'n',
+               u'ADJ': None,
+               u'VERB': None},
     # 动词，介词连词，名词（误），
-    'predicate': {'VERB': 'v',
-                  'ADP': 'v',
-                  'NOUN': 'v'}
+    'predicate': {u'VERB': 'v',
+                  u'ADP': 'v',
+                  u'NOUN': 'v',
+                  u'ADJ': None,
+                  u'PRT': None,
+                  u'ADV': None}
     # 'object': {
     #     'NN': None,
     #     'NNS': None,
@@ -44,21 +47,22 @@ legal_pos_tags = {
 
 def regularize_obj_label(label):
     # type : object, predicate
-    pos_tags = legal_pos_tags['object']
-    tokens = nltk.word_tokenize(label.lower())
-    token_tags = nltk.pos_tag(tokens, tagset='universal')
-    legal_tokens = []
-
-    for token_tag in token_tags:
-        # reserve noun only
-        if token_tag[1] in pos_tags:
-            raw_token = token_tag[0]
-            legal_tokens.append(raw_token)
-        else:
-            a = 1
-    if len(legal_tokens) == 0:
-        legal_tokens.append(label)
-    return ' '.join(legal_tokens)
+    # pos_tags = legal_pos_tags['object']
+    # tokens = nltk.word_tokenize(label.lower())
+    # token_tags = nltk.pos_tag(tokens, tagset='universal')
+    # legal_tokens = []
+    #
+    # for token_tag in token_tags:
+    #     # reserve noun only
+    #     if token_tag[1] in pos_tags:
+    #         raw_token = token_tag[0]
+    #         legal_tokens.append(raw_token)
+    #     else:
+    #         a = 1
+    # if len(legal_tokens) == 0:
+    #     legal_tokens.append(label)
+    # return ' '.join(legal_tokens)
+    return label.lower()
 
 
 def regularize_pre_label(label, lemmatizer):
@@ -67,14 +71,17 @@ def regularize_pre_label(label, lemmatizer):
     token_tags = nltk.pos_tag(tokens, tagset='universal')
     legal_tokens = []
     for token_tag in token_tags:
-        if token_tag[1] in pos_tags:
-            if pos_tags[token_tag[1]] is not None:
-                raw_token = lemmatizer.lemmatize(token_tag[0], pos=pos_tags[token_tag[1]])
-            else:
-                raw_token = token_tag[0]
-        else:
-            a = 1
-            legal_tokens.append(raw_token)
+        # if token_tag[1] in pos_tags:
+        #     if pos_tags[token_tag[1]] is not None:
+        #         raw_token = lemmatizer.lemmatize(token_tag[0], pos=pos_tags[token_tag[1]])
+        #     else:
+        #         raw_token = token_tag[0]
+        #         legal_tokens.append(raw_token)
+        # else:
+        #     a = 1
+        raw_token = lemmatizer.lemmatize(token_tag[0], pos='v')
+        legal_tokens.append(raw_token)
+
     if len(legal_tokens) == 0:
         raw_token = lemmatizer.lemmatize(label, pos='v')
         legal_tokens.append(raw_token)
