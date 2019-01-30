@@ -26,21 +26,26 @@ for i, anno_name in enumerate(anno_list):
         synsets = set(obj['synsets'])
         name = obj['name']
         if name in obj_counter:
-            obj2wn[name] = obj2wn[name] | synsets
             obj_counter[name] += 1
         else:
-            obj2wn[name] = synsets
             obj_counter[name] = 1
+        if name in obj2wn:
+            obj2wn[name] = obj2wn[name] | synsets
+        else:
+            obj2wn[name] = synsets
+
     relations = anno['relations']
     for rlt in relations:
         synsets = set(rlt['predicate']['synsets'])
         predicate = rlt['predicate']['name']
         if predicate in pre_counter:
-            pre2wn[predicate] = pre2wn[predicate] | synsets
             pre_counter[predicate] += 1
         else:
-            pre2wn[predicate] = synsets
             pre_counter[predicate] = 1
+        if predicate in pre2wn:
+            pre2wn[predicate] = pre2wn[predicate] | synsets
+        else:
+            pre2wn[predicate] = synsets
 
 
 counters = {
@@ -49,13 +54,13 @@ counters = {
 }
 
 
-for target, (counter, raw2wn, top) in counters:
-
+for target in counters:
+    counter, raw2wn, top = counters[target]
     label_list = []
-    sorted_obj_count = sorted(obj_counter.items(), key=lambda a: a[1])
-    sorted_obj_count.reverse()
-    obj_counts = [item[1] for item in sorted_obj_count]
-    for i, (name, c) in enumerate(sorted_obj_count):
+    sorted_count = sorted(counter.items(), key=lambda a: a[1])
+    sorted_count.reverse()
+    counts = [item[1] for item in sorted_count]
+    for i, (name, c) in enumerate(sorted_count):
         # retain top N
         if i < top:
             line = '%s|' % name
@@ -72,7 +77,7 @@ for target, (counter, raw2wn, top) in counters:
     with open(label_list_path, 'w') as f:
         f.writelines(label_list)
 
-    plt.plot(range(len(label_list)), obj_counts[:len(label_list)])
+    plt.plot(range(len(label_list)), counts[:len(label_list)])
     plt.title('distribution')
     plt.xlabel('object')
     plt.ylabel('count')
