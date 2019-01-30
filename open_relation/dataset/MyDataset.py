@@ -7,9 +7,11 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_feature_root, flabel_list_path, raw2path, visual_feat_dim,
-                 raw2weight_path, minibatch_size=64, negative_label_num=50):
+    def __init__(self, raw_feature_root, flabel_list_path, raw2path, vis_feat_dim,
+                 raw2weight_path, label_num, minibatch_size=64, negative_label_num=50):
         # whole dataset
+        self._label_num = label_num
+        self.vis_feat_dim = vis_feat_dim
         self._minibatch_size = minibatch_size
         self._negative_label_num = negative_label_num
         self._raw_feature_root = raw_feature_root
@@ -92,8 +94,8 @@ class MyDataset():
         # init package index cursor
         self._curr_package_cursor = 0
 
-    def minibatch(self, vf_d=4096):
-        vfs = np.zeros((self._minibatch_size, vf_d))
+    def minibatch(self):
+        vfs = np.zeros((self._minibatch_size, self.vis_feat_dim))
         p_n_ls = np.zeros((self._minibatch_size, self._negative_label_num+1)).astype(np.int)
         pws = np.zeros(self._minibatch_size)
         v_actual_num = 0
@@ -109,7 +111,7 @@ class MyDataset():
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
-            all_nls = list(set(range(0, len(self._label_embedding))) - set(self._raw2path[self._label_indexes[fid][1]]))
+            all_nls = list(set(range(0, len(self._label_num))) - set(self._raw2path[self._label_indexes[fid][1]]))
             p_n_ls[v] = [self._label_indexes[fid][0]] + random.sample(all_nls, self._negative_label_num)
             pws[v] = self._raw2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
@@ -122,33 +124,6 @@ class MyDataset():
         vfs = torch.autograd.Variable(vfs).cuda()
         pws = torch.autograd.Variable(pws).cuda()
         return vfs, p_n_ls, pws
-
-
-    def minibatch_eval(self):
-        # generate minibatch from current feature package
-        vfs = []
-        p_lfs = []
-        n_lfs = []
-        if self._curr_package_cursor == len(self._curr_package_feature_indexes):
-            # current package finished, load another 4000 feature files
-            self.load_next_feature_package()
-        if self._curr_package_cursor < len(self._curr_package_feature_indexes):
-            fid = self._curr_package_feature_indexes[self._curr_package_cursor]
-            feature_file, offset = self._feature_indexes[fid]
-            vf = self._curr_package[feature_file][offset]
-            positive_label_index = self._label_indexes[fid][0]
-            p_lf = self._label_embedding[positive_label_index]
-            self._curr_package_cursor += 1
-            positive_labels = self._raw2path[self._label_indexes[fid][1]]
-            all_negative_labels = list(set(range(0, len(self._label_embedding))) -
-                                       set(positive_labels))
-            vfs = [vf]
-            n_lfs = self._label_embedding[all_negative_labels]
-            p_lfs = [p_lf]
-        vfs = torch.from_numpy(np.array(vfs)).float()
-        p_lfs = torch.from_numpy(np.array(p_lfs)).float()
-        n_lfs = torch.from_numpy(np.array(n_lfs)).float()
-        return vfs, p_lfs, n_lfs
 
 
 
