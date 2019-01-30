@@ -25,11 +25,12 @@ def eval(dataset, model):
     dataset.init_package()
     with torch.no_grad():
         while dataset.has_next_minibatch():
-            vfs, pos_neg_inds, pws = dataset.minibatch()
+            vfs, pos_neg_inds, weights = dataset.minibatch()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             all_scores = model(batch_vf)
             batch_acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds)
             batch_loss = loss_func(loss_scores, y)
+            batch_loss = torch.mean(batch_loss * weights)
             acc_sum += batch_acc
             loss_sum += batch_loss
             batch_sum += 1
@@ -126,10 +127,10 @@ for e in range(0, config['epoch']):
             e_acc, e_loss = eval(val_dataset, net)
             sw.add_scalars('acc', {'eval': e_acc}, batch_counter)
             sw.add_scalars('loss', {'eval': e_loss}, batch_counter)
-            print('batch: %d >>> acc %.2f' % (batch_counter, e_acc))
+            print('batch: %d >>> acc: %.2f  loss: %.2f' % (batch_counter, e_acc, e_loss))
             torch.save(net.state_dict(), latest_weights_path)
             print('Updating weights success.')
             if e_acc > best_acc:
                 torch.save(net.state_dict(), best_weights_path)
                 best_acc = e_acc
-                print('Updating best weights success.')
+                print('Updating best weights success.\n')

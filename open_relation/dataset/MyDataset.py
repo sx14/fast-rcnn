@@ -103,19 +103,22 @@ class MyDataset():
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 # current package finished, load another 4000 feature files
                 self.load_next_feature_package()
+
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
                 p_n_ls = p_n_ls[:v_actual_num]
                 pws = pws[:v_actual_num]
                 break
+
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
-            all_nls = list(set(range(0, len(self._label_num))) - set(self._raw2path[self._label_indexes[fid][1]]))
+            all_nls = list(set(range(self._label_num)) - set(self._raw2path[self._label_indexes[fid][1]]))
             p_n_ls[v] = [self._label_indexes[fid][0]] + random.sample(all_nls, self._negative_label_num)
             pws[v] = self._raw2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
             v_actual_num += 1
+
         #  vfs: minibatch_size | pls: minibatch_size | nls: minibatch_size
         vfs = torch.from_numpy(vfs).float()
         p_n_ls = torch.from_numpy(p_n_ls)
