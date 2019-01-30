@@ -1,6 +1,3 @@
-"""
-step5: extract CNN feature for image region using pretrained CNN
-"""
 import os
 import json
 import random
@@ -14,7 +11,7 @@ from open_relation import global_config
 from open_relation.dataset.vg.label_hier.obj_hier import objnet
 
 
-def cal_sample_ratio(label2index, vrd2path, box_labels):
+def cal_sample_ratio(label2index, raw2path, box_labels):
     # instance counter
     label_ins_cnt = np.zeros(len(label2index.keys()))
 
@@ -22,16 +19,16 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
     for img_id in box_labels:
         img_box_labels = box_labels[img_id]
         for box_label in img_box_labels:
-            vrd_label = box_label[4]
-            label_path = vrd2path[label2index[vrd_label]]
+            raw_label = box_label[4]
+            label_path = raw2path[label2index[raw_label]]
             for l in label_path:
                 label_ins_cnt[l] += 1
 
-    # sample at most 1000 instance
+    # sample at most 5000 instance
     label_sample_ratio = np.ones(label_ins_cnt.shape)
     for i, ins_num in enumerate(label_ins_cnt):
-        if ins_num > 1000:
-            label_sample_ratio[i] = 1000.0 / ins_num
+        if ins_num > 5000:
+            label_sample_ratio[i] = 5000.0 / ins_num
     return label_sample_ratio
 
 
@@ -59,7 +56,7 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
 
 
 def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
-                         label_list_path, label2index, vrd2wn, vrd2path,
+                         label_list_path, label2index, raw2wn, raw2path,
                          sample_ratio, dataset):
     # check output file existence
     if os.path.exists(label_list_path):
@@ -98,27 +95,27 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
                 pickle.dump(fc7s, feature_file)
 
         # prepare roidb
-        # format: img_id.bin offset label_ind vrd_label_ind
+        # format: img_id.bin offset label_ind raw_label_ind
         for box_id in range(0, len(curr_img_boxes)):
-            vrd_label = curr_img_boxes[box_id, 4]
-            vrd_label_ind = label2index[vrd_label]
+            raw_label = curr_img_boxes[box_id, 4]
+            raw_label_ind = label2index[raw_label]
 
-            label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
+            label_list.append(feature_id+' '+str(box_id)+' '+str(raw_label_ind)+' '+str(raw_label_ind)+'\n')
 
             if dataset == 'test':
                 continue
 
-            wn_leaf_label = vrd2wn[vrd_label][0]
+            wn_leaf_label = raw2wn[raw_label][0]
             wn_leaf_ind = label2index[wn_leaf_label]
-            label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(vrd_label_ind)+'\n')
+            label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(raw_label_ind)+'\n')
 
-            label_inds = vrd2path[vrd_label_ind]
+            label_inds = raw2path[raw_label_ind]
             for label_ind in label_inds:
                 sample_prob = sample_ratio[label_ind]
                 p = np.array([sample_prob, 1-sample_prob])
                 sample = np.random.choice([True, False], p=p.ravel())
                 if sample:
-                    label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+                    label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(raw_label_ind) + '\n')
 
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
@@ -153,7 +150,7 @@ def ext_cnn_feat():
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
     # prepare
-    dataset_config = DatasetConfig('vg')
+    dataset_config = DatasetConfig('raw')
     target = 'object'
     labelnet = objnet
 
