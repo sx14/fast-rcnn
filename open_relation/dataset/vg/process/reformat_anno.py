@@ -157,7 +157,7 @@ def wash_anno(dirty_anno_path, clean_anno_path):
     json.dump(clean_anno, open(clean_anno_path, 'w'), indent=4)
 
 
-def clean_anno():
+def reformat_anno():
     vg_config = DatasetConfig('vg')
     dirty_anno_root = vg_config.data_config['dirty_anno_root']
     clean_anno_root = vg_config.data_config['dirty_anno_root']

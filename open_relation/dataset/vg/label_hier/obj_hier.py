@@ -4,31 +4,18 @@ from open_relation.dataset.label_hier import LabelHier
 from open_relation.dataset.label_hier import LabelNode
 from open_relation.dataset.dataset_config import DatasetConfig
 
+
 class ObjNet(LabelHier):
 
     def _raw_to_wn(self):
         raw2wn = dict()
-        for vrd_label in self._raw_labels:
-            vrd_label = vrd_label.strip()
-            syns = wn.synsets(vrd_label)
-            if len(syns) > 0:
-                raw2wn[vrd_label] = [syns[0].name()]
-            else:
-                raw2wn[vrd_label] = ['']
-        # fix auto annotation
-        raw2wn['shoes'] = ['shoe.n.01']
-        raw2wn['bike'] = ['bicycle.n.01']
-        raw2wn['plate'] = ['plate.n.04']
-        raw2wn['trash can'] = ['ashcan.n.01']
-        raw2wn['traffic light'] = ['traffic_light.n.01']
-        raw2wn['truck'] = ['truck.n.01']
-        raw2wn['van'] = ['van.n.05']
-        raw2wn['mouse'] = ['mouse.n.04']
-        raw2wn['hydrant'] = ['fireplug.n.01']
-        raw2wn['pants'] = ['trouser.n.01']
-        raw2wn['jeans'] = ['trouser.n.01']
-        raw2wn['monitor'] = ['monitor.n.04']
-        raw2wn['post'] = ['post.n.04']
+        raw_labels = []
+        for vg_label in self._raw_labels:
+            raw_label, wn_labels = vg_label.split('|')
+            raw_labels.append(raw_label)
+            wn_labels = wn_labels.split(' ')
+            raw2wn[raw_label] = wn_labels
+        self._raw_labels = raw_labels
         return raw2wn
 
     def raw2wn(self):
@@ -81,7 +68,7 @@ class ObjNet(LabelHier):
         LabelHier.__init__(self, pre_label_path)
 
 
-dataset_config = DatasetConfig('vrd')
+dataset_config = DatasetConfig('vg')
 label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
 objnet = ObjNet(label_path)
 

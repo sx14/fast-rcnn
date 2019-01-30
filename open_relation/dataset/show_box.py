@@ -57,12 +57,12 @@ def get_objs(img_root, anno_root, img_name):
 
 
 if __name__ == '__main__':
-    dataset_config = DatasetConfig('vrd')
+    dataset_config = DatasetConfig('vg')
     target = 'object'
 
     img_root = dataset_config.data_config['img_root']
     anno_root = dataset_config.data_config['clean_anno_root']
-    img_id = '1602315_961e6acf72_b'
+    img_id = '1'
     for img_name in os.listdir(img_root):
         if target == 'object':
             im, cls, boxes = get_objs(img_root, anno_root, img_name)

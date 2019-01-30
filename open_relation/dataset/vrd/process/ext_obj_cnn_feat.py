@@ -14,6 +14,7 @@ from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 
+
 def cal_sample_ratio(label2index, vrd2path, box_labels):
     # instance counter
     label_ins_cnt = np.zeros(len(label2index.keys()))
@@ -59,7 +60,8 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
 
 
 def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
-                         label_list_path, label2index, vrd2wn, vrd2path, sample_ratio):
+                         label_list_path, label2index, vrd2wn, vrd2path,
+                         sample_ratio, dataset):
     # check output file existence
     if os.path.exists(label_list_path):
         os.remove(label_list_path)
@@ -86,7 +88,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         feature_id = image_id + '.bin'
         feature_path = os.path.join(feature_root, feature_id)
 
-        if True or not os.path.exists(feature_path):
+        if not os.path.exists(feature_path):
             # extract fc7
             img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
             im_detect(net, img, curr_img_boxes[:, :4])
@@ -97,31 +99,34 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
                 pickle.dump(fc7s, feature_file)
 
         # prepare roidb
-        # format:
-        # img_id.bin offset label_ind vrd_label_ind
+        # format: img_id.bin offset label_ind vrd_label_ind
         for box_id in range(0, len(curr_img_boxes)):
             vrd_label = curr_img_boxes[box_id, 4]
             vrd_label_ind = label2index[vrd_label]
 
             label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
 
+            if dataset == 'test':
+                continue
+
             wn_leaf_label = vrd2wn[vrd_label][0]
             wn_leaf_ind = label2index[wn_leaf_label]
             label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(vrd_label_ind)+'\n')
 
             label_inds = vrd2path[vrd_label_ind]
-            # label_inds = random.sample(label_inds, int(len(label_inds) / 3))
             for label_ind in label_inds:
                 sample_prob = sample_ratio[label_ind]
                 p = np.array([sample_prob, 1-sample_prob])
                 sample = np.random.choice([True, False], p=p.ravel())
                 if sample:
                     label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
                 label_file.writelines(label_list)
             del label_list
             label_list = []
+
     if len(label_list) > 0:
         with open(label_list_path, 'a') as label_file:
             label_file.writelines(label_list)
@@ -139,7 +144,6 @@ def split_a_small_val(val_list_path, length, small_val_path):
         small_val_file.writelines(small_val)
 
 
-
 def ext_cnn_feat():
     # load cnn
     prototxt = global_config.fast_prototxt_path
@@ -154,8 +158,7 @@ def ext_cnn_feat():
     target = 'object'
     labelnet = objnet
 
-
-    # extracting feature
+    # extract feature
     anno_root = dataset_config.data_config['clean_anno_root']
     img_root = dataset_config.data_config['img_root']
     label_save_root = dataset_config.extra_config[target].label_root
@@ -178,7 +181,7 @@ def ext_cnn_feat():
         sample_ratio = cal_sample_ratio(label2index, raw2path, box_label)
 
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root,
-                             label_save_path, label2index, raw2wn, raw2path, sample_ratio)
+                             label_save_path, label2index, raw2wn, raw2path, sample_ratio, d)
 
     # split a small val list for quick evaluation
     small_val_path = os.path.join(label_save_root, 'small_val.txt')
