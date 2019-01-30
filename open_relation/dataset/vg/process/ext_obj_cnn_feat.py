@@ -153,7 +153,7 @@ def ext_cnn_feat():
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
     # prepare
-    dataset_config = DatasetConfig('vrd')
+    dataset_config = DatasetConfig('vg')
     target = 'object'
     labelnet = objnet
 
