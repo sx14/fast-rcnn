@@ -40,3 +40,4 @@ def split_anno_pkg():
     split_json(image_data_path, output_json_root, u'image_info', False)
     split_json(relationship_path, output_json_root, u'relationships', True)
 
+

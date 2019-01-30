@@ -146,7 +146,7 @@ def wash_anno(dirty_anno_path, clean_anno_path):
 def clean_anno():
     vg_config = DatasetConfig('vg')
     dirty_anno_root = vg_config.data_config['dirty_anno_root']
-    clean_anno_root = vg_config.data_config['clean_anno_root']
+    clean_anno_root = vg_config.data_config['dirty_anno_root']
     anno_list = os.listdir(dirty_anno_root)
     anno_list = sorted(anno_list)
     anno_sum = len(anno_list)
