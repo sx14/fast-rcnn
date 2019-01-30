@@ -8,7 +8,7 @@ from train_config import hyper_params
 
 
 def train():
-    dataset = 'vrd'
+    dataset = 'vg'
     target = 'object'
     # prepare data
     config = hyper_params[dataset][target]

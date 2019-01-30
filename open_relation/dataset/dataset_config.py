@@ -3,7 +3,7 @@ import open_relation.global_config
 
 
 class ExtraConfig:
-    def __init__(self, target, extra_root):
+    def __init__(self, target, extra_root, dataset_name):
         self._root = os.path.join(extra_root, target)
         self.fc7_root = os.path.join(self._root, 'fc7')
         self.label_root = os.path.join(self._root, 'label')
@@ -11,7 +11,7 @@ class ExtraConfig:
         self.config = {
             'raw_label_list': os.path.join(self.prepare_root, 'raw_labels.txt'),
             'label_vec_path': os.path.join(open_relation.global_config.project_root, 'open_relation',
-                                           'label_embedding', target, 'label_vec_vrd.h5'),
+                                           'label_embedding', target, 'label_vec_'+dataset_name+'.h5'),
             'raw2weight_path': os.path.join(self.prepare_root, 'raw2weight.bin')
         }
 
@@ -36,8 +36,8 @@ class DatasetConfig:
         }
 
         self.extra_config = {
-            'object': ExtraConfig('object', self.extra_root),
-            'predicate': ExtraConfig('predicate', self.extra_root)
+            'object': ExtraConfig('object', self.extra_root, dataset_name),
+            'predicate': ExtraConfig('predicate', self.extra_root, dataset_name)
         }
 
 

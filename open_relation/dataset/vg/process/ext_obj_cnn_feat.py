@@ -12,9 +12,11 @@ from open_relation.dataset.vg.label_hier.obj_hier import objnet
 
 
 def cal_sample_ratio(label2index, raw2path, box_labels):
+    print('cal sample ratio ......')
+    
     # instance counter
     label_ins_cnt = np.zeros(len(label2index.keys()))
-
+    
     # counting
     for img_id in box_labels:
         img_box_labels = box_labels[img_id]
@@ -144,13 +146,13 @@ def ext_cnn_feat():
     # load cnn
     prototxt = global_config.fast_prototxt_path
     caffemodel = global_config.fast_caffemodel_path
-    datasets = ['train', 'test']
+    datasets = ['train', 'test', 'val']
     caffe.set_mode_gpu()
     caffe.set_device(0)
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
     # prepare
-    dataset_config = DatasetConfig('raw')
+    dataset_config = DatasetConfig('vg')
     target = 'object'
     labelnet = objnet
 

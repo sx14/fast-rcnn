@@ -2,20 +2,21 @@ import os
 import pickle
 import numpy as np
 from nltk.corpus import wordnet as wn
-from open_relation.dataset.dataset_config import vrd_object_config
 from open_relation import global_config
+from open_relation.dataset.dataset_config import DatasetConfig
 
 
-def generate_direct_hypernyms(vg2wn, label2index, hypernym_save_path):
+
+def generate_direct_hypernyms(raw2wn, label2index, hypernym_save_path):
     # ==== generate direct hypernym relations ====
     hypernyms = []
     all_wn_nodes = set()
     # [[hypo, hyper]]
-    for vg_label in vg2wn:
-        wn_labels = vg2wn[vg_label]
+    for raw_label in raw2wn:
+        wn_labels = raw2wn[raw_label]
         for wn_label in wn_labels:
             # vg_label -> wn_label
-            hypernyms.append([label2index[vg_label], label2index[wn_label]])
+            hypernyms.append([label2index[raw_label], label2index[wn_label]])
             wn_node = wn.synset(wn_label)
             for wn_path in wn_node.hypernym_paths():
                 for w in wn_path:
@@ -33,12 +34,20 @@ def generate_direct_hypernyms(vg2wn, label2index, hypernym_save_path):
 
 
 if __name__ == '__main__':
-    vrd2wn_path = vrd_object_config['vrd2wn_path']
-    vrd2wn = pickle.load(open(vrd2wn_path, 'r'))
 
-    label2index_path = vrd_object_config['label2index_path']
-    label2index = pickle.load(open(label2index_path, 'rb'))
+    dataset = 'vg'
+    data_config = DatasetConfig(dataset)
+
+    if dataset == 'vrd':
+        from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+    else:
+        from open_relation.dataset.vg.label_hier.obj_hier import objnet
+
+    raw2wn = objnet.raw2wn()
+
+    label2index = objnet.label2index()
 
     hypernym_save_path = os.path.join(global_config.project_root,
-                                      'open_relation1', 'label_embedding', 'object', 'vrd_dataset', 'wordnet_with_vrd.h5')
-    generate_direct_hypernyms(vrd2wn, label2index, hypernym_save_path)
+                                      'open_relation1', 'label_embedding', 'object',
+                                      dataset+'_dataset', 'wordnet_with_'+dataset+'.h5')
+    generate_direct_hypernyms(raw2wn, label2index, hypernym_save_path)

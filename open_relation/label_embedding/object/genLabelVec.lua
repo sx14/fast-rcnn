@@ -4,7 +4,7 @@ require 'dpnn'
 require 'Dataset'
 require 'hdf5'
 
-dataset_name = 'vrd'
+dataset_name = 'vg'
 featureDimension = 600
 
 
