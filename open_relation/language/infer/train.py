@@ -11,7 +11,8 @@ from model import RelationEmbedding
 from torch.nn.functional import cross_entropy as loss_func
 from model import order_softmax_test as rank_test
 # from model import order_rank_eval as rank_test
-from open_relation.dataset.dataset_config import vrd_predicate_config
+from open_relation.dataset.dataset_config import DatasetConfig
+dataset_config = DatasetConfig('vrd')
 
 
 
@@ -62,7 +63,7 @@ test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 save_model_path = train_params['save_model_path']
 new_model_path = train_params['latest_model_path']
 best_model_path = train_params['best_model_path']
-gt_label_vec_path = vrd_predicate_config['label_vec_path']
+gt_label_vec_path = dataset_config.extra_config['predicate'].config['label_vec_path']
 model = RelationEmbedding(embedding_dim*2, embedding_dim, gt_label_vec_path)
 if os.path.exists(new_model_path):
     model.load_state_dict(torch.load(new_model_path))

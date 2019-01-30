@@ -53,7 +53,7 @@ org_indexes = [label2index[i] for i in org2wn.keys()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual_acc(config['visual_d'], config['hidden_d'], config['embedding_d'])
+net = model.HypernymVisual(config['visual_d'], config['hidden_d'], config['embedding_d'])
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')

@@ -7,7 +7,7 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, raw2path,
+    def __init__(self, raw_feature_root, flabel_list_path, raw2path, visual_feat_dim,
                  raw2weight_path, minibatch_size=64, negative_label_num=50):
         # whole dataset
         self._minibatch_size = minibatch_size
@@ -27,11 +27,6 @@ class MyDataset():
         self._curr_package_cursor = -1
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
-        # word2vec
-        label_embedding_file = h5py.File(label_embedding_path, 'r')
-        self._label_embedding = np.array(label_embedding_file['label_vec'])
-        label_embedding_file.close()
-        self._label_feature_length = len(self._label_embedding[0])
         # label2path
         self._raw2path = raw2path
         self._raw2weight = pickle.load(open(raw2weight_path, 'rb'))
@@ -97,10 +92,9 @@ class MyDataset():
         # init package index cursor
         self._curr_package_cursor = 0
 
-    def minibatch_acc1(self, vf_d=4096):
+    def minibatch(self, vf_d=4096):
         vfs = np.zeros((self._minibatch_size, vf_d))
-        pls = np.zeros(self._minibatch_size).astype(np.int)
-        nls = np.zeros((self._minibatch_size, self._negative_label_num)).astype(np.int)
+        p_n_ls = np.zeros((self._minibatch_size, self._negative_label_num+1)).astype(np.int)
         pws = np.zeros(self._minibatch_size)
         v_actual_num = 0
         for v in range(0, self._minibatch_size):
@@ -109,31 +103,25 @@ class MyDataset():
                 self.load_next_feature_package()
             if self._curr_package_cursor == len(self._curr_package_feature_indexes):
                 vfs = vfs[:v_actual_num]
-                pls = pls[:v_actual_num]
-                nls = nls[:v_actual_num]
+                p_n_ls = p_n_ls[:v_actual_num]
                 pws = pws[:v_actual_num]
                 break
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
-            pls[v] = self._label_indexes[fid][0]
             all_nls = list(set(range(0, len(self._label_embedding))) - set(self._raw2path[self._label_indexes[fid][1]]))
-            nls[v] = random.sample(all_nls, self._negative_label_num)
+            p_n_ls[v] = [self._label_indexes[fid][0]] + random.sample(all_nls, self._negative_label_num)
             pws[v] = self._raw2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
             v_actual_num += 1
         #  vfs: minibatch_size | pls: minibatch_size | nls: minibatch_size
         vfs = torch.from_numpy(vfs).float()
-        pls = torch.from_numpy(pls)
-        nls = torch.from_numpy(nls)
+        p_n_ls = torch.from_numpy(p_n_ls)
         pws = torch.from_numpy(pws).float()
-        label_vecs = torch.from_numpy(self._label_embedding).float()
-
         # Tensor to Variable
-        label_vecs = torch.autograd.Variable(label_vecs).cuda()
         vfs = torch.autograd.Variable(vfs).cuda()
         pws = torch.autograd.Variable(pws).cuda()
-        return vfs, pls, nls, label_vecs, pws
+        return vfs, p_n_ls, pws
 
 
     def minibatch_eval(self):

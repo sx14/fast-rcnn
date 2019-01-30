@@ -75,7 +75,7 @@ def train():
             batch_counter += 1
 
             # load a minibatch
-            vfs, pls, nls, label_vecs, pws = train_dataset.minibatch_acc1(config['visual_d'])
+            vfs, pls, nls, label_vecs, pws = train_dataset.minibatch(config['visual_d'])
 
             # forward
             score_vecs = net.forward1(vfs, pls, nls, label_vecs)
@@ -164,7 +164,7 @@ def eval(dataset, model, vf_d):
     dataset.init_package()
     with torch.no_grad():
         while dataset.has_next_minibatch():
-            vfs, pls, nls, label_vecs, pws = dataset.minibatch_acc1(vf_d)
+            vfs, pls, nls, label_vecs, pws = dataset.minibatch(vf_d)
             batch_vf = torch.autograd.Variable(vfs).cuda()
             label_vecs = torch.autograd.Variable(label_vecs).cuda()
             scores = model.forward1(batch_vf, pls, nls, label_vecs)

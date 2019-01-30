@@ -5,11 +5,12 @@ import random
 import torch
 from torch.utils.data import Dataset
 from lang_config import train_params
-from open_relation.dataset.dataset_config import vrd_predicate_config as pre_config
-from open_relation.dataset.dataset_config import vrd_object_config as obj_config
+from open_relation.dataset.dataset_config import DatasetConfig
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 
+vrd_config = DatasetConfig('vrd')
 
 class LangDataset(Dataset):
 
@@ -25,10 +26,10 @@ class LangDataset(Dataset):
         self._rlt_pairs = [self._pos_rlts, neg_rlts]
 
     def __init__(self, rlt_path):
-        obj_vec_file = h5py.File(obj_config['label_vec_path'], 'r')
+        obj_vec_file = h5py.File(vrd_config.extra_config['object'].config['label_vec_path'], 'r')
         self._obj_vecs = torch.from_numpy(np.array(obj_vec_file['label_vec']))
 
-        pre_vec_file = h5py.File(pre_config['label_vec_path'], 'r')
+        pre_vec_file = h5py.File(vrd_config.extra_config['predicate'].config['label_vec_path'], 'r')
         self._pre_vecs = torch.from_numpy(np.array(pre_vec_file['label_vec']))
 
         pos_rlts = np.load(rlt_path+'.npy')

@@ -1,83 +1,59 @@
-import torch
+import h5py
 import numpy as np
+import torch
 from torch import nn
+from torch.autograd import Variable
 
 
-class PartialOrderSimilarity(nn.Module):
-    def __init__(self, norm=2):
-        super(PartialOrderSimilarity, self).__init__()
-        self._norm = norm
-        self.activate = nn.ReLU()
-
-    def forward(self, hypers, hypos):
-        sub = hypers - hypos
-        act = self.activate.forward(sub)
-        partial_order_dis = act.norm(p=self._norm, dim=1)
-        partial_order_sim = -partial_order_dis
-        return partial_order_sim
+def order_sim(hypers, hypos):
+    sub = hypers - hypos
+    act = nn.functional.relu(sub)
+    partial_order_dis = act.norm(p=2, dim=1)
+    partial_order_sim = -partial_order_dis
+    return partial_order_sim
 
 
-class HypernymVisual_acc(nn.Module):
-    def __init__(self, vfeature_d, hidden_d, embedding_d):
-        super(HypernymVisual_acc, self).__init__()
-        self.hidden = nn.Linear(vfeature_d, hidden_d)
-        self.embedding = nn.Linear(hidden_d, embedding_d)
-        self.activate = nn.ReLU()
-        self.dropout = nn.Dropout(p=0.5)
-        self.partial_order_similarity = PartialOrderSimilarity(2)
+def order_softmax_test(batch_scores, pos_neg_inds):
+    loss_scores = Variable(torch.zeros(len(batch_scores), len(pos_neg_inds[0]))).float().cuda()
+    for i in range(len(batch_scores)):
+        loss_scores[i] = batch_scores[i, pos_neg_inds[i]]
+    y = Variable(torch.zeros(len(batch_scores))).long().cuda()
+    acc = 0.0
+    for scores in loss_scores:
+        p_score = scores[0]
+        n_score_max = torch.max(scores[1:])
+        if p_score > n_score_max:
+            acc += 1
+    acc = acc / len(batch_scores)
+    return acc, loss_scores, y
 
-    def forward(self, vfs, p_lfs, n_lfs):
-        vf_hidden = self.hidden.forward(vfs)
-        vf_embeddings = self.embedding.forward(vf_hidden)
-        p_scores = self.partial_order_similarity.forward(p_lfs, vf_embeddings)
-        score_vec_len = len(n_lfs) + 1
-        v_length = len(vfs)
-        score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len)).cuda()
-        for v in range(0, len(vf_embeddings)):
-            n_scores = self.partial_order_similarity.forward(n_lfs, vf_embeddings[v])
-            scores = torch.zeros(1+len(n_scores))
-            scores[0] = p_scores[v]
-            scores[1:] = n_scores
-            score_stack[v] = scores
-        return score_stack
 
-    def forward1(self, vfs, pls, nls, label_vecs):
-        vfs = self.activate(vfs)
-        vfs = self.dropout(vfs)
+class HypernymVisual(nn.Module):
+    def __init__(self, vfeature_d, hidden_d, embedding_d, label_vec_path):
+        super(HypernymVisual, self).__init__()
+        self.hidden = nn.Sequential(
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(vfeature_d, hidden_d)
+        )
+
+        self.embedding = nn.Sequential(
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(hidden_d, embedding_d)
+        )
+
+        label_vec_file = h5py.File(label_vec_path, 'r')
+        gt_label_vecs = np.array(label_vec_file['label_vec'])
+        self._gt_label_vecs = Variable(torch.from_numpy(gt_label_vecs)).float().cuda()
+
+    def forward(self, vfs):
         vf_hidden = self.hidden(vfs)
-
-        vf_hidden = self.activate(vf_hidden)
-        vf_hidden = self.dropout(vf_hidden)
         vf_embeddings = self.embedding(vf_hidden)
-
-        p_scores = self.partial_order_similarity.forward(label_vecs[pls], vf_embeddings)
-
-        score_vec_len = len(nls[0]) + 1
-        v_length = len(vfs)
-        score_stack = torch.autograd.Variable(torch.zeros(v_length, score_vec_len)).cuda()
-        for v in range(0, v_length):
-            n_scores = self.partial_order_similarity.forward(label_vecs[nls[v]], vf_embeddings[v])
-            scores = torch.zeros(1+len(n_scores))
-            scores[0] = p_scores[v]
-            scores[1:] = n_scores
-            score_stack[v] = scores
-
+        score_stack = Variable(torch.zeros(len(vf_embeddings), len(self._gt_label_vecs))).cuda()
+        for i in range(len(vf_embeddings)):
+            order_sims = order_sim(self._gt_label_vecs, vf_embeddings[i])
+            score_stack[i] = order_sims
         return score_stack
 
-
-
-    def forward2(self, vf, lfs):
-        vf = self.activate(vf)
-        vf_hidden = self.hidden.forward(vf)
-        vf_hidden = self.activate(vf_hidden)
-        vf_embedding = self.embedding.forward(vf_hidden)
-        scores = self.partial_order_similarity.forward(lfs, vf_embedding)
-        return scores
-
-    def forward3(self, vf):
-        vf = self.activate(vf)
-        vf_hidden = self.hidden.forward(vf)
-        vf_hidden = self.activate(vf_hidden)
-        vf_embedding = self.embedding.forward(vf_hidden)
-        return vf_embedding
 
