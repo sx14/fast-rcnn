@@ -5,31 +5,34 @@ import numpy as np
 from matplotlib import pyplot as plt
 import torch
 from open_relation.model.object import model
-from open_relation.dataset import dataset_config
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
+from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 
+
+dataset_config = DatasetConfig('vrd')
 
 # prepare feature
 config = hyper_params['vrd']['object']
-test_list_path = os.path.join(dataset_config.vrd_object_feature_prepare_root, 'test_box_label.bin')
+test_list_path = os.path.join(dataset_config.extra_config['object'].prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
 label_embedding_file = h5py.File(label_vec_path, 'r')
 label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
-org2wn_path = dataset_config.vrd_object_config['vrd2wn_path']
-org2wn = pickle.load(open(org2wn_path))
-org2path_path = config['vrd2path_path']
-org2path = pickle.load(open(org2path_path))
-label2index_path = dataset_config.vrd_object_config['label2index_path']
-label2index = pickle.load(open(label2index_path))
-index2label_path = dataset_config.vrd_object_config['index2label_path']
-index2label = pickle.load(open(index2label_path))
+
+org2wn = objnet.raw2wn()
+
+org2path = objnet.raw2path()
+
+label2index = objnet.label2index()
+
+index2label = objnet.index2label()
 
 
 
-mode = 'org'
+mode = 'raw'
 # mode = 'hier'
 
 # load model with best weights
@@ -69,7 +72,7 @@ for feature_file_id in test_box_label:
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
-        scores = net.forward2(vf_v, lfs_v).cpu().data
+        scores = net(vf_v).cpu().data
         ranked_inds = np.argsort(scores).tolist()
         ranked_inds.reverse()   # descending
 
