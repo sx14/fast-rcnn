@@ -17,6 +17,7 @@ def filter_anno():
     pre_raw_labels = set(prenet.get_raw_labels())
 
     for i in range(anno_num):
+        print('filtering [%d/%d]' % (anno_num, i+1))
         anno_name = anno_list[i]
 
         # load dirty json anno
