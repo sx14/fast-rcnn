@@ -14,15 +14,15 @@ def train():
     config = hyper_params[dataset][target]
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
-    val_list_path = os.path.join(config['list_root'], 'small_val.txt')
+    val_list_path = os.path.join(config['list_root'], 'val.txt')
     label_vec_path = config['label_vec_path']
-    vg2path_path = config[dataset+'2path_path']
-    vg2weight_path = config[dataset+'2weight_path']
+    raw2path_path = config[dataset+'2path_path']
+    raw2weight_path = config[dataset+'2weight_path']
 
     train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path,
-                              vg2path_path, vg2weight_path, config['batch_size'], config['negative_label_num'])
+                              raw2path_path, raw2weight_path, config['batch_size'], config['negative_label_num'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path,
-                            vg2path_path, vg2weight_path, config['batch_size'], config['negative_label_num'])
+                            raw2path_path, raw2weight_path, config['batch_size'], config['negative_label_num'])
 
     # clean last log
     if os.path.isdir(config['log_root']):
