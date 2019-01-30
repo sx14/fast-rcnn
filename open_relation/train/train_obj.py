@@ -5,24 +5,36 @@ import torch
 from open_relation.dataset.MyDataset import MyDataset
 from open_relation.model.object import model
 from train_config import hyper_params
+from open_relation.dataset.vrd.label_hier.obj_hier import objnet as vrd_objnet
+from open_relation.dataset.vrd.label_hier.pre_hier import prenet as vrd_prenet
+from open_relation.dataset.vg.label_hier.obj_hier import objnet as vg_objnet
+from open_relation.dataset.vg.label_hier.pre_hier import prenet as vg_prenet
+
+labelnets = {
+    'vrd': {'object': vrd_objnet, 'predicate': vrd_prenet},
+    'vg': {'object': vg_objnet, 'predicate': vg_prenet},
+}
 
 
 def train():
-    dataset = 'vg'
+    dataset = 'vrd'
     target = 'object'
+
+    labelnet = labelnets[dataset][target]
+
     # prepare data
     config = hyper_params[dataset][target]
     visual_feature_root = config['visual_feature_root']
     train_list_path = os.path.join(config['list_root'], 'train.txt')
     val_list_path = os.path.join(config['list_root'], 'val.txt')
     label_vec_path = config['label_vec_path']
-    raw2path_path = config[dataset+'2path_path']
-    raw2weight_path = config[dataset+'2weight_path']
+    raw2path = labelnet.raw2path()
+    raw2weight_path = config['raw2weight_path']
 
     train_dataset = MyDataset(visual_feature_root, train_list_path, label_vec_path,
-                              raw2path_path, raw2weight_path, config['batch_size'], config['negative_label_num'])
+                              raw2path, raw2weight_path, config['batch_size'], config['negative_label_num'])
     val_dataset = MyDataset(visual_feature_root, val_list_path, label_vec_path,
-                            raw2path_path, raw2weight_path, config['batch_size'], config['negative_label_num'])
+                            raw2path, raw2weight_path, config['batch_size'], config['negative_label_num'])
 
     # clean last log
     if os.path.isdir(config['log_root']):

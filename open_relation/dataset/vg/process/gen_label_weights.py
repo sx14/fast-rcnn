@@ -6,8 +6,8 @@ import os
 import pickle
 import numpy as np
 from open_relation.dataset.dataset_config import DatasetConfig
-from open_relation.dataset.vrd.label_hier.pre_hier import prenet
-from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+from open_relation.dataset.vg.label_hier.pre_hier import prenet
+from open_relation.dataset.vg.label_hier.obj_hier import objnet
 
 
 def gen_weights(box_labels, vrd2path, index2label, label2index, weights_save_path, mode):

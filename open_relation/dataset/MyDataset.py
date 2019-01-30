@@ -7,8 +7,8 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, org2path_path,
-                 org2weight_path, minibatch_size=64, negative_label_num=50):
+    def __init__(self, raw_feature_root, flabel_list_path, label_embedding_path, raw2path,
+                 raw2weight_path, minibatch_size=64, negative_label_num=50):
         # whole dataset
         self._minibatch_size = minibatch_size
         self._negative_label_num = negative_label_num
@@ -33,8 +33,8 @@ class MyDataset():
         label_embedding_file.close()
         self._label_feature_length = len(self._label_embedding[0])
         # label2path
-        self._org2path = pickle.load(open(org2path_path, 'rb'))
-        self._org2weight = pickle.load(open(org2weight_path, 'rb'))
+        self._raw2path = raw2path
+        self._raw2weight = pickle.load(open(raw2weight_path, 'rb'))
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()
         for item in flabel_list:
@@ -117,9 +117,9 @@ class MyDataset():
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
             pls[v] = self._label_indexes[fid][0]
-            all_nls = list(set(range(0, len(self._label_embedding))) - set(self._org2path[self._label_indexes[fid][1]]))
+            all_nls = list(set(range(0, len(self._label_embedding))) - set(self._raw2path[self._label_indexes[fid][1]]))
             nls[v] = random.sample(all_nls, self._negative_label_num)
-            pws[v] = self._org2weight[self._label_indexes[fid][1]]
+            pws[v] = self._raw2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
             v_actual_num += 1
         #  vfs: minibatch_size | pls: minibatch_size | nls: minibatch_size
@@ -151,7 +151,7 @@ class MyDataset():
             positive_label_index = self._label_indexes[fid][0]
             p_lf = self._label_embedding[positive_label_index]
             self._curr_package_cursor += 1
-            positive_labels = self._org2path[self._label_indexes[fid][1]]
+            positive_labels = self._raw2path[self._label_indexes[fid][1]]
             all_negative_labels = list(set(range(0, len(self._label_embedding))) -
                                        set(positive_labels))
             vfs = [vf]

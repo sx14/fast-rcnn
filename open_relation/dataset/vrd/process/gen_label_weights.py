@@ -64,7 +64,7 @@ def gen_weights1(box_labels, vrd2path, index2label, label2index, weights_save_pa
             for l in label_path:
                 label_counter[l] += 1
 
-    if mode == 'org':
+    if mode == 'raw':
         show_counter = vrd_counter
     else:
         show_counter = label_counter
@@ -111,4 +111,4 @@ def gen_label_weigths(target):
 
     # weight save path
     weights_save_path = dataset_config.extra_config[target].config['raw2weight_path']
-    gen_weights1(box_labels, raw2path, index2label, label2index, weights_save_path, 'org')
+    gen_weights1(box_labels, raw2path, index2label, label2index, weights_save_path, 'raw')
