@@ -57,7 +57,7 @@ org_indexes = [label2index[i] for i in prenet.get_raw_labels()]
 
 # load model with best weights
 best_weights_path = pre_config['best_weight_path']
-net = model.PredicateVisual_acc()
+net = model.PredicateVisual()
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')

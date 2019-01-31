@@ -3,12 +3,10 @@ from open_relation.global_config import our_model_root
 data_config = {
     'train': {
         'ext_rlt_path': 'train_ext_rlts',
-        'raw_rlt_path': 'train_raw_rlts'
-    },
+        'raw_rlt_path': 'train_raw_rlts'},
     'test': {
         'ext_rlt_path': 'test_ext_rlts',
-        'raw_rlt_path': 'test_raw_rlts',
-    }
+        'raw_rlt_path': 'test_raw_rlts',}
 }
 
 train_params = {

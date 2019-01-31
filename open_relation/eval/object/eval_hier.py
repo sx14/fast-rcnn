@@ -8,8 +8,7 @@ from open_relation.infer import tree_infer2
 from open_relation.model.object import model
 from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
-from open_relation.dataset.vrd.label_hier.obj_hier import objnet
-dataset_config = DatasetConfig('vrd')
+
 
 def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
     if pred_ind == org_label_ind:
@@ -29,8 +28,17 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
 
 
 
+
+dataset = 'vrd'
+dataset_config = DatasetConfig(dataset)
+
+if dataset == 'vrd':
+    from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+else:
+    from open_relation.dataset.vg.label_hier.obj_hier import objnet
+
 # prepare feature
-config = hyper_params['vrd']['object']
+config = hyper_params[dataset]['object']
 test_list_path = os.path.join(dataset_config.extra_config['object'].prepare_root, 'test_box_label.bin')
 test_box_label = pickle.load(open(test_list_path))
 label_vec_path = config['label_vec_path']
@@ -40,16 +48,10 @@ label_vecs = np.array(label_embedding_file['label_vec'])
 # prepare label maps
 
 org2wn = objnet.raw2wn()
-
 org2path = objnet.raw2path()
-
-
 label2index = objnet.label2index()
-
 index2label = objnet.index2label()
-
 org_indexes = [label2index[i] for i in org2wn.keys()]
-
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']

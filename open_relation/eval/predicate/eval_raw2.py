@@ -40,7 +40,7 @@ mode = 'raw'
 
 # load visual model with best weights
 vmodel_best_weights_path = pre_config['best_weight_path']
-vmodel = model.PredicateVisual_acc()
+vmodel = model.PredicateVisual()
 if os.path.isfile(vmodel_best_weights_path):
     vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
     print('Loading visual model weights success.')

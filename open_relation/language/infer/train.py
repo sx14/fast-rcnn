@@ -6,13 +6,10 @@ from tensorboardX import SummaryWriter
 from lang_dataset import LangDataset
 from lang_config import train_params, data_config
 from model import RelationEmbedding
-# from model import relation_embedding_loss as loss_func
-# from model import order_rank_loss as loss_func
 from torch.nn.functional import cross_entropy as loss_func
 from model import order_softmax_test as rank_test
-# from model import order_rank_eval as rank_test
 from open_relation.dataset.dataset_config import DatasetConfig
-dataset_config = DatasetConfig('vrd')
+
 
 
 
@@ -25,17 +22,12 @@ def eval(model, test_dl):
         batch_num += 1
         sbj1, pre1, obj1, sbj2, pre2, obj2, _, pos_neg_inds = batch
         v_sbj1 = Variable(sbj1).float().cuda()
-        v_pre1 = Variable(pre1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()
-        v_sbj2 = Variable(sbj2).float().cuda()
-        v_pre2 = Variable(pre2).float().cuda()
-        v_obj2 = Variable(obj2).float().cuda()
         with torch.no_grad():
             pre_scores1 = model(v_sbj1, v_obj1)
-        # pre_emb2 = model(v_sbj2, v_obj2)
+
         acc, loss_scores, y = rank_test(pre_scores1, pos_neg_inds)
         loss = loss_func(loss_scores, y)
-        # acc, _, _ = rank_test(pre_emb1, pre_emb2, v_pre1)
         acc_sum += acc
         loss_sum += loss
     avg_acc = acc_sum / batch_num
@@ -44,6 +36,16 @@ def eval(model, test_dl):
     return avg_acc, avg_loss
 
 
+""" ======= train ======= """
+
+dataset = 'vrd'
+
+dataset_config = DatasetConfig(dataset)
+if dataset == 'vrd':
+    from open_relation.dataset.vrd.label_hier.pre_hier import prenet
+else:
+    from open_relation.dataset.vg.label_hier.pre_hier import prenet
+
 # training hyper params
 epoch_num = train_params['epoch_num']
 lr = train_params['lr']
@@ -51,8 +53,10 @@ embedding_dim = train_params['embedding_dim']
 batch_size = train_params['batch_size']
 
 # init dataset
+obj_label_vec_path = dataset_config.extra_config['object'].config['label_vec_path']
+pre_label_vec_path = dataset_config.extra_config['predicate'].config['label_vec_path']
 rlt_path = data_config['train']['ext_rlt_path']
-train_set = LangDataset(rlt_path)
+train_set = LangDataset(rlt_path, obj_label_vec_path, pre_label_vec_path, prenet)
 train_dl = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
 rlt_path = data_config['test']['raw_rlt_path']
@@ -91,24 +95,17 @@ best_acc = 0
 for epoch in range(epoch_num):
     for batch in train_dl:
         batch_num += 1
-        sbj1, pre1, obj1, sbj2, pre2, obj2, _, pos_neg_inds = batch
+        sbj1, pre1, obj1, pos_neg_inds = batch
         v_sbj1 = Variable(sbj1).float().cuda()
         v_pre1 = Variable(pre1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()
-        v_sbj2 = Variable(sbj2).float().cuda()
-        v_pre2 = Variable(pre2).float().cuda()
-        v_obj2 = Variable(obj2).float().cuda()
 
         pre_scores1 = model(v_sbj1, v_obj1)
-        # pre_scores2 = model(v_sbj2, v_obj2)
 
         acc, loss_scores, y = rank_test(pre_scores1, pos_neg_inds)
         loss = loss_func(loss_scores, y)
         sw.add_scalars('acc', {'train': acc}, batch_num)
         sw.add_scalars('loss', {'train': loss}, batch_num)
-
-        # acc, pos_sim, neg_sim = rank_test(pre_emb1, pre_emb2, v_pre1)
-        # loss = loss_func(pos_sim, neg_sim)
 
         print('Epoch %d | Batch %d | Loss %.2f | Acc: %.2f' % (epoch + 1, batch_num, loss.cpu().data, acc))
 
@@ -126,6 +123,5 @@ for epoch in range(epoch_num):
     print('>>>> Eval Acc: % .2f <<<<\n' % avg_acc)
     torch.save(model.state_dict(), save_model_path+str(epoch)+'.pkl')
     torch.save(model.state_dict(), new_model_path)
-    train_set.update_pos_neg_pairs()
 
 

@@ -93,7 +93,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
             fc7s = np.array(net.blobs['fc7'].data)
 
             # dump feature file
-            with open(feature_path, 'w') as feature_file:
+            with open(feature_path, 'wb') as feature_file:
                 pickle.dump(fc7s, feature_file)
 
         # prepare roidb

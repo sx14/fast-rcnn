@@ -3,29 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.autograd import Variable
-
-
-def order_sim(hypers, hypos):
-    sub = hypers - hypos
-    act = nn.functional.relu(sub)
-    partial_order_dis = act.norm(p=2, dim=1)
-    partial_order_sim = -partial_order_dis
-    return partial_order_sim
-
-
-def order_softmax_test(batch_scores, pos_neg_inds):
-    loss_scores = Variable(torch.zeros(len(batch_scores), len(pos_neg_inds[0]))).float().cuda()
-    for i in range(len(batch_scores)):
-        loss_scores[i] = batch_scores[i, pos_neg_inds[i]]
-    y = Variable(torch.zeros(len(batch_scores))).long().cuda()
-    acc = 0.0
-    for scores in loss_scores:
-        p_score = scores[0]
-        n_score_max = torch.max(scores[1:])
-        if p_score > n_score_max:
-            acc += 1
-    acc = acc / len(batch_scores)
-    return acc, loss_scores, y
+from open_relation.model.order_func import order_sim
 
 
 class HypernymVisual(nn.Module):
@@ -54,6 +32,10 @@ class HypernymVisual(nn.Module):
         for i in range(len(vf_embeddings)):
             order_sims = order_sim(self._gt_label_vecs, vf_embeddings[i])
             score_stack[i] = order_sims
-        return score_stack
+        return score_stack, vf_embeddings
 
+    def embedding(self, vfs):
+        vf_hidden = self.hidden(vfs)
+        vf_embeddings = self.embedding(vf_hidden)
+        return vf_embeddings
 

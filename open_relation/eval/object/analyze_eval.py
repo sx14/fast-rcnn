@@ -1,14 +1,17 @@
 import pickle
 import numpy as np
-from open_relation.dataset import dataset_config
+
+dataset = 'vrd'
+if dataset == 'vrd':
+    from open_relation.dataset.vrd.label_hier.obj_hier import objnet
+else:
+    from open_relation.dataset.vg.label_hier.obj_hier import objnet
+
 
 # prepare label maps
-org2wn_path = dataset_config.vrd_object_config['vrd2wn_path']
-org2wn = pickle.load(open(org2wn_path))
-label2index_path = dataset_config.vrd_object_config['label2index_path']
-label2index = pickle.load(open(label2index_path))
-index2label_path = dataset_config.vrd_object_config['index2label_path']
-index2label = pickle.load(open(index2label_path))
+org2wn = objnet.raw2wn()
+label2index = objnet.label2index()
+index2label = objnet.index2label()
 
 
 # evaluation result

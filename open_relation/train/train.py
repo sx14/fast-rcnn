@@ -2,17 +2,19 @@ import os
 import torch
 from tensorboardX import SummaryWriter
 from open_relation.dataset.MyDataset import MyDataset
-from open_relation.model.object.model import HypernymVisual, order_softmax_test
-from train_config import hyper_params
+from open_relation.model.object.model import HypernymVisual
+from open_relation.model.predicate.model import PredicateVisual
+from open_relation.model.order_func import order_softmax_test
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet as vrd_objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet as vrd_prenet
 from open_relation.dataset.vg.label_hier.obj_hier import objnet as vg_objnet
 from open_relation.dataset.vg.label_hier.pre_hier import prenet as vg_prenet
+from train_config import hyper_params
+
 
 labelnets = {
     'vrd': {'object': vrd_objnet, 'predicate': vrd_prenet},
-    'vg': {'object': vg_objnet, 'predicate': vg_prenet},
-}
+    'vg': {'object': vg_objnet, 'predicate': vg_prenet},}
 
 
 def eval(dataset, model):
@@ -26,7 +28,7 @@ def eval(dataset, model):
         while dataset.has_next_minibatch():
             vfs, pos_neg_inds, weights = dataset.minibatch()
             batch_vf = torch.autograd.Variable(vfs).cuda()
-            all_scores = model(batch_vf)
+            all_scores, _ = model(batch_vf)
             batch_acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds)
             batch_loss = loss_func(loss_scores, y)
             batch_loss = torch.mean(batch_loss * weights)
@@ -48,26 +50,42 @@ labelnet = labelnets[dataset][target]
 
 # prepare data
 config = hyper_params[dataset][target]
-
 raw2path = labelnet.raw2path()
 raw2weight_path = config['raw2weight_path']
+visual_d = config['visual_d']
+batch_size = config['batch_size']
+neg_label_num = config['negative_label_num']
 
 visual_feat_root = config['visual_feature_root']
 train_list_path = os.path.join(config['list_root'], 'train.txt')
-train_dataset = MyDataset(visual_feat_root, train_list_path, raw2path, config['visual_d'],
-                          raw2weight_path, labelnet.label_sum(), config['batch_size'], config['negative_label_num'])
+train_dataset = MyDataset(visual_feat_root, train_list_path,
+                          raw2path, visual_d,
+                          raw2weight_path, labelnet.label_sum(),
+                          batch_size, neg_label_num)
 
 val_list_path = os.path.join(config['list_root'], 'val.txt')
-val_dataset = MyDataset(visual_feat_root, val_list_path, raw2path, config['visual_d'],
-                        raw2weight_path, labelnet.label_sum(), config['batch_size'], config['negative_label_num'])
+val_dataset = MyDataset(visual_feat_root, val_list_path,
+                        raw2path, visual_d,
+                        raw2weight_path, labelnet.label_sum(),
+                        batch_size, neg_label_num)
 
 # init model
 latest_weights_path = config['latest_weight_path']
 best_weights_path = config['best_weight_path']
-label_vec_path = config['label_vec_path']
 
-net = HypernymVisual(config['visual_d'], config['hidden_d'],
-                     config['embedding_d'], label_vec_path)
+if target == 'object':
+    obj_config = config
+    net = HypernymVisual(obj_config['visual_d'], obj_config['hidden_d'],
+                         obj_config['embedding_d'], obj_config['label_vec_path'])
+else:
+    obj_config = hyper_params[dataset]['object']
+    pre_config = config
+    net = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
+                          obj_config['embedding_d'], obj_config['label_vec_path'],
+
+                          pre_config['visual_d'], pre_config['hidden_d'],
+                          pre_config['embedding_d'], pre_config['label_vec_path'])
+
 if os.path.isfile(latest_weights_path):
     net.load_state_dict(torch.load(latest_weights_path))
     print('Loading weights success.')
@@ -102,7 +120,7 @@ for e in range(0, config['epoch']):
         vfs, pos_neg_inds, weights = train_dataset.minibatch()
 
         # forward
-        all_scores = net(vfs)
+        all_scores, _ = net(vfs)
 
         # cal acc, loss
         acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds)
