@@ -44,7 +44,7 @@ def eval(dataset, model):
 """ ================  train ================ """
 
 dataset = 'vrd'
-target = 'object'
+target = 'predicate'
 
 labelnet = labelnets[dataset][target]
 
@@ -80,8 +80,8 @@ if target == 'object':
 else:
     obj_config = hyper_params[dataset]['object']
     pre_config = config
-    net = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'], obj_config['best_weight_path'],
-                          obj_config['embedding_d'], obj_config['label_vec_path'],
+    net = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
+                          obj_config['embedding_d'], obj_config['label_vec_path'], obj_config['best_weight_path'],
 
                           pre_config['visual_d'], pre_config['hidden_d'],
                           pre_config['embedding_d'], pre_config['label_vec_path'])
@@ -96,10 +96,11 @@ print(net)
 # add L2 regularization
 weight_p, bias_p = [], []
 for name, p in net.named_parameters():
-    if 'bias' in name:
-        bias_p += [p]
-    else:
-        weight_p += [p]
+    if p.requires_grad:
+        if 'bias' in name:
+            bias_p += [p]
+        else:
+            weight_p += [p]
 
 # optimizer
 loss_func = torch.nn.CrossEntropyLoss(reduce=False)
