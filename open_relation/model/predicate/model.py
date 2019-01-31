@@ -65,7 +65,7 @@ class PredicateVisual(nn.Module):
 
         sbj_scores, sbj_embedding = self.obj_embedding(sbj_vfs)
         obj_scores, obj_embedding = self.obj_embedding(obj_vfs)
-        pre_embedding0 = self.pre_embedding(pre_vfs)
+        pre_embedding0 = self.pre_in_embedding.embedding(pre_vfs)
 
         pre_feat = torch.cat([sbj_embedding, pre_embedding0, obj_embedding], 1)
         pre_scores, pre_embedding = self.pre_ex_embedding(pre_feat)
