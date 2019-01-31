@@ -9,8 +9,7 @@ from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
 
 
-
-dataset = 'vg'
+dataset = 'vrd'
 dataset_config = DatasetConfig(dataset)
 
 if dataset == 'vrd':
@@ -74,8 +73,9 @@ for feature_file_id in test_box_label:
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
-        scores = net(vf_v).cpu().data
-        ranked_inds = np.argsort(scores[0]).tolist()
+        scores, _ = net(vf_v)
+        scores = scores.cpu().data[0]
+        ranked_inds = np.argsort(scores).tolist()
         ranked_inds.reverse()   # descending
 
         # ====== hier label =====
@@ -86,13 +86,13 @@ for feature_file_id in test_box_label:
             for label_ind in label_inds:
                 print(index2label[label_ind])
 
-
             preds = ranked_inds[:20]
             print('----- prediction -----')
             for p in preds:
                 print('%s : %f' % (index2label[p], scores[p]))
             if counter == 100:
                 exit(0)
+
         # ====== org label only =====
         else:
             org_indexes = set([label2index[l] for l in org2wn.keys()])
@@ -120,11 +120,11 @@ for feature_file_id in test_box_label:
                     else:
                         break
                     org_pred_counter += 1
+
 print('\n=========================================')
 print('accuracy: %.2f' % (T / counter))
 print('potential accuracy increment: %.2f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
-
 
 plt.hist(T_ranks, 100)
 plt.xlabel('rank')
