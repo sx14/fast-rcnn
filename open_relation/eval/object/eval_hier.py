@@ -82,14 +82,15 @@ for feature_file_id in test_box_label:
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
         vf = features[i]
-        vf = vf[np.newaxis:]
+        vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
         scores, _ = net(vf_v)
         scores = scores.cpu().data[0]
-        pred_ind, cands = tree_infer2.my_infer(objnet, scores, None, 'obj')
+        top2pred = tree_infer2.my_infer(objnet, scores, None, 'obj')
+        pred_ind = top2pred[0][0]
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
@@ -101,7 +102,7 @@ for feature_file_id in test_box_label:
             result = str(counter).ljust(5) + ' F: '
 
         pred_str = (result + org_label + ' -> ' + index2label[pred_ind]).ljust(40) + ' %.2f | ' % pred_score
-        cand_str = ' [%s(%d) , %s(%d)]' % (index2label[cands[0][0]], cands[0][1], index2label[cands[1][0]], cands[1][1])
+        cand_str = ' [%s(%d) , %s(%d)]' % (index2label[top2pred[0][0]], top2pred[0][1], index2label[top2pred[1][0]], top2pred[1][1])
         print(pred_str + cand_str)
 
 print('\n=========================================')

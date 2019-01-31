@@ -165,5 +165,5 @@ def my_infer(label_hier, scores, rank_scores, target):
     else:
         ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
         cands = [top_down(ind2node, label_hier), raw_top2[0]]
-    return raw_top2
+    return cands
 

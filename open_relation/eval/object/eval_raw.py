@@ -10,6 +10,10 @@ from open_relation.train.train_config import hyper_params
 
 
 dataset = 'vrd'
+
+score_mode = 'score'
+# score_mode = 'rank'
+
 dataset_config = DatasetConfig(dataset)
 
 if dataset == 'vrd':
@@ -32,8 +36,7 @@ org2path = objnet.raw2path()
 label2index = objnet.label2index()
 index2label = objnet.index2label()
 
-mode = 'raw'
-# mode = 'hier'
+
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
@@ -78,8 +81,8 @@ for feature_file_id in test_box_label:
         ranked_inds = np.argsort(scores).tolist()
         ranked_inds.reverse()   # descending
 
-        # ====== hier label =====
-        if mode == 'hier':
+        # ====== top ranks ======
+        if score_mode == 'rank':
             label_inds = org2path[label2index[org_label]]
             print('\n===== ' + org_label + ' =====')
             print('\n----- answer -----')
@@ -93,7 +96,7 @@ for feature_file_id in test_box_label:
             if counter == 100:
                 exit(0)
 
-        # ====== org label only =====
+        # ====== score =====
         else:
             org_indexes = set([label2index[l] for l in org2wn.keys()])
             org_pred_counter = 0

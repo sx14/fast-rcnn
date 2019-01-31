@@ -184,7 +184,6 @@ for feature_file_id in test_box_label:
         elif show == 'v_l':
             # ====== vis prediction =====
             # ====== lan prediction =====
-
             print('\n===== ' + gt_pre_label + ' =====')
             l_top2 = top2(l_ranked_inds, raw_indexes)
             l_pred_ind = l_top2[0][0]
