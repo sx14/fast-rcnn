@@ -27,8 +27,6 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
         return best_ratio
 
 
-
-
 dataset = 'vrd'
 dataset_config = DatasetConfig(dataset)
 
@@ -55,7 +53,8 @@ org_indexes = [label2index[i] for i in org2wn.keys()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
-net = model.HypernymVisual(config['visual_d'], config['hidden_d'], config['embedding_d'])
+net = model.HypernymVisual(config['visual_d'], config['hidden_d'],
+                           config['embedding_d'], label_vec_path)
 if os.path.isfile(best_weights_path):
     net.load_state_dict(torch.load(best_weights_path))
     print('Loading weights success.')
@@ -71,7 +70,7 @@ T_C = 0.0
 # expected -> actual
 e_p = []
 
-rank_scores = tree_infer2.cal_rank_scores1(len(index2label))
+# rank_scores = tree_infer2.cal_rank_scores1(len(index2label))
 visual_feature_root = config['visual_feature_root']
 for feature_file_id in test_box_label:
     box_labels = test_box_label[feature_file_id]
@@ -88,8 +87,9 @@ for feature_file_id in test_box_label:
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
         org_label = box_label[4]
         org_label_ind = label2index[org_label]
-        scores = net(vf_v).cpu().data
-        pred_ind, cands = tree_infer2.my_infer(objnet, scores[0], rank_scores, 'obj')
+        scores, _ = net(vf_v)
+        scores = scores.cpu().data[0]
+        pred_ind, cands = tree_infer2.my_infer(objnet, scores, None, 'obj')
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
         pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
