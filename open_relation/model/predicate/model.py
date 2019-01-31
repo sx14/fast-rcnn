@@ -5,7 +5,7 @@ from open_relation.model.object.model import HypernymVisual
 
 
 class PredicateVisual(nn.Module):
-    def __init__(self,  obj_visual_d, obj_hidden_d, obj_embedding_d, obj_label_vec_path,
+    def __init__(self,  obj_visual_d, obj_hidden_d, obj_embedding_d, obj_label_vec_path, obj_weights_path,
                         pre_visual_d, pre_hidden_d, pre_embedding_d, pre_label_vec_path):
         super(PredicateVisual, self).__init__()
 
@@ -17,9 +17,8 @@ class PredicateVisual(nn.Module):
                                             obj_label_vec_path)
 
         # load obj embedding weights
-        obj_embedding_weight_path = self.obj_config['latest_weight_path']
-        if os.path.isfile(obj_embedding_weight_path):
-            obj_weights = torch.load(obj_embedding_weight_path)
+        if os.path.isfile(obj_weights_path):
+            obj_weights = torch.load(obj_weights_path)
             self.obj_embedding.load_state_dict(obj_weights)
             print('Loading object embedding weights success.')
         else:
