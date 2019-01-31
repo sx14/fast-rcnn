@@ -31,8 +31,8 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
     # sample at most 1000 instance
     label_sample_ratio = np.ones(label_ins_num.shape)
     for i, ins_num in enumerate(label_ins_num):
-        if ins_num > 1000:
-            label_sample_ratio[i] = 1000.0 / ins_num
+        if ins_num > 500:
+            label_sample_ratio[i] = 500.0 / ins_num
     return label_sample_ratio
 
 

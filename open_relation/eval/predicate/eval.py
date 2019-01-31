@@ -53,8 +53,8 @@ show = 'score'
 # show = 'rank'
 # show = 'v_l'
 
-score_mode = 'raw'
-# mode = 'hier'
+# score_mode = 'raw'
+score_mode = 'hier'
 
 
 # prepare data
@@ -139,7 +139,8 @@ for feature_file_id in test_box_label:
         obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
 
         # visual prediction
-        v_pre_scores, _, _ = vmodel(vf_v)
+        v_pre_scores, _ = vmodel(vf_v)
+        v_pre_scores = v_pre_scores[0]
         v_ranked_inds = np.argsort(v_pre_scores.cpu().data).tolist()  # ascend
         v_ranked_inds.reverse()  # descending
 
@@ -205,10 +206,17 @@ for feature_file_id in test_box_label:
             else:
                 print('vis >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
 
+            if v_pred_rank > l_pred_rank:
+                pred_ind = v_pred_ind
+            else:
+                pred_ind = l_pred_ind
+            if pred_ind == expect_ind:
+                T += 1
+
         else:
             # ====== score ======
-            print('\n===== ' + gt_pre_label + ' =====')
             if score_mode == 'raw':
+                print('\n===== ' + gt_pre_label + ' =====')
                 top2_pred = top2(ranked_inds, raw_indexes)
                 for t, (pred_ind, rank) in enumerate(top2_pred):
                     if pred_ind == expect_ind and t == 0:
@@ -223,6 +231,7 @@ for feature_file_id in test_box_label:
                     print(result + index2label[pred_ind] + '(' + str(rank) + ')')
 
             else:
+                raw_top2 = top2(ranked_inds, raw_indexes)
                 top2_pred = tree_infer2.my_infer(prenet, pre_scores.cpu().data, None, 'pre')
                 pred_ind = top2_pred[0][0]
                 pred_label = index2label[pred_ind]
@@ -235,13 +244,13 @@ for feature_file_id in test_box_label:
                     result = str(counter).ljust(5) + ' F: '
 
                 pred_str = (result + gt_pre_label + ' -> ' + pred_label).ljust(40) + ' %.2f | ' % pred_score
-                cand_str = ' [%s(%d) , %s(%d)]' % (index2label[top2_pred[0][0]], top2_pred[0][1],
-                                                   index2label[top2_pred[1][0]], top2_pred[1][1])
+                cand_str = ' [%s(%d) , %s(%d)]' % (index2label[raw_top2[0][0]], raw_top2[0][1],
+                                                   index2label[raw_top2[1][0]], raw_top2[1][1])
                 print(pred_str + cand_str)
 
             e_p.append([expect_ind, top2_pred[0][0]])
 
 
-print('\naccuracy: %.2f' % (T / counter))
+print('\naccuracy: %.2f (%.2f)' % (T / counter, T_C / counter))
 print('potential accuracy increment: %.2f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))

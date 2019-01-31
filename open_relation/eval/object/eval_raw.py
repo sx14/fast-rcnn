@@ -11,8 +11,8 @@ from open_relation.train.train_config import hyper_params
 
 dataset = 'vrd'
 
-score_mode = 'score'
-# score_mode = 'rank'
+show = 'score'
+# show = 'rank'
 
 dataset_config = DatasetConfig(dataset)
 
@@ -82,7 +82,7 @@ for feature_file_id in test_box_label:
         ranked_inds.reverse()   # descending
 
         # ====== top ranks ======
-        if score_mode == 'rank':
+        if show == 'rank':
             label_inds = org2path[label2index[org_label]]
             print('\n===== ' + org_label + ' =====')
             print('\n----- answer -----')
