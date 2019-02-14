@@ -152,6 +152,7 @@ def wash_anno(dirty_anno_path, clean_anno_path):
             new_rlt['predicate']['name'] = reg_label
             id2rlt[new_rlt['relationship_id']] = new_rlt
 
+    clean_anno['image_info'] = dirty_anno['image_info']
     clean_anno['objects'] = id2obj.values()
     clean_anno['relations'] = id2rlt.values()
     json.dump(clean_anno, open(clean_anno_path, 'w'), indent=4)
