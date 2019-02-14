@@ -6,6 +6,7 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 class ObjNet(LabelHier):
 
+
     def _raw_to_wn(self):
         raw2wn = dict()
         for vrd_label in self._raw_labels:

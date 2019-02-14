@@ -79,12 +79,14 @@ def gen_weights1(box_labels, vrd2path, index2label, label2index, weights_save_pa
     ranked_inds = ranked_inds[:len(ranked_counts)]
 
     count_sum = ranked_counts.sum()
-    max_weight = 1.0 / (ranked_counts.min() / count_sum)
-    min_weight = 1.0 / (ranked_counts.max() / count_sum)
+    max_weight = 5.0
+    min_weight = 1.0
+    k = (max_weight - min_weight) / (ranked_counts[-1] - ranked_counts[0])
+    b = max_weight - k * ranked_counts[-1]
     vrd2weight = dict()
     # expected max weight: 10
     for i in range(len(ranked_counts)):
-        w = (1.0 / (ranked_counts[i] / count_sum)) / (max_weight / 9) + 1
+        w = k * ranked_counts[i] + b
         vrd2weight[ranked_inds[i]] = w
     pickle.dump(vrd2weight, open(weights_save_path, 'wb'))
 

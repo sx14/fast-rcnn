@@ -12,6 +12,13 @@ class LabelNode(object):
     def __str__(self):
         return self._name
 
+    def depth(self):
+        h_paths = self.hyper_paths()
+        dep = 0
+        for path in h_paths:
+            dep = max(dep, len(path))
+        return dep
+
     def set_raw(self, is_raw):
         self._is_raw = is_raw
 
@@ -131,6 +138,17 @@ class LabelHier:
             print('Raw label file not exists !')
         return labels
 
+    def depth_punish(self):
+        # y = 1/196(x - 15)^2 + 1
+        punish = []
+        max_punish = 2.0
+        min_punish = 1.0
+        for i in range(self.label_sum()):
+            d = self.get_node_by_index(i).depth()
+            p = (max_punish - min_punish) / (1 - self.max_depth) ** 2 * (d - self.max_depth) ** 2 + min_punish
+            punish.append(p)
+        return punish
+
     def _construct_hier(self):
         raise NotImplementedError
 
@@ -142,3 +160,7 @@ class LabelHier:
         self._index2node = [bk]
         self._raw2path = None
         self._construct_hier()
+
+        self.max_depth = 0
+        for n in self._index2node:
+            self.max_depth = max(self.max_depth, n.depth())

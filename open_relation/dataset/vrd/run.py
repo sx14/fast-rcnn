@@ -8,5 +8,5 @@ if __name__ == '__main__':
     # reformat_anno()
     # ext_obj_cnn_feat.ext_cnn_feat()
     # ext_pre_cnn_feat.ext_cnn_feat()
-    gen_label_weigths('object')
+    # gen_label_weigths('object')
     gen_label_weigths('predicate')

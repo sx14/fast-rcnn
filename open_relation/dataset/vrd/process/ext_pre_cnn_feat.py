@@ -104,7 +104,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         feature_id = image_id + '.bin'
         feature_path = os.path.join(feature_root, feature_id)
 
-        if True or not os.path.exists(feature_path):
+        if not os.path.exists(feature_path):
             # extract fc7
             img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
 
@@ -139,7 +139,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
 
             label_inds = raw2path[raw_label_ind]
             # last one on path is raw label
-            for i in range(len(label_inds-1)):
+            for i in range(len(label_inds)-1):
                 label_ind = label_inds[i]
                 sample_prob = sample_ratio[label_ind]
                 p = np.array([sample_prob, 1-sample_prob])
