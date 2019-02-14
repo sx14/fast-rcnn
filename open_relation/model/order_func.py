@@ -13,7 +13,7 @@ def order_sim(hypers, hypos):
 
 
 def order_softmax_test(batch_scores, pos_neg_inds, punish):
-    punish_v = Variable(torch.from_numpy(np.array(punish))).cuda()
+    punish_v = Variable(torch.from_numpy(np.array(punish))).float().cuda()
 
     loss_scores = Variable(torch.zeros(len(batch_scores), len(pos_neg_inds[0]))).float().cuda()
     for i in range(len(batch_scores)):

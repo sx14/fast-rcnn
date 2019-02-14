@@ -29,7 +29,7 @@ def eval(dataset, model):
             vfs, pos_neg_inds, weights = dataset.minibatch()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             all_scores, _ = model(batch_vf)
-            batch_acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds)
+            batch_acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds, labelnet.depth_punish())
             batch_loss = loss_func(loss_scores, y)
             batch_loss = torch.mean(batch_loss * weights)
             acc_sum += batch_acc

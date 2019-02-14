@@ -146,7 +146,7 @@ class LabelHier:
         for i in range(self.label_sum()):
             d = self.get_node_by_index(i).depth()
             p = (max_punish - min_punish) / (1 - self.max_depth) ** 2 * (d - self.max_depth) ** 2 + min_punish
-            punish.append(p)
+            punish.append(1/p)
         return punish
 
     def _construct_hier(self):
