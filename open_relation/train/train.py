@@ -124,7 +124,7 @@ for e in range(0, config['epoch']):
         all_scores, _ = net(vfs)
 
         # cal acc, loss
-        acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds)
+        acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds, labelnet.depth_punish())
         loss = loss_func(loss_scores, y)
         loss = torch.mean(loss * weights)
 
