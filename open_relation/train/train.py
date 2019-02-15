@@ -1,4 +1,5 @@
 import os
+import shutil
 import torch
 from tensorboardX import SummaryWriter
 from open_relation.dataset.MyDataset import MyDataset
@@ -111,6 +112,7 @@ optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
 batch_counter = 0
 best_acc = 0.0
 sw = SummaryWriter()
+shutil.rmtree('run')
 
 # training
 for e in range(0, config['epoch']):

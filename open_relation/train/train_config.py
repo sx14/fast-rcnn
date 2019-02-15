@@ -10,7 +10,7 @@ vg_obj_hyper_params = {
     'visual_d': 4096,
     'hidden_d': 4096,
     'embedding_d': 600,
-    'epoch': 80,
+    'epoch': 40,
     'batch_size': 64,
     'negative_label_num': 2450,
     'eval_freq': 1000,

@@ -12,14 +12,12 @@ def split_dataset():
 
     # train : test = 4 : 1
     # test_capacity = anno_sum / 5
-    # val_capacity = 400
-    # train_capacity = anno_sum - val_capacity - test_capacity
 
-    test_capacity = 4000
-    train_capacity = 10000
+    test_capacity = 5000
     val_capacity = 400
+    train_capacity = anno_sum - val_capacity - test_capacity
 
-    random.shuffle(anno_list)
+    # random.shuffle(anno_list)
     split_list = {
         'train' : anno_list[:train_capacity],
         'val'   : anno_list[train_capacity:train_capacity+val_capacity],
