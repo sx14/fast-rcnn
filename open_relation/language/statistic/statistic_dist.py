@@ -3,7 +3,7 @@ import json
 import pickle
 from copy import deepcopy
 import numpy as np
-from open_relation.dataset import dataset_config
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 from open_relation.infer.tree_infer2 import TreeNode
@@ -50,9 +50,9 @@ def fill_dist(s, o, p, raw_dist, obj_tree, pre_tree):
                     count += fill_dist(s, o, pc.index(), raw_dist, obj_tree, pre_tree)
     return count
 
-
-anno_root = dataset_config.data_config['clean_anno_root']
-anno_list_path = os.path.join(dataset_config.pascal_format['ImageSets'], 'train.txt')
+config = DatasetConfig('vrd')
+anno_root = config.data_config['clean_anno_root']
+anno_list_path = os.path.join(config.pascal_format['ImageSets'], 'train.txt')
 with open(anno_list_path, 'r') as anno_list_file:
     anno_list = anno_list_file.read().splitlines()
 

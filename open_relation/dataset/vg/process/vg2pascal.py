@@ -35,5 +35,5 @@ def vg2pascal():
         json_anno_path = os.path.join(json_anno_root, json_annos[i])
         json_anno = json.load(open(json_anno_path, 'r'))
         mid_anno = convert_anno(json_anno)
-        pascal_anno_path = os.path.join(pascal_anno_root, json_annos[i])
+        pascal_anno_path = os.path.join(pascal_anno_root, json_annos[i][:-5]+'.xml')
         output_pascal_format(mid_anno, pascal_anno_path)

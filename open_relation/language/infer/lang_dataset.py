@@ -39,4 +39,4 @@ class LangDataset(Dataset):
         return [sbj_vec, pre_vec, obj_vec, pos_neg_inds]
 
     def __len__(self):
-        return len(self._rlt_pairs[0])
+        return len(self._rlts)

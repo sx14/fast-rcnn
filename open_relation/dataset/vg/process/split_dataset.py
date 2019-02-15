@@ -18,9 +18,10 @@ def split_dataset():
 
     # random.shuffle(anno_list)
     split_list = {
-        'train' : anno_list[:train_capacity],
-        'val'   : anno_list[train_capacity:train_capacity+val_capacity],
-        'test'  : anno_list[train_capacity+val_capacity:train_capacity+val_capacity+test_capacity]
+        'trainval'  : anno_list[:train_capacity+val_capacity],
+        'train'     : anno_list[:train_capacity],
+        'val'       : anno_list[train_capacity:train_capacity+val_capacity],
+        'test'      : anno_list[train_capacity+val_capacity:train_capacity+val_capacity+test_capacity],
     }
 
     # save split list

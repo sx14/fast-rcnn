@@ -7,7 +7,7 @@ from lang_config import train_params, data_config
 from model import RelationEmbedding
 from model import order_rank_test as rank_test
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
-from open_relation.dataset.dataset_config import vrd_predicate_config
+from open_relation.dataset.dataset_config import DatasetConfig
 
 
 # hyper params
@@ -15,21 +15,23 @@ epoch_num = 1
 embedding_dim = train_params['embedding_dim']
 batch_size = 1
 
+
+dataset_config = DatasetConfig('vrd')
+pre_label_vec_path = dataset_config.extra_config['predicate'].config['label_vec_path']
+obj_label_vec_path = dataset_config.extra_config['object'].config['label_vec_path']
 rlt_path = data_config['test']['raw_rlt_path']
-test_set = LangDataset(rlt_path)
+test_set = LangDataset(rlt_path, obj_label_vec_path, pre_label_vec_path, prenet)
 test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 
 # model
 
-gt_label_vec_path = vrd_predicate_config['label_vec_path']
-model = RelationEmbedding(embedding_dim*2, embedding_dim, gt_label_vec_path)
+model = RelationEmbedding(embedding_dim * 2, embedding_dim, pre_label_vec_path)
 weight_path = train_params['latest_model_path']
 if os.path.isfile(weight_path):
     model.load_state_dict(torch.load(weight_path))
     print('Loading weights success.')
 model.cuda()
 model.eval()
-
 
 batch_num = 0
 acc_sum = 0

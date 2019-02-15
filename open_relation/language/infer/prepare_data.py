@@ -1,7 +1,8 @@
 import os
 import numpy as np
 import json
-from open_relation.dataset import dataset_config
+from lang_config import data_config
+from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 
@@ -82,13 +83,15 @@ def extend_rlts(raw_rlts, rlt_save_path):
 
 
 if __name__ == '__main__':
-    anno_root = dataset_config.data_config['clean_anno_root']
+
+    config = DatasetConfig('vrd')
+    anno_root = config.data_config['clean_anno_root']
     split = ['train', 'test']
     for d in split:
-        list_path = os.path.join(dataset_config.pascal_format['ImageSets'], d + '.txt')
-        rlt_save_path = dataset_config[d]['raw_rlt_path']
+        list_path = os.path.join(config.pascal_format['ImageSets'], d + '.txt')
+        rlt_save_path = data_config[d]['raw_rlt_path']
         raw_rlts = collect_raw_rlts(anno_root, list_path, rlt_save_path)
         print('raw relationship tuple num: %d' % len(raw_rlts))
-        rlt_save_path = dataset_config[d]['ext_rlt_path']
+        rlt_save_path = data_config[d]['ext_rlt_path']
         ext_rlts = extend_rlts(raw_rlts, rlt_save_path)
         print('extended relationship tuple num: %d' % len(ext_rlts))

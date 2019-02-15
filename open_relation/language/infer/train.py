@@ -20,7 +20,7 @@ def eval(model, test_dl):
     batch_num = 0
     for batch in test_dl:
         batch_num += 1
-        sbj1, pre1, obj1, sbj2, pre2, obj2, _, pos_neg_inds = batch
+        sbj1, pre1, obj1, pos_neg_inds = batch
         v_sbj1 = Variable(sbj1).float().cuda()
         v_obj1 = Variable(obj1).float().cuda()
         with torch.no_grad():
