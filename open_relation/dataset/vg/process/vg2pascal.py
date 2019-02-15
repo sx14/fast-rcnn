@@ -5,7 +5,7 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 def convert_anno(org_anno):
     mid_anno = dict()
-    mid_anno['filename'] = org_anno['image_info']['image_id']+'.jpg'
+    mid_anno['filename'] = str(org_anno['image_info']['image_id'])+'.jpg'
     mid_anno['width'] = org_anno['image_info']['width']
     mid_anno['height'] = org_anno['image_info']['height']
     mid_anno['depth'] = 3
@@ -17,7 +17,7 @@ def convert_anno(org_anno):
         mid_obj['ymin'] = org_obj['ymin']
         mid_obj['ymax'] = org_obj['ymax']
         mid_obj['name'] = org_obj['name']
-        mid_obj['pose'] = 0
+        mid_obj['pose'] = 'left'
         mid_obj['truncated'] = 0
         mid_obj['difficult'] = 0
         mid_objects.append(mid_obj)
