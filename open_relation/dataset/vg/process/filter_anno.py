@@ -54,6 +54,7 @@ def filter_anno():
         clean_anno = dict()
         clean_anno['objects'] = clean_objects
         clean_anno['relations'] = clean_relations
+        clean_anno['image_info'] = dirty_anno['image_info']
 
         clean_anno_path = os.path.join(clean_anno_root, anno_name)
         json.dump(clean_anno, open(clean_anno_path, 'w'))
