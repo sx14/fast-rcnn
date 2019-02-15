@@ -62,6 +62,9 @@ def filter_anno():
         clean_anno_path = os.path.join(clean_anno_root, anno_name)
         json.dump(clean_anno, open(clean_anno_path, 'w'))
 
+    clean_annos = os.listdir(clean_anno_root)
+    print('>>> filter_anno: image num = %d' % (len(clean_annos)))
+
 
 
 

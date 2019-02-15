@@ -60,7 +60,7 @@ train_set = LangDataset(rlt_path, obj_label_vec_path, pre_label_vec_path, prenet
 train_dl = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
 rlt_path = data_config['test']['raw_rlt_path']
-test_set = LangDataset(rlt_path)
+test_set = LangDataset(rlt_path, obj_label_vec_path, pre_label_vec_path, prenet)
 test_dl = DataLoader(test_set, batch_size=batch_size, shuffle=True)
 
 # model

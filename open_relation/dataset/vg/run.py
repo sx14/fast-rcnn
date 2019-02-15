@@ -11,12 +11,12 @@ if __name__ == '__main__':
     # split_anno_pkg()
     # reformat_anno()
     # collect_labels()
-    filter_anno()
-    split_dataset()
+    # filter_anno()
+    # split_dataset()
 
     # object part
-    # ext_obj_cnn_feat.ext_cnn_feat()
-    # gen_label_weigths('object')
-    vg2pascal()
+    ext_obj_cnn_feat.ext_cnn_feat()
+    gen_label_weigths('object')
+    # vg2pascal()
     # TODO: predicate part
     pass

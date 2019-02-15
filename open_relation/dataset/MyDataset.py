@@ -15,7 +15,7 @@ class MyDataset():
         self._minibatch_size = minibatch_size
         self._negative_label_num = negative_label_num
         self._raw_feature_root = raw_feature_root
-        self._raw_feature_file_num = len(os.listdir(raw_feature_root))
+
         self._feature_indexes = []      # index feature: [feature file name, offset]
         self._label_indexes = []        # label index
         # cached feature package
@@ -32,12 +32,16 @@ class MyDataset():
         # label2path
         self._raw2path = raw2path
         self._raw2weight = pickle.load(open(raw2weight_path, 'rb'))
+
+        # roidb
         with open(flabel_list_path, 'r') as list_file:
             flabel_list = list_file.read().splitlines()
+        feat_file_names = set()
         for item in flabel_list:
             # image id, offset, hier_label_index, vg_label_index
             item_info = item.split(' ')
             item_feature_file = item_info[0]
+            feat_file_names.add(item_feature_file)
             item_id = int(item_info[1])
             item_label_index = int(item_info[2])
             item_vg_index = int(item_info[3])
@@ -45,6 +49,7 @@ class MyDataset():
             self._label_indexes.append([item_label_index, item_vg_index])
             # feature indexes [feature file name, offset]
             self._feature_indexes.append([item_feature_file, item_id])
+        self._raw_feature_file_num = len(feat_file_names)
 
     def init_package(self):
         if self._curr_package_capacity < self._raw_feature_file_num:

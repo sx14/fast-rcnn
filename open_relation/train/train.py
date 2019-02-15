@@ -112,7 +112,7 @@ optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
 batch_counter = 0
 best_acc = 0.0
 sw = SummaryWriter()
-shutil.rmtree('run')
+shutil.rmtree('runs')
 
 # training
 for e in range(0, config['epoch']):
