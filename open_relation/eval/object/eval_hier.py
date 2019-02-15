@@ -106,6 +106,6 @@ for feature_file_id in test_box_label:
         print(pred_str + cand_str)
 
 print('\n=========================================')
-print('accuracy: %.2f (%.2f)' % (T / counter, T_C / counter))
+print('accuracy: %.4f (%.4f)' % (T / counter, T_C / counter))
 
 

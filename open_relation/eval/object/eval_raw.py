@@ -125,8 +125,8 @@ for feature_file_id in test_box_label:
                     org_pred_counter += 1
 
 print('\n=========================================')
-print('accuracy: %.2f' % (T / counter))
-print('potential accuracy increment: %.2f' % (T1 / counter))
+print('accuracy: %.4f' % (T / counter))
+print('potential accuracy increment: %.4f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
 
 plt.hist(T_ranks, 100)

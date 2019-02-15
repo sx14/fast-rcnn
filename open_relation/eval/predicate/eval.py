@@ -251,6 +251,6 @@ for feature_file_id in test_box_label:
             e_p.append([expect_ind, top2_pred[0][0]])
 
 
-print('\naccuracy: %.2f (%.2f)' % (T / counter, T_C / counter))
-print('potential accuracy increment: %.2f' % (T1 / counter))
+print('\naccuracy: %.4f (%.4f)' % (T / counter, T_C / counter))
+print('potential accuracy increment: %.4f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
