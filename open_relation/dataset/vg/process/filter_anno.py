@@ -50,6 +50,9 @@ def filter_anno():
             if keep_rlt:
                 clean_relations.append(d_rlt)
 
+        if len(clean_objects) == 0 or len(clean_relations) == 0:
+            continue
+
         # save cleaned json anno
         clean_anno = dict()
         clean_anno['objects'] = clean_objects

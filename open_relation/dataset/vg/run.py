@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # split_anno_pkg()
     # reformat_anno()
     # collect_labels()
-    # filter_anno()
+    filter_anno()
     split_dataset()
 
     # object part

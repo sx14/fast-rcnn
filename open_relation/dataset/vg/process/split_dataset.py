@@ -5,11 +5,10 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 def split_dataset():
     vg_config = DatasetConfig('vg')
-
     anno_root = vg_config.data_config['clean_anno_root']
     anno_list = os.listdir(anno_root)
     anno_sum = len(anno_list)
-
+    print('>>> Split dataset: image num = %d' % anno_sum)
     # train : test = 4 : 1
     # test_capacity = anno_sum / 5
 
