@@ -43,7 +43,7 @@ def eval(dataset, model):
 
 """ ================  train ================ """
 
-dataset = 'vrd'
+dataset = 'vg'
 target = 'object'
 
 labelnet = labelnets[dataset][target]
