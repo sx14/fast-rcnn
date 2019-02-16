@@ -53,9 +53,9 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
     N_right = 0.0
     N_total = 0.0
     N_data = len(gt_roidb.keys())
-    num_right = np.zeros([N_data, ])
+    num_right = {}
     for image_id in gt_roidb:
-
+        num_right[image_id] = 0
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname
         curr_gt_roidb = np.array(gt_roidb[image_id])
 
@@ -101,7 +101,7 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
                     if (s_iou >= 0.5) and (o_iou >= 0.5):
                         detected_gt[k] = 1
                         N_right = N_right + 1
-                        num_right[i] = num_right[i] + 1
+                        num_right[image_id] = num_right[image_id] + 1
 
     acc = N_right / N_total
     print(N_right)

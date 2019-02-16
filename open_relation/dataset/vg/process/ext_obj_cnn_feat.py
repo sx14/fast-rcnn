@@ -21,8 +21,8 @@ def cal_sample_ratio(label2index, raw2path, box_labels):
     for img_id in box_labels:
         img_box_labels = box_labels[img_id]
         for box_label in img_box_labels:
-            raw_label = box_label[4]
-            label_path = raw2path[label2index[raw_label]]
+            raw_label_ind = box_label[4]
+            label_path = raw2path[raw_label_ind]
             for l in label_path:
                 label_ins_cnt[l] += 1
 
