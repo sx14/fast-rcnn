@@ -166,7 +166,7 @@ for feature_file_id in test_box_label:
         ranked_inds.reverse()   # descending
 
         gt_pre_ind = box_label[4]
-        gt_pre_label = prenet.get_node_by_index(gt_pre_ind)
+        gt_pre_label = prenet.get_node_by_index(gt_pre_ind).name()
 
         if show == 'rank':
             # ====== top predictions =====

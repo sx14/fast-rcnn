@@ -59,9 +59,9 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname
         curr_gt_roidb = np.array(gt_roidb[image_id])
 
-        rela_gt = curr_gt_roidb[:, 4]
-        if len(rela_gt) == 0:
+        if len(curr_gt_roidb) == 0:
             continue
+        rela_gt = curr_gt_roidb[:, 4]
         sub_box_gt = curr_gt_roidb[:, 5:9]
         obj_box_gt = curr_gt_roidb[:, 10:14]
         sub_gt = curr_gt_roidb[:, 9]
@@ -83,7 +83,7 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
 
         sort_score = np.sort(rela_pred_score)[::-1]
         if N_recall >= N_pred:
-            thresh = -1
+            thresh = float('-Inf')
         else:
             thresh = sort_score[N_recall]
 
@@ -104,6 +104,4 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
                         num_right[image_id] = num_right[image_id] + 1
 
     acc = N_right / N_total
-    print(N_right)
-    print(N_total)
     return acc, num_right
