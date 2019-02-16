@@ -107,12 +107,10 @@ for img_id in test_box_label:
         v_ranked_inds.reverse()  # descending
 
         # language prediction
-        sbj_label = box_label[9]
-        sbj_ind = objnet.get_node_by_name(sbj_label).index()
+        sbj_ind = box_label[9]
         sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
 
-        obj_label = box_label[14]
-        obj_ind = objnet.get_node_by_name(obj_label).index()
+        obj_ind = box_label[14]
         obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
@@ -129,17 +127,15 @@ for img_id in test_box_label:
         ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
         ranked_inds.reverse()  # descending
 
-        gt_pre_label = box_label[4]
-        gt_pre_ind = label2index[gt_pre_label]
+        gt_pre_ind = box_label[4]
 
         # ====== score ======
         if score_mode == 'raw':
             for ind in ranked_inds:
                 if ind in raw_indexes:
                     pred_pre_ind = ind
-                    pred_pre_label = prenet.get_node_by_index(pred_pre_ind).name()
                     pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
-                    pred_box_label[img_id][i][4] = pred_pre_label
+                    pred_box_label[img_id][i][4] = pred_pre_ind
                     pred_box_label[img_id][i].append(pred_pre_score)
                     break
 
