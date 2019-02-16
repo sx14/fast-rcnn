@@ -51,7 +51,8 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
             ymin = int(o['ymin'])
             xmax = int(o['xmax'])
             ymax = int(o['ymax'])
-            obj_info.append([xmin, ymin, xmax, ymax, o['name']])
+            label_ind = objnet.get_node_by_name(o['name']).index()
+            obj_info.append([xmin, ymin, xmax, ymax, label_ind])
         objs[image_id] = obj_info
     with open(box_label_path, 'wb') as box_label_file:
         pickle.dump(objs, box_label_file)
@@ -99,8 +100,8 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         # prepare roidb
         # format: img_id.bin offset label_ind raw_label_ind
         for box_id in range(0, len(curr_img_boxes)):
-            raw_label = curr_img_boxes[box_id, 4]
-            raw_label_ind = label2index[raw_label]
+            raw_label_ind = curr_img_boxes[box_id, 4]
+            raw_label = objnet.get_node_by_index(raw_label_ind).name()
 
             label_list.append(feature_id+' '+str(box_id)+' '+str(raw_label_ind)+' '+str(raw_label_ind)+'\n')
 

@@ -70,7 +70,7 @@ def prepare_relation_boxes_and_labels(anno_root, anno_list_path, box_label_path)
                 ymin = int(thing['ymin'])
                 xmax = int(thing['xmax'])
                 ymax = int(thing['ymax'])
-                label_ind = labelnets[j].get_node_by_name(thing['name'])
+                label_ind = labelnets[j].get_node_by_name(thing['name']).index()
                 rlt_info += [xmin, ymin, xmax, ymax, label_ind]
             rlt_info_list.append(rlt_info)
         rlts[image_id] = rlt_info_list

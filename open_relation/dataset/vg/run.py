@@ -3,7 +3,7 @@ from process.reformat_anno import reformat_anno
 from process.collect_labels import collect_labels
 from process.filter_anno import filter_anno
 from process.split_dataset import split_dataset
-from process import ext_obj_cnn_feat, ext_pre_cnn_feat
+from process import ext_obj_cnn_feat
 from process.gen_label_weights import gen_label_weigths
 from process.vg2pascal import vg2pascal
 

@@ -53,7 +53,7 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
             ymin = int(o['ymin'])
             xmax = int(o['xmax'])
             ymax = int(o['ymax'])
-            label_ind = objnet.get_node_by_name(o['name'])
+            label_ind = objnet.get_node_by_name(o['name']).index()
             obj_info.append([xmin, ymin, xmax, ymax, label_ind])
         objs[image_id] = obj_info
     with open(box_label_path, 'wb') as box_label_file:
