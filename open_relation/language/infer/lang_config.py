@@ -10,9 +10,9 @@ data_config = {
 }
 
 train_params = {
-    'lr': 0.1,
-    'epoch_num': 200,
-    'batch_size': 1000,
+    'lr': 0.01,
+    'epoch_num': 50,
+    'batch_size': 128,
     'embedding_dim': 600,
     'neg_sample_num': 80,
     'latest_model_path': our_model_root+'/lang/lan_weights_new.pkl',

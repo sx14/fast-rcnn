@@ -1,0 +1,106 @@
+# coding=utf-8
+
+import os
+import numpy as np
+import cv2
+
+
+def compute_iou(box, proposal):
+    """
+    compute the IoU between box with proposal
+    Arg:
+        box: [x1,y1,x2,y2]
+        proposal: N*4 matrix, each line is [p_x1,p_y1,p_x2,p_y2]
+    output:
+        IoU: N*1 matrix, every IoU[i] means the IoU between
+             box with proposal[i,:]
+    """
+    len_proposal = np.shape(proposal)[0]
+    IoU = np.empty([len_proposal, 1])
+    for i in range(len_proposal):
+        xA = max(box[0], proposal[i, 0])
+        yA = max(box[1], proposal[i, 1])
+        xB = min(box[2], proposal[i, 2])
+        yB = min(box[3], proposal[i, 3])
+
+        if xB < xA or yB < yA:
+            IoU[i, 0] = 0
+        else:
+            area_I = (xB - xA) * (yB - yA)
+            area1 = (box[2] - box[0]) * (box[3] - box[1])
+            area2 = (proposal[i, 2] - proposal[i, 0]) * (proposal[i, 3] - proposal[i, 1])
+            IoU[i, 0] = area_I / float(area1 + area2 - area_I)
+    return IoU
+
+
+def compute_iou_each(box1, box2):
+    xA = max(box1[0], box2[0])
+    yA = max(box1[1], box2[1])
+    xB = min(box1[2], box2[2])
+    yB = min(box1[3], box2[3])
+
+    if xB < xA or yB < yA:
+        IoU = 0
+    else:
+        area_I = (xB - xA) * (yB - yA)
+        area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+        area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+        IoU = area_I / float(area1 + area2 - area_I)
+    return IoU
+
+
+def rela_recall(test_roidb, pred_roidb, N_recall):
+    N_right = 0.0
+    N_total = 0.0
+    N_data = len(test_roidb.keys())
+    num_right = np.zeros([N_data, ])
+    for image_id in test_roidb:
+
+        # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname
+        rela_gt = test_roidb[image_id][:, 4]
+        if len(rela_gt) == 0:
+            continue
+        sub_gt = test_roidb[image_id][:, 5:9]
+        obj_gt = test_roidb[image_id][:, 10:14]
+        sub_box_gt = test_roidb[image_id][:, 9]
+        obj_box_gt = test_roidb[image_id][:, 14]
+
+        # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
+        pred_rela = pred_roidb[image_id][:, 4]
+        pred_rela_score = pred_roidb[image_id][:, -1]
+        sub_dete = pred_roidb[image_id][:, 5:9]
+        obj_dete = pred_roidb[image_id][:, 10:14]
+        sub_box_dete = pred_roidb[image_id][:, 9]
+        obj_box_dete = pred_roidb[image_id][:, 14]
+
+        N_rela = len(rela_gt)
+        N_total = N_total + N_rela
+
+        N_pred = len(pred_rela)
+
+        sort_score = np.sort(pred_rela_score)[::-1]
+        if N_recall >= N_pred:
+            thresh = -1
+        else:
+            thresh = sort_score[N_recall]
+
+        detected_gt = np.zeros([N_rela, ])
+        for j in range(N_pred):
+            if pred_rela_score[j] <= thresh:
+                continue
+
+            for k in range(N_rela):
+                if detected_gt[k] == 1:
+                    continue
+                if (sub_gt[k] == sub_dete[j]) and (obj_gt[k] == obj_dete[j]) and (rela_gt[k] == pred_rela[j]):
+                    s_iou = compute_iou_each(sub_box_dete[j], sub_box_gt[k])
+                    o_iou = compute_iou_each(obj_box_dete[j], obj_box_gt[k])
+                    if (s_iou >= 0.5) and (o_iou >= 0.5):
+                        detected_gt[k] = 1
+                        N_right = N_right + 1
+                        num_right[i] = num_right[i] + 1
+
+    acc = N_right / N_total
+    print(N_right)
+    print(N_total)
+    return acc, num_right

@@ -1,4 +1,5 @@
 import os
+import shutil
 import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
@@ -39,7 +40,6 @@ def eval(model, test_dl):
 """ ======= train ======= """
 
 dataset = 'vrd'
-
 dataset_config = DatasetConfig(dataset)
 if dataset == 'vrd':
     from open_relation.dataset.vrd.label_hier.pre_hier import prenet
@@ -89,9 +89,11 @@ optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
 # optim = torch.optim.SGD(model.parameters(), lr=lr)
 
 # training process record
+shutil.rmtree('runs')
 sw = SummaryWriter()
 batch_num = 0
 best_acc = 0
+
 for epoch in range(epoch_num):
     for batch in train_dl:
         batch_num += 1
