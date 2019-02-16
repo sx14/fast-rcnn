@@ -29,13 +29,13 @@ def gen_rela_conds(det_roidb):
                 py1 = min(sbj[1], obj[1])
                 px2 = max(sbj[2], obj[2])
                 py2 = max(sbj[3], obj[3])
-                rela_temp = [px1, py1, px2, py2, -1] + sbj + obj + [-1]
+                rela_temp = [px1, py1, px2, py2, -1] + sbj.tolist() + obj.tolist() + [-1]
                 rela_cands[img_id].append(rela_temp)
     return rela_cands
 
 
 def gen_prediction(scores, raw_label_inds, mode='raw'):
-    scores = scores.cpu().data[0]
+    scores = scores.cpu().data
     ranked_inds = np.argsort(scores).tolist()
     ranked_inds.reverse()  # descending
     pred_ind = -1
@@ -120,7 +120,7 @@ lmodel.eval()
 # print(lmodel)
 
 # eval
-pred_box_label = copy.deepcopy(det_roidb)
+rela_box_label = copy.deepcopy(rela_cands)
 visual_feature_root = pre_config['visual_feature_root']
 count = 0
 for img_id in det_roidb:
@@ -142,13 +142,17 @@ for img_id in det_roidb:
         # visual prediction
         v_pre_scores, sbj_scores, obj_scores = vmodel.forward2(vf_v)
         v_pre_scores = v_pre_scores[0]
+        sbj_scores = sbj_scores[0]
+        obj_scores = obj_scores[0]
 
         # language prediction
         sbj_ind, sbj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
         sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
+        det_roidb[img_id][i][9] = sbj_ind
 
         obj_ind, obj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
         obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
+        det_roidb[img_id][i][14] = obj_ind
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
 
@@ -161,10 +165,10 @@ for img_id in det_roidb:
 
         pred_pre_ind, pred_pre_score = gen_prediction(pre_scores, raw_pre_inds, score_mode)
         pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
-        pred_box_label[img_id][i][4] = pred_pre_ind
-        pred_box_label[img_id][i].append(pred_pre_score)
+        rela_box_label[img_id][i][4] = pred_pre_ind
+        rela_box_label[img_id][i].append(pred_pre_score)
         break
 
 output_path = os.path.join(project_root, 'open_relation', 'output', dataset, 'rela_box_label.bin')
 with open(output_path, 'wb') as f:
-    pickle.dump(pred_box_label, f)
+    pickle.dump(rela_box_label, f)
