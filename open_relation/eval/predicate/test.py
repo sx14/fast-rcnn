@@ -83,7 +83,10 @@ lmodel.eval()
 # eval
 pred_box_label = copy.deepcopy(test_box_label)
 visual_feature_root = pre_config['visual_feature_root']
+count = 0
 for img_id in test_box_label:
+    count += 1
+    print('testing [%d/%d]' % (len(test_box_label.keys()), count))
     box_labels = test_box_label[img_id]
     if len(box_labels) == 0:
         continue
@@ -131,14 +134,17 @@ for img_id in test_box_label:
 
         # ====== score ======
         if score_mode == 'raw':
-            pred_pre_ind = ranked_inds[0]
-            pred_pre_label = prenet.get_node_by_index(pred_pre_ind).name()
-            pred_pre_score = pre_scores[pred_pre_ind]
-            pred_box_label[img_id][i][4] = pred_pre_label
-            pred_box_label[img_id][i].append(pred_pre_score)
+            for ind in ranked_inds:
+                if ind in raw_indexes:
+                    pred_pre_ind = ind
+                    pred_pre_label = prenet.get_node_by_index(pred_pre_ind).name()
+                    pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
+                    pred_box_label[img_id][i][4] = pred_pre_label
+                    pred_box_label[img_id][i].append(pred_pre_score)
+                    break
 
 
-output_path = os.path.join(project_root, 'output', 'pre_box_label.bin')
+output_path = os.path.join(project_root, 'open_relation', 'output', dataset,'pre_box_label.bin')
 with open(output_path, 'wb') as f:
     pickle.dump(pred_box_label, f)
 

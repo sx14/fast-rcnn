@@ -49,29 +49,32 @@ def compute_iou_each(box1, box2):
     return IoU
 
 
-def rela_recall(test_roidb, pred_roidb, N_recall):
+def rela_recall(gt_roidb, pred_roidb, N_recall):
     N_right = 0.0
     N_total = 0.0
-    N_data = len(test_roidb.keys())
+    N_data = len(gt_roidb.keys())
     num_right = np.zeros([N_data, ])
-    for image_id in test_roidb:
+    for image_id in gt_roidb:
 
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname
-        rela_gt = test_roidb[image_id][:, 4]
+        curr_gt_roidb = np.array(gt_roidb[image_id])
+
+        rela_gt = curr_gt_roidb[:, 4]
         if len(rela_gt) == 0:
             continue
-        sub_gt = test_roidb[image_id][:, 5:9]
-        obj_gt = test_roidb[image_id][:, 10:14]
-        sub_box_gt = test_roidb[image_id][:, 9]
-        obj_box_gt = test_roidb[image_id][:, 14]
+        sub_gt = curr_gt_roidb[:, 5:9]
+        obj_gt = curr_gt_roidb[:, 10:14]
+        sub_box_gt = curr_gt_roidb[:, 9]
+        obj_box_gt = curr_gt_roidb[:, 14]
 
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
-        pred_rela = pred_roidb[image_id][:, 4]
-        pred_rela_score = pred_roidb[image_id][:, -1]
-        sub_dete = pred_roidb[image_id][:, 5:9]
-        obj_dete = pred_roidb[image_id][:, 10:14]
-        sub_box_dete = pred_roidb[image_id][:, 9]
-        obj_box_dete = pred_roidb[image_id][:, 14]
+        curr_pred_roidb = np.array(pred_roidb[image_id])
+        pred_rela = curr_pred_roidb[:, 4]
+        pred_rela_score = curr_pred_roidb[:, -1]
+        sub_dete = curr_pred_roidb[:, 5:9]
+        obj_dete = curr_pred_roidb[:, 10:14]
+        sub_box_dete = curr_pred_roidb[:, 9]
+        obj_box_dete = curr_pred_roidb[:, 14]
 
         N_rela = len(rela_gt)
         N_total = N_total + N_rela
