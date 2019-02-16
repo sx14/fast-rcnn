@@ -53,7 +53,8 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
             ymin = int(o['ymin'])
             xmax = int(o['xmax'])
             ymax = int(o['ymax'])
-            obj_info.append([xmin, ymin, xmax, ymax, o['name']])
+            label_ind = objnet.get_node_by_name(o['name'])
+            obj_info.append([xmin, ymin, xmax, ymax, label_ind])
         objs[image_id] = obj_info
     with open(box_label_path, 'wb') as box_label_file:
         pickle.dump(objs, box_label_file)
@@ -101,14 +102,13 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         # prepare roidb
         # format: img_id.bin offset label_ind vrd_label_ind
         for box_id in range(0, len(curr_img_boxes)):
-            vrd_label = curr_img_boxes[box_id, 4]
-            vrd_label_ind = label2index[vrd_label]
-
+            vrd_label_ind = curr_img_boxes[box_id, 4]
             label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
 
             if dataset == 'test':
                 continue
 
+            vrd_label = objnet.get_node_by_index(vrd_label_ind).name()
             wn_leaf_label = vrd2wn[vrd_label][0]
             wn_leaf_ind = label2index[wn_leaf_label]
             label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(vrd_label_ind)+'\n')

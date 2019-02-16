@@ -59,17 +59,19 @@ def prepare_relation_boxes_and_labels(anno_root, anno_list_path, box_label_path)
         rlt_info_list = []
         for rlt in anno_rlts:
             things = [rlt['predicate'], rlt['subject'], rlt['object']]
+            labelnets = [prenet, objnet, objnet]
             # [ p_xmin, p_ymin, p_xmax, p_ymax, p_name,
             #   s_xmin, s_ymin, s_xmax, s_ymax, s_name,
             #   o_xmin, o_ymin, o_xmax, o_ymax, o_name  ]
             rlt_info = []
             # concatenate three box_label
-            for thing in things:
+            for j, thing in enumerate(things):
                 xmin = int(thing['xmin'])
                 ymin = int(thing['ymin'])
                 xmax = int(thing['xmax'])
                 ymax = int(thing['ymax'])
-                rlt_info += [xmin, ymin, xmax, ymax, thing['name']]
+                label_ind = labelnets[j].get_node_by_name(thing['name'])
+                rlt_info += [xmin, ymin, xmax, ymax, label_ind]
             rlt_info_list.append(rlt_info)
         rlts[image_id] = rlt_info_list
     with open(box_label_path, 'wb') as box_label_file:
@@ -130,8 +132,7 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         # format:
         # img_id.bin offset label_ind vrd_label_ind
         for box_id in range(0, len(curr_img_boxes)):
-            raw_label = curr_img_boxes[box_id, 4]
-            raw_label_ind = label2index[raw_label]
+            raw_label_ind = curr_img_boxes[box_id, 4]
             label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(raw_label_ind) + ' ' + str(raw_label_ind) + '\n')
 
             if dataset == 'test':

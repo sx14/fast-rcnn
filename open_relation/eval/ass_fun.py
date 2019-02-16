@@ -62,26 +62,26 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         rela_gt = curr_gt_roidb[:, 4]
         if len(rela_gt) == 0:
             continue
-        sub_gt = curr_gt_roidb[:, 5:9]
-        obj_gt = curr_gt_roidb[:, 10:14]
-        sub_box_gt = curr_gt_roidb[:, 9]
-        obj_box_gt = curr_gt_roidb[:, 14]
+        sub_box_gt = curr_gt_roidb[:, 5:9]
+        obj_box_gt = curr_gt_roidb[:, 10:14]
+        sub_gt = curr_gt_roidb[:, 9]
+        obj_gt = curr_gt_roidb[:, 14]
 
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
         curr_pred_roidb = np.array(pred_roidb[image_id])
-        pred_rela = curr_pred_roidb[:, 4]
-        pred_rela_score = curr_pred_roidb[:, -1]
-        sub_dete = curr_pred_roidb[:, 5:9]
-        obj_dete = curr_pred_roidb[:, 10:14]
-        sub_box_dete = curr_pred_roidb[:, 9]
-        obj_box_dete = curr_pred_roidb[:, 14]
+        rela_pred = curr_pred_roidb[:, 4]
+        rela_pred_score = curr_pred_roidb[:, -1]
+        sub_box_dete = curr_pred_roidb[:, 5:9]
+        obj_box_dete = curr_pred_roidb[:, 10:14]
+        sub_dete = curr_pred_roidb[:, 9]
+        obj_dete = curr_pred_roidb[:, 14]
 
         N_rela = len(rela_gt)
         N_total = N_total + N_rela
 
-        N_pred = len(pred_rela)
+        N_pred = len(rela_pred)
 
-        sort_score = np.sort(pred_rela_score)[::-1]
+        sort_score = np.sort(rela_pred_score)[::-1]
         if N_recall >= N_pred:
             thresh = -1
         else:
@@ -89,13 +89,13 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
 
         detected_gt = np.zeros([N_rela, ])
         for j in range(N_pred):
-            if pred_rela_score[j] <= thresh:
+            if rela_pred_score[j] <= thresh:
                 continue
 
             for k in range(N_rela):
                 if detected_gt[k] == 1:
                     continue
-                if (sub_gt[k] == sub_dete[j]) and (obj_gt[k] == obj_dete[j]) and (rela_gt[k] == pred_rela[j]):
+                if (sub_gt[k] == sub_dete[j]) and (obj_gt[k] == obj_dete[j]) and (rela_gt[k] == rela_pred[j]):
                     s_iou = compute_iou_each(sub_box_dete[j], sub_box_gt[k])
                     o_iou = compute_iou_each(obj_box_dete[j], obj_box_gt[k])
                     if (s_iou >= 0.5) and (o_iou >= 0.5):

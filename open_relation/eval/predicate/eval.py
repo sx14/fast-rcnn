@@ -145,12 +145,10 @@ for feature_file_id in test_box_label:
         v_ranked_inds.reverse()  # descending
 
         # language prediction
-        sbj_label = box_label[9]
-        sbj_ind = objnet.get_node_by_name(sbj_label).index()
+        sbj_ind = box_label[9]
         sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
 
-        obj_label = box_label[14]
-        obj_ind = objnet.get_node_by_name(obj_label).index()
+        obj_ind = box_label[14]
         obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
@@ -167,8 +165,9 @@ for feature_file_id in test_box_label:
         ranked_inds = np.argsort(pre_scores.cpu().data).tolist()
         ranked_inds.reverse()   # descending
 
-        gt_pre_label = box_label[4]
-        expect_ind = label2index[gt_pre_label]
+        gt_pre_ind = box_label[4]
+        gt_pre_label = prenet.get_node_by_index(gt_pre_ind)
+
         if show == 'rank':
             # ====== top predictions =====
             label_inds = raw2path[label2index[gt_pre_label]]
@@ -191,7 +190,7 @@ for feature_file_id in test_box_label:
             l_pred_rank = l_top2[0][1]
             l_pred_label = index2label[l_pred_ind]
 
-            if l_pred_ind == expect_ind:
+            if l_pred_ind == gt_pre_ind:
                 print('lan >>> T: %s (%d)' % (l_pred_label, l_pred_rank))
             else:
                 print('lan >>> F: %s (%d)' % (l_pred_label, l_pred_rank))
@@ -201,7 +200,7 @@ for feature_file_id in test_box_label:
             v_pred_rank = v_top2[0][1]
             v_pred_label = index2label[v_pred_ind]
 
-            if v_pred_ind == expect_ind:
+            if v_pred_ind == gt_pre_ind:
                 print('vis >>> T: %s (%d)' % (v_pred_label, v_pred_rank))
             else:
                 print('vis >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
@@ -210,7 +209,7 @@ for feature_file_id in test_box_label:
                 pred_ind = v_pred_ind
             else:
                 pred_ind = l_pred_ind
-            if pred_ind == expect_ind:
+            if pred_ind == gt_pre_ind:
                 T += 1
 
         else:
@@ -219,11 +218,11 @@ for feature_file_id in test_box_label:
                 print('\n===== ' + gt_pre_label + ' =====')
                 top2_pred = top2(ranked_inds, raw_indexes)
                 for t, (pred_ind, rank) in enumerate(top2_pred):
-                    if pred_ind == expect_ind and t == 0:
+                    if pred_ind == gt_pre_ind and t == 0:
                         result = 'T: '
                         T += 1
                         T_ranks.append(rank)
-                    elif pred_ind == expect_ind and t == 1:
+                    elif pred_ind == gt_pre_ind and t == 1:
                         result = 'T: '
                         T1 += 1
                     else:
@@ -235,7 +234,7 @@ for feature_file_id in test_box_label:
                 top2_pred = tree_infer2.my_infer(prenet, pre_scores.cpu().data, None, 'pre')
                 pred_ind = top2_pred[0][0]
                 pred_label = index2label[pred_ind]
-                pred_score = score_pred(pred_ind, expect_ind, pred_label, gt_pre_label, prenet)
+                pred_score = score_pred(pred_ind, gt_pre_ind, pred_label, gt_pre_label, prenet)
                 T += pred_score
                 if pred_score > 0:
                     result = str(counter).ljust(5) + ' T: '
@@ -248,7 +247,7 @@ for feature_file_id in test_box_label:
                                                    index2label[raw_top2[1][0]], raw_top2[1][1])
                 print(pred_str + cand_str)
 
-            e_p.append([expect_ind, top2_pred[0][0]])
+            e_p.append([gt_pre_ind, top2_pred[0][0]])
 
 
 print('\naccuracy: %.4f (%.4f)' % (T / counter, T_C / counter))

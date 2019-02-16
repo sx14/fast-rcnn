@@ -10,7 +10,7 @@ dataset_config = DatasetConfig(dataset)
 gt_roidb_path = os.path.join(dataset_config.extra_config['predicate'].prepare_root, 'test_box_label.bin')
 test_roidb = pickle.load(open(gt_roidb_path))
 
-pre_roidb_path = os.path.join(project_root, 'output', dataset, 'pred_box_label.bin')
+pre_roidb_path = os.path.join(project_root, 'open_relation', 'output', dataset, 'pre_box_label.bin')
 pred_roidb = pickle.load(open(pre_roidb_path))
 
 R50, num_right50 = rela_recall(test_roidb, pred_roidb, 50)
