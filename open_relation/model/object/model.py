@@ -38,4 +38,3 @@ class HypernymVisual(nn.Module):
         vf_hidden = self.hidden_layer(vfs)
         vf_embeddings = self.embedding_layer(vf_hidden)
         return vf_embeddings
-

@@ -62,8 +62,8 @@ class PredicateVisual(nn.Module):
         pre_vfs = vfs
         obj_vfs = vfs[:, -self.obj_visual_d:]
 
-        sbj_scores, sbj_embedding = self.obj_embedding(sbj_vfs)
-        obj_scores, obj_embedding = self.obj_embedding(obj_vfs)
+        sbj_scores, sbj_embedding = self.obj_embedding.forward(sbj_vfs)
+        obj_scores, obj_embedding = self.obj_embedding.forward(obj_vfs)
         pre_embedding0 = self.pre_in_embedding.embedding(pre_vfs)
 
         pre_feat = torch.cat([sbj_embedding, pre_embedding0, obj_embedding], 1)

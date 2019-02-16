@@ -8,6 +8,7 @@ class ExtraConfig:
         self.fc7_root = os.path.join(self._root, 'fc7')
         self.label_root = os.path.join(self._root, 'label')
         self.prepare_root = os.path.join(self._root, 'prepare')
+        self.det_box_path = os.path.join(self._root, 'det', 'text_box.bin')
         self.config = {
             'raw_label_list': os.path.join(self.prepare_root, 'raw_labels.txt'),
             'label_vec_path': os.path.join(open_relation.global_config.project_root, 'open_relation',
