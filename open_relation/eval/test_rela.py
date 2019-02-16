@@ -29,7 +29,7 @@ def gen_rela_conds(det_roidb):
                 py1 = min(sbj[1], obj[1])
                 px2 = max(sbj[2], obj[2])
                 py2 = max(sbj[3], obj[3])
-                rela_temp = [px1, py1, px2, py2, -1] + sbj.tolist() + obj.tolist() + [-1]
+                rela_temp = [px1, py1, px2, py2, -1] + sbj.tolist() + obj.tolist()
                 rela_cands[img_id].append(rela_temp)
     return rela_cands
 
@@ -148,11 +148,11 @@ for img_id in det_roidb:
         # language prediction
         sbj_ind, sbj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
         sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
-        det_roidb[img_id][i][9] = sbj_ind
+        rela_box_label[img_id][i][9] = sbj_ind
 
         obj_ind, obj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
         obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
-        det_roidb[img_id][i][14] = obj_ind
+        rela_box_label[img_id][i][14] = obj_ind
 
         l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
 
