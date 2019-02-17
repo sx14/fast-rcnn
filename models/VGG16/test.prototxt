@@ -31,6 +31,7 @@ layer {
     num_output: 64
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -56,6 +57,7 @@ layer {
     num_output: 64
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -92,6 +94,7 @@ layer {
     num_output: 128
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -117,6 +120,7 @@ layer {
     num_output: 128
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -153,6 +157,7 @@ layer {
     num_output: 256
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -178,6 +183,7 @@ layer {
     num_output: 256
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -203,6 +209,7 @@ layer {
     num_output: 256
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -239,6 +246,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -264,6 +272,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -289,6 +298,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -325,6 +335,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -350,6 +361,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {
@@ -375,6 +387,7 @@ layer {
     num_output: 512
     pad: 1
     kernel_size: 3
+    engine:caffe
   }
 }
 layer {

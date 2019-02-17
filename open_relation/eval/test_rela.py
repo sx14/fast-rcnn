@@ -146,15 +146,15 @@ for img_id in rela_box_label:
     img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
 
     # pre fc7
-    im_detect(cnn, img, box_label[:, :4])
+    im_detect(cnn, img, curr_img_boxes[:, :4])
     pre_fc7s = np.array(cnn.blobs['fc7'].data)
 
     # sbj fc7
-    im_detect(cnn, img, box_label[:, 5:9])
+    im_detect(cnn, img, curr_img_boxes[:, 5:9])
     sbj_fc7s = np.array(cnn.blobs['fc7'].data)
 
     # obj fc7
-    im_detect(cnn, img, box_label[:, 10:14])
+    im_detect(cnn, img, curr_img_boxes[:, 10:14])
     obj_fc7s = np.array(cnn.blobs['fc7'].data)
 
     vfs = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
