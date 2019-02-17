@@ -3,10 +3,12 @@ import copy
 import pickle
 import h5py
 import numpy as np
-import cv2
 import torch
+
+import cv2
 import caffe
 from lib.fast_rcnn.test import im_detect
+
 from open_relation import global_config
 from open_relation.model.predicate.model import PredicateVisual
 from open_relation.dataset.dataset_config import DatasetConfig
@@ -92,42 +94,41 @@ raw_obj_inds = set([obj_label2index[l] for l in objnet.get_raw_labels()])
 # load cnn
 prototxt = global_config.fast_prototxt_path
 caffemodel = global_config.fast_caffemodel_path
-datasets = ['train', 'test']
 caffe.set_mode_gpu()
 caffe.set_device(0)
-cnn = caffe.Net(prototxt, caffemodel, caffe.TEST)
+net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
 
 # load visual model with best weights
-vmodel_best_weights_path = pre_config['best_weight_path']
-vmodel = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
-                         obj_config['embedding_d'], obj_config['label_vec_path'],
-                         obj_config['best_weight_path'],
-                         pre_config['visual_d'], pre_config['hidden_d'],
-                         pre_config['embedding_d'], pre_config['label_vec_path'])
-
-if os.path.isfile(vmodel_best_weights_path):
-    vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
-    print('Loading visual model weights success.')
-else:
-    print('Weights not found !')
-    exit(1)
-vmodel.cuda()
-vmodel.eval()
-# print(vmodel)
-
-# load language model with best weights
-lmodel_best_weights_path = train_params['best_model_path']
-lmodel = RelationEmbedding(train_params['embedding_dim'] * 2,
-                           train_params['embedding_dim'], pre_label_vec_path)
-if os.path.isfile(lmodel_best_weights_path):
-    lmodel.load_state_dict(torch.load(lmodel_best_weights_path))
-    print('Loading language model weights success.')
-else:
-    print('Weights not found !')
-    exit(1)
-lmodel.cuda()
-lmodel.eval()
+# vmodel_best_weights_path = pre_config['best_weight_path']
+# vmodel = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
+#                          obj_config['embedding_d'], obj_config['label_vec_path'],
+#                          obj_config['best_weight_path'],
+#                          pre_config['visual_d'], pre_config['hidden_d'],
+#                          pre_config['embedding_d'], pre_config['label_vec_path'])
+#
+# if os.path.isfile(vmodel_best_weights_path):
+#     vmodel.load_state_dict(torch.load(vmodel_best_weights_path))
+#     print('Loading visual model weights success.')
+# else:
+#     print('Weights not found !')
+#     exit(1)
+# vmodel.cuda()
+# vmodel.eval()
+# # print(vmodel)
+#
+# # load language model with best weights
+# lmodel_best_weights_path = train_params['best_model_path']
+# lmodel = RelationEmbedding(train_params['embedding_dim'] * 2,
+#                            train_params['embedding_dim'], pre_label_vec_path)
+# if os.path.isfile(lmodel_best_weights_path):
+#     lmodel.load_state_dict(torch.load(lmodel_best_weights_path))
+#     print('Loading language model weights success.')
+# else:
+#     print('Weights not found !')
+#     exit(1)
+# lmodel.cuda()
+# lmodel.eval()
 # print(lmodel)
 
 # eval
@@ -146,57 +147,57 @@ for img_id in rela_box_label:
     img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
 
     # pre fc7
-    im_detect(cnn, img, curr_img_boxes[:, :4].astype(np.int))
-    pre_fc7s = np.array(cnn.blobs['fc7'].data)
+    im_detect(net, img, curr_img_boxes[:, :4].astype(np.int))
+    pre_fc7s = np.array(net.blobs['fc7'].data)
 
     # sbj fc7
-    im_detect(cnn, img, curr_img_boxes[:, 5:9].astype(np.int))
-    sbj_fc7s = np.array(cnn.blobs['fc7'].data)
+    im_detect(net, img, curr_img_boxes[:, 5:9].astype(np.int))
+    sbj_fc7s = np.array(net.blobs['fc7'].data)
 
     # obj fc7
-    im_detect(cnn, img, curr_img_boxes[:, 10:14].astype(np.int))
-    obj_fc7s = np.array(cnn.blobs['fc7'].data)
+    im_detect(net, img, curr_img_boxes[:, 10:14].astype(np.int))
+    obj_fc7s = np.array(net.blobs['fc7'].data)
 
     vfs = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
 
-    for i, box_label in enumerate(rela_box_label[img_id]):
-
-        # extract fc7
-
-        vf = vfs[i]
-        vf = vf[np.newaxis, :]
-        vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
-        pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
-        obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
-
-        # visual prediction
-        v_pre_scores, sbj_scores, obj_scores = vmodel.forward2(vf_v)
-        v_pre_scores = v_pre_scores[0]
-        sbj_scores = sbj_scores[0]
-        obj_scores = obj_scores[0]
-
-        # language prediction
-        sbj_ind, sbj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
-        sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
-        rela_box_label[img_id][i][9] = sbj_ind
-
-        obj_ind, obj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
-        obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
-        rela_box_label[img_id][i][14] = obj_ind
-
-        l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
-
-        if use == 'vis_only':
-            pre_scores = v_pre_scores
-        elif use == 'lan_only':
-            pre_scores = l_pre_scores
-        elif use == 'vis_lan':
-            pre_scores = v_pre_scores * 0.6 + l_pre_scores * 0.4
-
-        pred_pre_ind, pred_pre_score = gen_prediction(pre_scores, raw_pre_inds, score_mode)
-        pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
-        rela_box_label[img_id][i][4] = pred_pre_ind
-        rela_box_label[img_id][i].append(pred_pre_score)
+    # for i, box_label in enumerate(rela_box_label[img_id]):
+    #
+    #     # extract fc7
+    #
+    #     vf = vfs[i]
+    #     vf = vf[np.newaxis, :]
+    #     vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
+    #     pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
+    #     obj_lfs_v = torch.autograd.Variable(torch.from_numpy(obj_label_vecs).float()).cuda()
+    #
+    #     # visual prediction
+    #     v_pre_scores, sbj_scores, obj_scores = vmodel.forward2(vf_v)
+    #     v_pre_scores = v_pre_scores[0]
+    #     sbj_scores = sbj_scores[0]
+    #     obj_scores = obj_scores[0]
+    #
+    #     # language prediction
+    #     sbj_ind, sbj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
+    #     sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
+    #     rela_box_label[img_id][i][9] = sbj_ind
+    #
+    #     obj_ind, obj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
+    #     obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
+    #     rela_box_label[img_id][i][14] = obj_ind
+    #
+    #     l_pre_scores = lmodel(sbj_vec, obj_vec)[0]
+    #
+    #     if use == 'vis_only':
+    #         pre_scores = v_pre_scores
+    #     elif use == 'lan_only':
+    #         pre_scores = l_pre_scores
+    #     elif use == 'vis_lan':
+    #         pre_scores = v_pre_scores * 0.6 + l_pre_scores * 0.4
+    #
+    #     pred_pre_ind, pred_pre_score = gen_prediction(pre_scores, raw_pre_inds, score_mode)
+    #     pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
+    #     rela_box_label[img_id][i][4] = pred_pre_ind
+    #     rela_box_label[img_id][i].append(pred_pre_score)
 
 output_path = os.path.join(global_config.project_root, 'open_relation', 'output', dataset, 'rela_box_label.bin')
 with open(output_path, 'wb') as f:

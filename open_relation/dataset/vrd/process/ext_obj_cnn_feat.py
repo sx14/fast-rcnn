@@ -6,9 +6,11 @@ import json
 import random
 import pickle
 import numpy as np
-import caffe
+
 import cv2
+import caffe
 from lib.fast_rcnn.test import im_detect
+
 from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
@@ -148,7 +150,6 @@ def ext_cnn_feat():
     # load cnn
     prototxt = global_config.fast_prototxt_path
     caffemodel = global_config.fast_caffemodel_path
-    datasets = ['train', 'test']
     caffe.set_mode_gpu()
     caffe.set_device(0)
     net = caffe.Net(prototxt, caffemodel, caffe.TEST)
@@ -164,6 +165,8 @@ def ext_cnn_feat():
     label_save_root = dataset_config.extra_config[target].label_root
     prepare_root = dataset_config.extra_config[target].prepare_root
     fc7_save_root = dataset_config.extra_config[target].fc7_root
+
+    datasets = ['train', 'test']
     for d in datasets:
         # prepare labels and boxes
         label_save_path = os.path.join(label_save_root, d + '.txt')
