@@ -74,7 +74,7 @@ vrd_pre_hyper_params = {
     'hidden_d': 4096,
     'embedding_d': 600,
     'epoch': 200,
-    'batch_size': 256,
+    'batch_size': 64,
     'negative_label_num': 78,
     'eval_freq': 500,
     'print_freq': 10,

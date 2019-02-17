@@ -6,7 +6,7 @@ from open_relation.dataset.vrd.process.gen_label_weights import gen_label_weigth
 if __name__ == '__main__':
     # split_anno_pkg()
     # reformat_anno()
-    # ext_obj_cnn_feat.ext_cnn_feat()
-    # ext_pre_cnn_feat.ext_cnn_feat()
+    ext_obj_cnn_feat.ext_cnn_feat()
+    ext_pre_cnn_feat.ext_cnn_feat()
     # gen_label_weigths('object')
-    gen_label_weigths('predicate')
+    # gen_label_weigths('predicate')

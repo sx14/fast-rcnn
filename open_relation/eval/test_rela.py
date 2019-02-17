@@ -3,9 +3,11 @@ import copy
 import pickle
 import h5py
 import numpy as np
+import cv2
 import torch
-from matplotlib import pyplot as plt
-from open_relation.global_config import project_root
+import caffe
+from lib.fast_rcnn.test import im_detect
+from open_relation import global_config
 from open_relation.model.predicate.model import PredicateVisual
 from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
@@ -13,13 +15,12 @@ from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.language.infer.model import RelationEmbedding
 from open_relation.language.infer.lang_config import train_params
-from open_relation.infer import tree_infer2
 
 
 def gen_rela_conds(det_roidb):
-    rela_cands = {}
+    rela_cands = dict()
     for img_id in det_roidb:
-        rela_cands[img_id] = []
+        rela_cands_temp = []
         rois = det_roidb[img_id]
         for i, sbj in enumerate(rois):
             for j, obj in enumerate(rois):
@@ -30,7 +31,8 @@ def gen_rela_conds(det_roidb):
                 px2 = max(sbj[2], obj[2])
                 py2 = max(sbj[3], obj[3])
                 rela_temp = [px1, py1, px2, py2, -1] + sbj.tolist() + obj.tolist()
-                rela_cands[img_id].append(rela_temp)
+                rela_cands_temp.append(rela_temp)
+        rela_cands[img_id] = rela_cands_temp
     return rela_cands
 
 
@@ -87,6 +89,15 @@ obj_label2index = objnet.label2index()
 obj_index2label = objnet.index2label()
 raw_obj_inds = set([obj_label2index[l] for l in objnet.get_raw_labels()])
 
+# load cnn
+prototxt = global_config.fast_prototxt_path
+caffemodel = global_config.fast_caffemodel_path
+datasets = ['train', 'test']
+caffe.set_mode_gpu()
+caffe.set_device(0)
+cnn = caffe.Net(prototxt, caffemodel, caffe.TEST)
+
+
 # load visual model with best weights
 vmodel_best_weights_path = pre_config['best_weight_path']
 vmodel = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
@@ -121,19 +132,33 @@ lmodel.eval()
 
 # eval
 rela_box_label = copy.deepcopy(rela_cands)
-visual_feature_root = pre_config['visual_feature_root']
+img_root = dataset_config.data_config['img_root']
 count = 0
-for img_id in det_roidb:
+for img_id in rela_box_label:
     count += 1
-    print('testing [%d/%d]' % (len(det_roidb.keys()), count))
-    box_labels = det_roidb[img_id]
+    print('testing [%d/%d]' % (len(rela_box_label.keys()), count))
+    box_labels = rela_box_label[img_id]
     if len(box_labels) == 0:
         continue
-    feature_file_name = img_id + '.bin'
-    feature_file_path = os.path.join(visual_feature_root, feature_file_name)
-    features = pickle.load(open(feature_file_path, 'rb'))
-    for i, box_label in enumerate(det_roidb[img_id]):
-        vf = features[i]
+
+    for i, box_label in enumerate(rela_box_label[img_id]):
+        # extract fc7
+        img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
+
+        # pre fc7
+        im_detect(cnn, img, box_label[:, :4])
+        pre_fc7s = np.array(cnn.blobs['fc7'].data)
+
+        # sbj fc7
+        im_detect(cnn, img, box_label[:, 5:9])
+        sbj_fc7s = np.array(cnn.blobs['fc7'].data)
+
+        # obj fc7
+        im_detect(cnn, img, box_label[:, 10:14])
+        obj_fc7s = np.array(cnn.blobs['fc7'].data)
+
+        vf = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
+
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
@@ -167,8 +192,7 @@ for img_id in det_roidb:
         pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
         rela_box_label[img_id][i][4] = pred_pre_ind
         rela_box_label[img_id][i].append(pred_pre_score)
-        break
 
-output_path = os.path.join(project_root, 'open_relation', 'output', dataset, 'rela_box_label.bin')
+output_path = os.path.join(global_config.project_root, 'open_relation', 'output', dataset, 'rela_box_label.bin')
 with open(output_path, 'wb') as f:
     pickle.dump(rela_box_label, f)

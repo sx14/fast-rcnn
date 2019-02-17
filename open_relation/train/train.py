@@ -8,14 +8,15 @@ from open_relation.model.predicate.model import PredicateVisual
 from open_relation.model.order_func import order_softmax_test
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet as vrd_objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet as vrd_prenet
-from open_relation.dataset.vg.label_hier.obj_hier import objnet as vg_objnet
-from open_relation.dataset.vg.label_hier.pre_hier import prenet as vg_prenet
+# from open_relation.dataset.vg.label_hier.obj_hier import objnet as vg_objnet
+# from open_relation.dataset.vg.label_hier.pre_hier import prenet as vg_prenet
 from train_config import hyper_params
 
 
 labelnets = {
     'vrd': {'object': vrd_objnet, 'predicate': vrd_prenet},
-    'vg': {'object': vg_objnet, 'predicate': vg_prenet},}
+    # 'vg': {'object': vg_objnet, 'predicate': vg_prenet},
+}
 
 
 def eval(dataset, model):
@@ -109,10 +110,10 @@ optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
                          {'params': bias_p, 'weight_decay': 0}], lr=config['lr'])
 
 # recorders
+shutil.rmtree('runs')
 batch_counter = 0
 best_acc = 0.0
 sw = SummaryWriter()
-shutil.rmtree('runs')
 
 # training
 for e in range(0, config['epoch']):

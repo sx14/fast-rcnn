@@ -46,15 +46,15 @@ def top2(ranked_inds, raw_indexes):
 dataset = 'vrd'
 
 # use = 'vis_only'
-use = 'lan_only'
-# use = 'vis_lan'
+# use = 'lan_only'
+use = 'vis_lan'
 
 show = 'score'
 # show = 'rank'
 # show = 'v_l'
 
-# score_mode = 'raw'
-score_mode = 'hier'
+score_mode = 'raw'
+# score_mode = 'hier'
 
 
 # prepare data
