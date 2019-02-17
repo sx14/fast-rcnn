@@ -90,9 +90,13 @@ for img_id in test_box_label:
     box_labels = test_box_label[img_id]
     if len(box_labels) == 0:
         continue
+
+
     feature_file_name = img_id + '.bin'
     feature_file_path = os.path.join(visual_feature_root, feature_file_name)
     features = pickle.load(open(feature_file_path, 'rb'))
+
+
     for i, box_label in enumerate(test_box_label[img_id]):
         vf = features[i]
         vf = vf[np.newaxis, :]

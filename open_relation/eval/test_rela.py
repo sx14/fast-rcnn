@@ -141,24 +141,29 @@ for img_id in rela_box_label:
     if len(box_labels) == 0:
         continue
 
+    # extract cnn feats
+    curr_img_boxes = np.array(box_labels)
+    img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
+
+    # pre fc7
+    im_detect(cnn, img, box_label[:, :4])
+    pre_fc7s = np.array(cnn.blobs['fc7'].data)
+
+    # sbj fc7
+    im_detect(cnn, img, box_label[:, 5:9])
+    sbj_fc7s = np.array(cnn.blobs['fc7'].data)
+
+    # obj fc7
+    im_detect(cnn, img, box_label[:, 10:14])
+    obj_fc7s = np.array(cnn.blobs['fc7'].data)
+
+    vfs = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
+
     for i, box_label in enumerate(rela_box_label[img_id]):
+
         # extract fc7
-        img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
 
-        # pre fc7
-        im_detect(cnn, img, box_label[:, :4])
-        pre_fc7s = np.array(cnn.blobs['fc7'].data)
-
-        # sbj fc7
-        im_detect(cnn, img, box_label[:, 5:9])
-        sbj_fc7s = np.array(cnn.blobs['fc7'].data)
-
-        # obj fc7
-        im_detect(cnn, img, box_label[:, 10:14])
-        obj_fc7s = np.array(cnn.blobs['fc7'].data)
-
-        vf = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
-
+        vf = vfs[i]
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         pre_lfs_v = torch.autograd.Variable(torch.from_numpy(pre_label_vecs).float()).cuda()
