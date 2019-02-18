@@ -15,6 +15,7 @@ from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
+from open_relation.dataset.lib.ext_cnn_feat import ext_cnn_feat
 
 
 def cal_sample_ratio(label2index, vrd2path, box_labels):
@@ -93,9 +94,12 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
 
         if not os.path.exists(feature_path):
             # extract fc7
-            img = cv2.imread(os.path.join(img_root, image_id+'.jpg'))
-            im_detect(net, img, curr_img_boxes[:, :4])
-            fc7s = np.array(net.blobs['fc7'].data)
+            img_path = os.path.join(img_root, image_id+'.jpg')
+            fc7s = ext_cnn_feat(net, img_path, curr_img_boxes)
+
+            # img = cv2.imread(img_path)
+            # im_detect(net, img, curr_img_boxes[:, :4])
+            # fc7s = np.array(net.blobs['fc7'].data)
 
             # dump feature file
             with open(feature_path, 'w') as feature_file:
@@ -146,13 +150,14 @@ def split_a_small_val(val_list_path, length, small_val_path):
         small_val_file.writelines(small_val)
 
 
-def ext_cnn_feat():
+def gen_cnn_feat():
     # load cnn
-    prototxt = global_config.fast_prototxt_path
-    caffemodel = global_config.fast_caffemodel_path
-    caffe.set_mode_gpu()
-    caffe.set_device(0)
-    net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+    # prototxt = global_config.fast_prototxt_path
+    # caffemodel = global_config.fast_caffemodel_path
+    # caffe.set_mode_gpu()
+    # caffe.set_device(0)
+    # net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+
 
     # prepare
     dataset_config = DatasetConfig('vrd')

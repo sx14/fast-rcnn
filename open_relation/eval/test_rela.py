@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import cv2
 import torch
-from lib.fast_rcnn.test import im_detect
+
 from open_relation import global_config
 from open_relation.model.predicate.model import PredicateVisual
 from open_relation.dataset.dataset_config import DatasetConfig

@@ -171,7 +171,7 @@ def split_a_small_val(val_list_path, length, small_val_path):
         small_val_file.writelines(small_val)
 
 
-def ext_cnn_feat():
+def gen_cnn_feat():
     # load cnn
     prototxt = global_config.fast_prototxt_path
     caffemodel = global_config.fast_caffemodel_path
