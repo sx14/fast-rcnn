@@ -152,11 +152,11 @@ def split_a_small_val(val_list_path, length, small_val_path):
 
 def gen_cnn_feat():
     # load cnn
-    # prototxt = global_config.fast_prototxt_path
-    # caffemodel = global_config.fast_caffemodel_path
-    # caffe.set_mode_gpu()
-    # caffe.set_device(0)
-    # net = caffe.Net(prototxt, caffemodel, caffe.TEST)
+    prototxt = global_config.fast_prototxt_path
+    caffemodel = global_config.fast_caffemodel_path
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+    net = caffe.Net(prototxt, caffemodel, caffe.TEST)
 
 
     # prepare

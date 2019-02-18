@@ -10,5 +10,6 @@ global_config.py
 *.npz
 runs
 
+*.jpg
 /VRD
 /VG
