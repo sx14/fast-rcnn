@@ -134,16 +134,37 @@ for img_id in rela_box_label:
     if len(box_labels) == 0:
         continue
 
+    img_path = os.path.join(img_root, img_id + '.jpg')
+
     # extract cnn feats
     curr_img_boxes = np.array(box_labels)
-    img = cv2.imread(os.path.join(img_root, img_id + '.jpg'))
+    # pre, sbj, obj
+    boxes_all = np.concatenate((curr_img_boxes[:, :4], curr_img_boxes[:, 5:9], curr_img_boxes[:, 10:14]))
+    temp_box_path = 'temp_box.bin'
+    temp_fc7_path = 'temp_fc7.bin'
+    pickle.dump(boxes_all, open(temp_box_path, 'wb'))
 
-    # pre fc7
-    pre_fc7s = ext_cnn_feat(img, curr_img_boxes[:, :4])
-    # sbj fc7
-    sbj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 5:9])
-    # obj fc7
-    obj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 10:14])
+    cmd = ' '.join(['python',
+                    'ext_fc7.py',
+                    img_path,
+                    temp_box_path,
+                    temp_fc7_path])
+    os.popen(cmd)
+    fc7_all = pickle.load(open(temp_fc7_path))
+
+    box_n = curr_img_boxes.size()[0]
+    pre_fc7s = fc7_all[:box_n]
+    sbj_fc7s = fc7_all[box_n:box_n*2]
+    obj_fc7s = fc7_all[box_n*2:box_n*3]
+
+    # img = cv2.imread(img_path)
+    # # pre fc7
+    # pre_fc7s = ext_cnn_feat(img, curr_img_boxes[:, :4])
+    # # sbj fc7
+    # sbj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 5:9])
+    # # obj fc7
+    # obj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 10:14])
+    print('fc7 done')
 
     vfs = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
 
