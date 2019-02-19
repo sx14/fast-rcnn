@@ -49,9 +49,9 @@ use = 'vis_only'
 # use = 'lan_only'
 # use = 'vis_lan'
 
-show = 'score'
+# show = 'score'
 # show = 'rank'
-# show = 'v_l'
+show = 'v_vs_l'
 
 score_mode = 'raw'
 # score_mode = 'hier'
@@ -181,7 +181,7 @@ for feature_file_id in test_box_label:
                 print('%s : %f' % (index2label[p], v_pre_scores[p]))
             if counter == 100:
                 exit(0)
-        elif show == 'v_l':
+        elif show == 'v_vs_l':
             # ====== vis prediction =====
             # ====== lan prediction =====
             print('\n===== ' + gt_pre_label + ' =====')
@@ -191,9 +191,9 @@ for feature_file_id in test_box_label:
             l_pred_label = index2label[l_pred_ind]
 
             if l_pred_ind == gt_pre_ind:
-                print('lan >>> T: %s (%d)' % (l_pred_label, l_pred_rank))
+                print('L >>> T: %s (%d)' % (l_pred_label, l_pred_rank))
             else:
-                print('lan >>> F: %s (%d)' % (l_pred_label, l_pred_rank))
+                print('L >>> F: %s (%d)' % (l_pred_label, l_pred_rank))
 
             v_top2 = top2(v_ranked_inds, raw_indexes)
             v_pred_ind = v_top2[0][0]
@@ -201,9 +201,9 @@ for feature_file_id in test_box_label:
             v_pred_label = index2label[v_pred_ind]
 
             if v_pred_ind == gt_pre_ind:
-                print('vis >>> T: %s (%d)' % (v_pred_label, v_pred_rank))
+                print('V >>> T: %s (%d)' % (v_pred_label, v_pred_rank))
             else:
-                print('vis >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
+                print('V >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
 
             if v_pred_rank > l_pred_rank:
                 pred_ind = v_pred_ind
