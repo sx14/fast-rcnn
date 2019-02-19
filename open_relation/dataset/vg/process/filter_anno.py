@@ -33,7 +33,7 @@ def filter_anno():
 
         # keep relationships whose sbj,obj,pre are in label set
         clean_relations = []
-        dirty_relations = dirty_anno['relations']
+        dirty_relations = dirty_anno['relationships']
         for d_rlt in dirty_relations:
             keep_rlt = True
             r_objs = [d_rlt['subject'], d_rlt['object']]
@@ -56,7 +56,7 @@ def filter_anno():
         # save cleaned json anno
         clean_anno = dict()
         clean_anno['objects'] = clean_objects
-        clean_anno['relations'] = clean_relations
+        clean_anno['relationships'] = clean_relations
         clean_anno['image_info'] = dirty_anno['image_info']
 
         clean_anno_path = os.path.join(clean_anno_root, anno_name)

@@ -23,13 +23,13 @@ def ext_cnn_feat(im, boxes):
     return fc7s
 
 
-if __name__ == '__init__':
-    args = sys.argv
-    img_path = args[1]
-    temp_box_name = args[2]
-    temp_fc7_name = args[3]
 
-    boxes = np.load(temp_box_name+'.npy')
-    im = cv2.imread(img_path)
-    fc7 = ext_cnn_feat(im, boxes)
-    np.save(temp_fc7_name, fc7)
+args = sys.argv
+img_path = args[1]
+temp_box_name = args[2]
+temp_fc7_name = args[3]
+
+boxes = np.load(temp_box_name+'.npy')
+im = cv2.imread(img_path)
+fc7 = ext_cnn_feat(im, boxes)
+np.save(temp_fc7_name, fc7)

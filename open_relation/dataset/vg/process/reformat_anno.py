@@ -154,7 +154,7 @@ def wash_anno(dirty_anno_path, clean_anno_path):
 
     clean_anno['image_info'] = dirty_anno['image_info']
     clean_anno['objects'] = id2obj.values()
-    clean_anno['relations'] = id2rlt.values()
+    clean_anno['relationships'] = id2rlt.values()
     json.dump(clean_anno, open(clean_anno_path, 'w'), indent=4)
 
 

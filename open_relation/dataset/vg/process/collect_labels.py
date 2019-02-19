@@ -35,7 +35,7 @@ def count():
             else:
                 obj2wn[name] = synsets
 
-        relations = anno['relations']
+        relations = anno['relationships']
         for rlt in relations:
             synsets = set(rlt['predicate']['synsets'])
             predicate = rlt['predicate']['name']
