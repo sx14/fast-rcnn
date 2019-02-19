@@ -116,11 +116,11 @@ lmodel.eval()
 # simple TF counter
 counter = 0
 T = 0.0
-T1 = 0.0
-T_C = 0.0
+T_pot = 0.0
+T_one = 0.0
+VT_LF = 0.0
 # expected -> actual
 e_p = []
-T_ranks = []
 
 visual_feature_root = pre_config['visual_feature_root']
 for feature_file_id in test_box_label:
@@ -185,13 +185,15 @@ for feature_file_id in test_box_label:
             # ====== vis prediction =====
             # ====== lan prediction =====
             print('\n===== ' + gt_pre_label + ' =====')
+            T_temp = 0
+
             l_top2 = top2(l_ranked_inds, raw_indexes)
             l_pred_ind = l_top2[0][0]
             l_pred_rank = l_top2[0][1]
             l_pred_label = index2label[l_pred_ind]
-
             if l_pred_ind == gt_pre_ind:
                 print('L >>> T: %s (%d)' % (l_pred_label, l_pred_rank))
+                T_temp = 1
             else:
                 print('L >>> F: %s (%d)' % (l_pred_label, l_pred_rank))
 
@@ -199,18 +201,15 @@ for feature_file_id in test_box_label:
             v_pred_ind = v_top2[0][0]
             v_pred_rank = v_top2[0][1]
             v_pred_label = index2label[v_pred_ind]
-
             if v_pred_ind == gt_pre_ind:
                 print('V >>> T: %s (%d)' % (v_pred_label, v_pred_rank))
+                T_temp = 1
+
             else:
                 print('V >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
 
-            if v_pred_rank > l_pred_rank:
-                pred_ind = v_pred_ind
-            else:
-                pred_ind = l_pred_ind
-            if pred_ind == gt_pre_ind:
-                T += 1
+            T += T_temp
+
 
         else:
             # ====== score ======
@@ -221,10 +220,9 @@ for feature_file_id in test_box_label:
                     if pred_ind == gt_pre_ind and t == 0:
                         result = 'T: '
                         T += 1
-                        T_ranks.append(rank)
                     elif pred_ind == gt_pre_ind and t == 1:
                         result = 'T: '
-                        T1 += 1
+                        T_pot += 1
                     else:
                         result = 'F: '
                     print(result + index2label[pred_ind] + '(' + str(rank) + ')')
@@ -238,7 +236,7 @@ for feature_file_id in test_box_label:
                 T += pred_score
                 if pred_score > 0:
                     result = str(counter).ljust(5) + ' T: '
-                    T_C += 1
+                    T_one += 1
                 else:
                     result = str(counter).ljust(5) + ' F: '
 
@@ -250,6 +248,6 @@ for feature_file_id in test_box_label:
             e_p.append([gt_pre_ind, top2_pred[0][0]])
 
 
-print('\naccuracy: %.4f (%.4f)' % (T / counter, T_C / counter))
-print('potential accuracy increment: %.4f' % (T1 / counter))
+print('\naccuracy: %.4f (%.4f)' % (T / counter, T_one / counter))
+print('potential accuracy increment: %.4f' % (T_pot / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
