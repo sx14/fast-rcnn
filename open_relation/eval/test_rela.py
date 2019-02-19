@@ -14,7 +14,7 @@ from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.language.infer.model import RelationEmbedding
 from open_relation.language.infer.lang_config import train_params
-from relationship.ext_cnn_feat import ext_cnn_feat
+# from relationship.ext_cnn_feat import ext_cnn_feat
 
 def gen_rela_conds(det_roidb):
     rela_cands = dict()
@@ -138,33 +138,24 @@ for img_id in rela_box_label:
 
     # extract cnn feats
     curr_img_boxes = np.array(box_labels)
-    # pre, sbj, obj
+    temp_box_name = 'temp_box'
+    temp_fc7_name = 'temp_fc7'
     boxes_all = np.concatenate((curr_img_boxes[:, :4], curr_img_boxes[:, 5:9], curr_img_boxes[:, 10:14]))
-    temp_box_path = 'temp_box.bin'
-    temp_fc7_path = 'temp_fc7.bin'
-    pickle.dump(boxes_all, open(temp_box_path, 'wb'))
+    np.save(temp_box_name, boxes_all)
 
     cmd = ' '.join(['python',
-                    'ext_fc7.py',
+                    'proc_ext_fc7.py',
                     img_path,
-                    temp_box_path,
-                    temp_fc7_path])
-    os.popen(cmd)
-    fc7_all = pickle.load(open(temp_fc7_path))
+                    temp_box_name,
+                    temp_fc7_name])
 
-    box_n = curr_img_boxes.size()[0]
+    os.popen(cmd)
+    fc7_all = np.load(temp_fc7_name+'.npy')
+
+    box_n = curr_img_boxes.shape[0]
     pre_fc7s = fc7_all[:box_n]
     sbj_fc7s = fc7_all[box_n:box_n*2]
     obj_fc7s = fc7_all[box_n*2:box_n*3]
-
-    # img = cv2.imread(img_path)
-    # # pre fc7
-    # pre_fc7s = ext_cnn_feat(img, curr_img_boxes[:, :4])
-    # # sbj fc7
-    # sbj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 5:9])
-    # # obj fc7
-    # obj_fc7s = ext_cnn_feat(img, curr_img_boxes[:, 10:14])
-    print('fc7 done')
 
     vfs = np.concatenate((sbj_fc7s, pre_fc7s, obj_fc7s), axis=1)
 
