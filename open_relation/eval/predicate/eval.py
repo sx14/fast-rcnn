@@ -193,7 +193,6 @@ for feature_file_id in test_box_label:
             l_pred_label = index2label[l_pred_ind]
             if l_pred_ind == gt_pre_ind:
                 print('L >>> T: %s (%d)' % (l_pred_label, l_pred_rank))
-                T_temp = 1
             else:
                 print('L >>> F: %s (%d)' % (l_pred_label, l_pred_rank))
 
@@ -203,13 +202,16 @@ for feature_file_id in test_box_label:
             v_pred_label = index2label[v_pred_ind]
             if v_pred_ind == gt_pre_ind:
                 print('V >>> T: %s (%d)' % (v_pred_label, v_pred_rank))
-                T_temp = 1
-
             else:
                 print('V >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
 
-            T += T_temp
+            if v_pred_rank - l_pred_rank > 4:
+                pred_label = v_pred_label
+            else:
+                pred_label = l_pred_label
 
+            if pred_label == gt_pre_label:
+                T += 1
 
         else:
             # ====== score ======
