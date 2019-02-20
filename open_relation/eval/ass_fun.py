@@ -53,6 +53,7 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
     N_right = 0.0
     N_total = 0.0
     N_data = len(gt_roidb.keys())
+    N_box_goot = 0.0
     num_right = {}
     for image_id in gt_roidb:
         num_right[image_id] = 0
@@ -66,6 +67,8 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         obj_box_gt = curr_gt_roidb[:, 10:14]
         sub_gt = curr_gt_roidb[:, 9]
         obj_gt = curr_gt_roidb[:, 14]
+        box_gt = np.concatenate(sub_gt, obj_gt)
+        box_gt = np.unique(box_gt)
 
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
         curr_pred_roidb = np.array(pred_roidb[image_id])
@@ -80,6 +83,15 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         N_total = N_total + N_rela
 
         N_pred = len(rela_pred)
+
+        for b in range(box_gt.shape[0]):
+            gt = box_gt[b]
+            for o in range(sub_box_dete.shape[0]):
+                det = sub_box_dete[o]
+                if compute_iou_each(gt, det) > 0.5:
+                    N_box_goot += 1
+
+
 
         sort_score = np.sort(rela_pred_score)[::-1]
         if N_recall >= N_pred:
@@ -103,5 +115,6 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
                         N_right = N_right + 1
                         num_right[image_id] = num_right[image_id] + 1
 
+    print('proposal recall: %.4f' % (N_box_goot / N_total))
     acc = N_right / N_total
     return acc, num_right

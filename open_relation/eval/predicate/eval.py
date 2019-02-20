@@ -49,12 +49,12 @@ use = 'vis_only'
 # use = 'lan_only'
 # use = 'vis_lan'
 
-# show = 'score'
+show = 'score'
 # show = 'rank'
-show = 'v_vs_l'
+# show = 'v_vs_l'
 
-score_mode = 'raw'
-# score_mode = 'hier'
+# score_mode = 'raw'
+score_mode = 'hier'
 
 
 # prepare data
@@ -205,7 +205,7 @@ for feature_file_id in test_box_label:
             else:
                 print('V >>> F: %s (%d)' % (v_pred_label, v_pred_rank))
 
-            if v_pred_rank - l_pred_rank > 4:
+            if l_pred_rank - v_pred_rank > 3:
                 pred_label = v_pred_label
             else:
                 pred_label = l_pred_label

@@ -7,23 +7,23 @@ from open_relation.dataset.dataset_config import DatasetConfig
 
 def show_boxes(im, dets, cls):
     """Draw detected bounding boxes."""
-    fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal')
     for i in range(0, len(dets)):
+        fig, ax = plt.subplots(figsize=(12, 12))
+        ax.imshow(im, aspect='equal')
         bbox = dets[i]
         ax.add_patch(
             plt.Rectangle((bbox[0], bbox[1]),
                           bbox[2],
                           bbox[3], fill=False,
                           edgecolor='red', linewidth=1.5)
-            )
+        )
         ax.text(bbox[0], bbox[1] - 2,
                 '{}'.format(cls[i]),
                 bbox=dict(facecolor='blue', alpha=0.5),
                 fontsize=14, color='white')
-    plt.axis('off')
-    plt.tight_layout()
-    plt.show()
+        plt.axis('off')
+        plt.tight_layout()
+        plt.show()
 
 
 def get_pres(img_root, anno_root, img_name):
@@ -56,16 +56,16 @@ def get_objs(img_root, anno_root, img_name):
     return im, cls, boxes
 
 
-if __name__ == '__main__':
-    dataset_config = DatasetConfig('vg')
-    target = 'object'
-
-    img_root = dataset_config.data_config['img_root']
-    anno_root = dataset_config.data_config['clean_anno_root']
-    img_id = '1'
-    for img_name in os.listdir(img_root):
-        if target == 'object':
-            im, cls, boxes = get_objs(img_root, anno_root, img_name)
-        else:
-            im, cls, boxes = get_pres(img_root, anno_root, img_name)
-        show_boxes(im, boxes, cls)
+# if __name__ == '__main__':
+#     dataset_config = DatasetConfig('vg')
+#     target = 'object'
+#
+#     img_root = dataset_config.data_config['img_root']
+#     anno_root = dataset_config.data_config['clean_anno_root']
+#     img_id = '1'
+#     for img_name in os.listdir(img_root):
+#         if target == 'object':
+#             im, cls, boxes = get_objs(img_root, anno_root, img_name)
+#         else:
+#             im, cls, boxes = get_pres(img_root, anno_root, img_name)
+#         show_boxes(im, boxes, cls)
