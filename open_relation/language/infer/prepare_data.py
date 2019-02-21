@@ -27,15 +27,19 @@ def collect_raw_rlts(anno_root, id_list_path, rlt_save_path):
         anno_path = os.path.join(anno_root, anno_list[i]+'.json')
         anno = json.load(open(anno_path, 'r'))
         anno_rlts = anno['relations']
-
         for rlt in anno_rlts:
             anno_obj = rlt['object']
             anno_sbj = rlt['subject']
             anno_pre = rlt['predicate']
+            # print('<%s, %s, %s>' % (anno_sbj['name'], anno_pre['name'], anno_obj['name']))
             obj_ind = objnet.get_node_by_name(anno_obj['name']).index()
             sbj_ind = objnet.get_node_by_name(anno_sbj['name']).index()
             pre_ind = prenet.get_node_by_name(anno_pre['name']).index()
             raw_rlts.append([sbj_ind, pre_ind, obj_ind, pre_ind])
+            # negative
+            if obj_ind != sbj_ind:
+                no_relation_ind = prenet.get_node_by_index('__background__').index()
+                raw_rlts.append([obj_ind, no_relation_ind, sbj_ind, no_relation_ind])
     raw_rlts = np.array(raw_rlts)
     np.save(rlt_save_path, raw_rlts)
     return raw_rlts

@@ -17,12 +17,14 @@ from open_relation.language.infer.model import RelationEmbedding
 from open_relation.language.infer.lang_config import train_params
 # from relationship.ext_cnn_feat import ext_cnn_feat
 
+
 def load_vrd_det_boxes(vrd_box_path, vrd_img_path):
     import scipy.io as sio
     vrd_boxes = sio.loadmat(vrd_box_path)['detection_bboxes'][0]
     vrd_confs = sio.loadmat(vrd_box_path)['detection_confs'][0]
     vrd_imgs = sio.loadmat(vrd_img_path)['imagePath'][0]
     det_roidb = dict()
+    a = vrd_imgs[591]
     for i in range(vrd_imgs.shape[0]):
         img = vrd_imgs[i][0]
         img_id = img.split('.')[0]
@@ -153,11 +155,10 @@ count = 0
 for img_id in rela_box_label:
     count += 1
     print('testing [%d/%d]' % (len(rela_box_label.keys()), count))
-    box_labels = rela_box_label[img_id]
-    if len(box_labels) == 0:
-        continue
-
     img_path = os.path.join(img_root, img_id + '.jpg')
+    box_labels = rela_box_label[img_id]
+    if len(box_labels) == 0 or not os.path.exists(img_path):
+        continue
 
     # extract cnn feats
     curr_img_boxes = np.array(box_labels)
@@ -165,16 +166,12 @@ for img_id in rela_box_label:
     temp_fc7_name = 'temp_fc7'
     boxes_all = np.concatenate((curr_img_boxes[:, :4], curr_img_boxes[:, 5:9], curr_img_boxes[:, 10:14]))
     np.save(temp_box_name, boxes_all)
-
-    print(os.getcwd())
     cmd = ' '.join(['python',
                     'proc_ext_fc7.py',
                     img_path,
                     temp_box_name,
                     temp_fc7_name])
-
     os.popen(cmd)
-
     fc7_all = np.load(temp_fc7_name+'.npy')
 
     box_n = curr_img_boxes.shape[0]

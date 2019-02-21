@@ -50,8 +50,8 @@ def count():
 
 
     counters = {
-        'object': (obj_counter, obj2wn, 1000),
-        'predicate': (pre_counter, pre2wn, 500)
+        'object': (obj_counter, obj2wn, 10000),
+        'predicate': (pre_counter, pre2wn, 5000)
     }
 
     return counters
