@@ -53,8 +53,8 @@ show = 'score'
 # show = 'rank'
 # show = 'v_vs_l'
 
-# score_mode = 'raw'
-score_mode = 'hier'
+score_mode = 'raw'
+# score_mode = 'hier'
 
 
 # prepare data

@@ -54,6 +54,7 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
     N_total = 0.0
     N_data = len(gt_roidb.keys())
     N_box_goot = 0.0
+    N_det_goot = 0.0
     num_right = {}
     for image_id in gt_roidb:
         num_right[image_id] = 0
@@ -63,21 +64,22 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         if len(curr_gt_roidb) == 0:
             continue
         rela_gt = curr_gt_roidb[:, 4]
-        sub_box_gt = curr_gt_roidb[:, 5:9]
-        obj_box_gt = curr_gt_roidb[:, 10:14]
+        sub_box_gt = curr_gt_roidb[:, 5:10]
+        obj_box_gt = curr_gt_roidb[:, 10:15]
         sub_gt = curr_gt_roidb[:, 9]
         obj_gt = curr_gt_roidb[:, 14]
-        box_gt = np.concatenate(sub_gt, obj_gt)
-        box_gt = np.unique(box_gt)
+        box_gt = np.concatenate((sub_box_gt, obj_box_gt))
+        box_gt = np.unique(box_gt, axis=0)
 
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
         curr_pred_roidb = np.array(pred_roidb[image_id])
         rela_pred = curr_pred_roidb[:, 4]
         rela_pred_score = curr_pred_roidb[:, -1]
-        sub_box_dete = curr_pred_roidb[:, 5:9]
-        obj_box_dete = curr_pred_roidb[:, 10:14]
+        sub_box_dete = curr_pred_roidb[:, 5:10]
+        obj_box_dete = curr_pred_roidb[:, 10:15]
         sub_dete = curr_pred_roidb[:, 9]
         obj_dete = curr_pred_roidb[:, 14]
+        box_det = np.unique(sub_box_dete, axis=0)
 
         N_rela = len(rela_gt)
         N_total = N_total + N_rela
@@ -86,10 +88,17 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
 
         for b in range(box_gt.shape[0]):
             gt = box_gt[b]
-            for o in range(sub_box_dete.shape[0]):
-                det = sub_box_dete[o]
+            box_hit = 0
+            det_hit = 0
+            for o in range(box_det.shape[0]):
+                det = box_det[o]
                 if compute_iou_each(gt, det) > 0.5:
-                    N_box_goot += 1
+                    box_hit = 1
+                    if gt[4] == det[4]:
+                        det_hit = 1
+
+            N_box_goot += box_hit
+            N_det_goot += det_hit
 
 
 

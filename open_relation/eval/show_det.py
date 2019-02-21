@@ -20,7 +20,7 @@ for img_id in det_roidb:
     im = cv2.imread(img_path)
     dets = det_roidb[img_id]
     dets_temp = np.copy(dets)
-    dets_temp[:, 2] = dets[:, 2] - dets[:, 0]
-    dets_temp[:, 3] = dets[:, 3] - dets[:, 1]
+    dets_temp[:, 2] = dets[:, 2] - dets[:, 0]   # width
+    dets_temp[:, 3] = dets[:, 3] - dets[:, 1]   # height
     confs = dets[:, 4]
     show_boxes(im, dets_temp[:, :4], confs)

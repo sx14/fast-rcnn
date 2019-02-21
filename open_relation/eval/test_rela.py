@@ -1,5 +1,6 @@
 import os
 import copy
+import subprocess
 import pickle
 import h5py
 import numpy as np
@@ -15,6 +16,22 @@ from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.language.infer.model import RelationEmbedding
 from open_relation.language.infer.lang_config import train_params
 # from relationship.ext_cnn_feat import ext_cnn_feat
+
+def load_vrd_det_boxes(vrd_box_path, vrd_img_path):
+    import scipy.io as sio
+    vrd_boxes = sio.loadmat(vrd_box_path)['detection_bboxes'][0]
+    vrd_confs = sio.loadmat(vrd_box_path)['detection_confs'][0]
+    vrd_imgs = sio.loadmat(vrd_img_path)['imagePath'][0]
+    det_roidb = dict()
+    for i in range(vrd_imgs.shape[0]):
+        img = vrd_imgs[i][0]
+        img_id = img.split('.')[0]
+        boxes = vrd_boxes[i]
+        confs = vrd_confs[i]
+        roidb = np.concatenate((boxes, confs), axis=1)
+        det_roidb[img_id] = roidb
+    return det_roidb
+
 
 def gen_rela_conds(det_roidb):
     rela_cands = dict()
@@ -50,6 +67,7 @@ def gen_prediction(scores, raw_label_inds, mode='raw'):
     return pred_ind, pred_score
 
 
+
 dataset = 'vrd'
 
 # use = 'vis_only'
@@ -63,10 +81,15 @@ score_mode = 'raw'
 dataset_config = DatasetConfig(dataset)
 pre_config = hyper_params[dataset]['predicate']
 obj_config = hyper_params[dataset]['object']
-det_roidb_path = dataset_config.extra_config['object'].det_box_path
-det_roidb = pickle.load(open(det_roidb_path))
-rela_cands = gen_rela_conds(det_roidb)
+# proposals from faster-rcnn
+# det_roidb_path = dataset_config.extra_config['object'].det_box_path
+# det_roidb = pickle.load(open(det_roidb_path))
+# proposals from vrd
+vrd_box_path = os.path.join(dataset_config.extra_config['object'].root, 'det', 'vrd_det_box.mat')
+vrd_img_path = os.path.join(dataset_config.extra_config['object'].root, 'det', 'vrd_img_path.mat')
+det_roidb = load_vrd_det_boxes(vrd_box_path, vrd_img_path)
 
+rela_cands = gen_rela_conds(det_roidb)
 pre_label_vec_path = pre_config['label_vec_path']
 label_embedding_file = h5py.File(pre_label_vec_path, 'r')
 pre_label_vecs = np.array(label_embedding_file['label_vec'])
@@ -143,6 +166,7 @@ for img_id in rela_box_label:
     boxes_all = np.concatenate((curr_img_boxes[:, :4], curr_img_boxes[:, 5:9], curr_img_boxes[:, 10:14]))
     np.save(temp_box_name, boxes_all)
 
+    print(os.getcwd())
     cmd = ' '.join(['python',
                     'proc_ext_fc7.py',
                     img_path,
@@ -150,6 +174,7 @@ for img_id in rela_box_label:
                     temp_fc7_name])
 
     os.popen(cmd)
+
     fc7_all = np.load(temp_fc7_name+'.npy')
 
     box_n = curr_img_boxes.shape[0]
@@ -180,7 +205,7 @@ for img_id in rela_box_label:
         sbj_vec = obj_lfs_v[sbj_ind].unsqueeze(0)
         rela_box_label[img_id][i][9] = sbj_ind
 
-        obj_ind, obj_score = gen_prediction(sbj_scores, raw_obj_inds, score_mode)
+        obj_ind, obj_score = gen_prediction(obj_scores, raw_obj_inds, score_mode)
         obj_vec = obj_lfs_v[obj_ind].unsqueeze(0)
         rela_box_label[img_id][i][14] = obj_ind
 
@@ -197,6 +222,9 @@ for img_id in rela_box_label:
         pred_pre_score = pre_scores[pred_pre_ind].cpu().data.numpy().tolist()
         rela_box_label[img_id][i][4] = pred_pre_ind
         rela_box_label[img_id][i].append(pred_pre_score)
+        print('<%s, %s, %s>' % (objnet.get_node_by_index(sbj_ind).name(),
+                                prenet.get_node_by_index(pred_pre_ind).name(),
+                                objnet.get_node_by_index(obj_ind).name()))
 
 output_path = os.path.join(global_config.project_root, 'open_relation', 'output', dataset, 'rela_box_label.bin')
 with open(output_path, 'wb') as f:
