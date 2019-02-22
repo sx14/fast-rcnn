@@ -9,10 +9,56 @@ from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
 
 
+def score_pred(pred_ind, gt_ind, labelnet):
+    if pred_ind == gt_ind:
+        return 1
+    else:
+        gt_node = labelnet.get_node_by_index(gt_ind)
+        gt_paths = gt_node.hyper_paths()
+        best_ratio = 0
+        for h_path in gt_paths:
+            for i, h_node in enumerate(h_path):
+                if h_node.index() == pred_ind:
+                    best_ratio = max((i+1) * 1.0 / (len(h_path)+1), best_ratio)
+                    break
+        return best_ratio
+
+def infer(topk, labelnet, gt_ind):
+
+    counter = dict()
+
+    gt_node = labelnet.get_node_by_index(gt_ind)
+    gt_paths = gt_node.hyper_paths()
+
+    max_node = labelnet.root()
+    max_height = labelnet.root().depth()
+
+    for pred_ind in topk:
+        node = labelnet.get_node_by_index(pred_ind)
+        height = node.depth()
+        if height > max_height:
+            max_height = height
+            max_node = node
+
+        hier_pred_inds = node.trans_hyper_inds()
+        for h in hier_pred_inds:
+            h_node = objnet.get_node_by_index(h)
+            if h_node.name() in counter:
+                counter[h_node.name()] = counter[h_node.name()] + 1
+            else:
+                counter[h_node.name()] = 1
+
+
+    return max_node
+
+
+
+
 dataset = 'vrd'
 
-show = 'score'
+# show = 'score'
 # show = 'rank'
+show = 'top20'
 
 dataset_config = DatasetConfig(dataset)
 
@@ -75,8 +121,8 @@ for feature_file_id in test_box_label:
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
-        org_label_ind = box_label[4]
-        org_label = objnet.get_node_by_index(org_label_ind)
+        gt_ind = box_label[4]
+        gt_label = objnet.get_node_by_index(gt_ind).name()
         scores, _ = net(vf_v)
         scores = scores.cpu().data[0]
         ranked_inds = np.argsort(scores).tolist()
@@ -84,8 +130,8 @@ for feature_file_id in test_box_label:
 
         # ====== top ranks ======
         if show == 'rank':
-            label_inds = org2path[label2index[org_label]]
-            print('\n===== ' + org_label + ' =====')
+            label_inds = org2path[gt_ind]
+            print('\n===== ' + gt_label + ' =====')
             print('\n----- answer -----')
             for label_ind in label_inds:
                 print(index2label[label_ind])
@@ -98,13 +144,13 @@ for feature_file_id in test_box_label:
                 exit(0)
 
         # ====== score =====
-        else:
+        elif show == 'score':
             org_indexes = set([label2index[l] for l in org2wn.keys()])
             org_pred_counter = 0
-            print('\n===== ' + org_label + ' =====')
+            print('\n===== ' + gt_label + ' =====')
             for j, pred in enumerate(ranked_inds):
                 if pred in org_indexes:
-                    expected = label2index[org_label]
+                    expected = label2index[gt_label]
 
                     if org_pred_counter == 0:
                         e_p.append([expected, pred])
@@ -124,14 +170,36 @@ for feature_file_id in test_box_label:
                     else:
                         break
                     org_pred_counter += 1
+        else:
+            tops = ranked_inds[:20]
+            best_score = 0.0
+            best_pred = 'Fail'
+            r = 'F'
+            # best_ind = infer(tops, objnet, gt_ind)
+            # best_score = score_pred(best_ind, gt_ind, objnet)
+            # if best_score > 0:
+            #     r = 'T'
+            #     best_pred = objnet.get_node_by_index(best_ind).name()
+            # else:
+            #     best_ind = infer(tops, objnet, gt_ind)
+            for ind in tops:
+                score = score_pred(ind, gt_ind, objnet)
+                if score > best_score:
+                    best_score = score
+                    best_pred = objnet.get_node_by_index(ind).name()
+                    r = 'T'
+                if score == 1:
+                    T1 += 1
+            T += best_score
+            print('%s (%.2f): %s >>> %s' % (r, best_score, gt_label, best_pred))
 
 print('\n=========================================')
 print('accuracy: %.4f' % (T / counter))
 print('potential accuracy increment: %.4f' % (T1 / counter))
 pickle.dump(e_p, open('e_p.bin', 'wb'))
 
-plt.hist(T_ranks, 100)
-plt.xlabel('rank')
-plt.ylabel('num')
-plt.show()
+# plt.hist(T_ranks, 100)
+# plt.xlabel('rank')
+# plt.ylabel('num')
+# plt.show()
 

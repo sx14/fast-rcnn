@@ -12,6 +12,18 @@ class LabelNode(object):
     def __str__(self):
         return self._name
 
+    def score(self, pred_ind):
+        if not self._is_raw:
+            return -1
+        best_score = 0
+        gt_paths = self.hyper_paths()
+        for h_path in gt_paths:
+            for i, h_node in enumerate(h_path):
+                if h_node.index() == pred_ind:
+                    best_score = max((i+1) * 1.0 / (len(h_path)), best_score)
+                    break
+        return best_score
+
     def depth(self):
         h_paths = self.hyper_paths()
         dep = 0
@@ -99,7 +111,7 @@ class LabelHier:
 
     def raw2path(self):
         if self._raw2path is None:
-            r2p = dict()
+            r2p = {}
             for r in self.get_raw_indexes():
                 rn = self.get_node_by_index(r)
                 r2p[r] = rn.trans_hyper_inds()
@@ -127,16 +139,6 @@ class LabelHier:
         else:
             return None
 
-    def _load_raw_label(self, raw_label_path):
-        labels = []
-        if os.path.exists(raw_label_path):
-            with open(raw_label_path, 'r') as f:
-                raw_lines = f.readlines()
-                for line in raw_lines:
-                    labels.append(line.strip('\n'))
-        else:
-            print('Raw label file not exists !')
-        return labels
 
     def depth_punish(self):
         # y = 1/196(x - 15)^2 + 1
@@ -149,13 +151,24 @@ class LabelHier:
             punish.append(1/p)
         return punish
 
+    def _load_raw_label(self, raw_label_path):
+        labels = []
+        if os.path.exists(raw_label_path):
+            with open(raw_label_path, 'r') as f:
+                raw_lines = f.readlines()
+                for line in raw_lines:
+                    labels.append(line.strip('\n'))
+        else:
+            print('Raw label file not exists !')
+        return labels
+
     def _construct_hier(self):
         raise NotImplementedError
 
     def __init__(self, raw_label_path):
         self._raw_labels = self._load_raw_label(raw_label_path)
-        # self._raw_labels.insert(0, '__background__')
-        bk = LabelNode('__background__', 0, False)
+        self._raw_labels.insert(0, '__background__')
+        bk = LabelNode('__background__', 0, True)
         self._label2node = {'__background__': bk}
         self._index2node = [bk]
         self._raw2path = None
@@ -164,3 +177,5 @@ class LabelHier:
         self.max_depth = 0
         for n in self._index2node:
             self.max_depth = max(self.max_depth, n.depth())
+
+

@@ -27,6 +27,11 @@ def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
         return best_ratio
 
 
+
+
+
+
+
 dataset = 'vrd'
 dataset_config = DatasetConfig(dataset)
 

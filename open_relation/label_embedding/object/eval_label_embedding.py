@@ -5,7 +5,7 @@ from nltk.corpus import wordnet as wn
 from open_relation.dataset.dataset_config import DatasetConfig
 
 
-dataset_name = 'vg'
+dataset_name = 'vrd'
 target = 'object'
 
 data_config = DatasetConfig(dataset_name)

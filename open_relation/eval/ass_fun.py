@@ -71,8 +71,13 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         box_gt = np.concatenate((sub_box_gt, obj_box_gt))
         box_gt = np.unique(box_gt, axis=0)
 
+        N_rela = len(rela_gt)
+        N_total = N_total + N_rela
+
         # px1, py1, px2, py2, pname, sx1, sy1, sx2, sy2, sname, ox1, oy1, ox2, oy2, oname, rlt_score
         curr_pred_roidb = np.array(pred_roidb[image_id])
+        if len(curr_pred_roidb) == 0:
+            continue
         rela_pred = curr_pred_roidb[:, 4]
         rela_pred_score = curr_pred_roidb[:, -1]
         sub_box_dete = curr_pred_roidb[:, 5:10]
@@ -80,9 +85,6 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
         sub_dete = curr_pred_roidb[:, 9]
         obj_dete = curr_pred_roidb[:, 14]
         box_det = np.unique(sub_box_dete, axis=0)
-
-        N_rela = len(rela_gt)
-        N_total = N_total + N_rela
 
         N_pred = len(rela_pred)
 
@@ -124,6 +126,7 @@ def rela_recall(gt_roidb, pred_roidb, N_recall):
                         N_right = N_right + 1
                         num_right[image_id] = num_right[image_id] + 1
 
-    print('proposal recall: %.4f' % (N_box_goot / N_total))
+    print('Proposal recall: %.4f' % (N_box_goot / N_total))
+    print('Detection recall: %.4f' % (N_det_goot / N_total))
     acc = N_right / N_total
     return acc, num_right
