@@ -39,7 +39,7 @@ class ObjNet(LabelHier):
         # keep wn label unique
         wn_label_set = set()
         next_label_index = 1
-        for raw_label in self._raw_labels:
+        for raw_label in self._raw_labels[1:]:
             wn_labels = raw2wn[raw_label]
             for wn_label in wn_labels:
                 if wn_label not in wn_label_set:

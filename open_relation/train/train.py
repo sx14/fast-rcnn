@@ -52,7 +52,6 @@ labelnet = labelnets[dataset][target]
 
 # prepare data
 config = hyper_params[dataset][target]
-raw2path = labelnet.raw2path()
 raw2weight_path = config['raw2weight_path']
 visual_d = config['visual_d']
 batch_size = config['batch_size']
@@ -61,14 +60,14 @@ neg_label_num = config['negative_label_num']
 visual_feat_root = config['visual_feature_root']
 train_list_path = os.path.join(config['list_root'], 'train.txt')
 train_dataset = MyDataset(visual_feat_root, train_list_path,
-                          raw2path, visual_d,
-                          raw2weight_path, labelnet.label_sum(),
+                          labelnet, visual_d,
+                          raw2weight_path,
                           batch_size, neg_label_num)
 
 val_list_path = os.path.join(config['list_root'], 'val.txt')
 val_dataset = MyDataset(visual_feat_root, val_list_path,
-                        raw2path, visual_d,
-                        raw2weight_path, labelnet.label_sum(),
+                        labelnet, visual_d,
+                        raw2weight_path,
                         batch_size, neg_label_num)
 
 # init model

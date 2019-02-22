@@ -7,10 +7,11 @@ import torch
 
 
 class MyDataset():
-    def __init__(self, raw_feature_root, flabel_list_path, raw2path, vis_feat_dim,
-                 raw2weight_path, label_num, minibatch_size=64, negative_label_num=50):
+    def __init__(self, raw_feature_root, flabel_list_path, labelnet, vis_feat_dim,
+                 raw2weight_path, minibatch_size=64, negative_label_num=50):
         # whole dataset
-        self._label_num = label_num
+        self._labelnet = labelnet
+        self._label_num = labelnet.label_sum()
         self.vis_feat_dim = vis_feat_dim
         self._minibatch_size = minibatch_size
         self._negative_label_num = negative_label_num
@@ -30,7 +31,7 @@ class MyDataset():
         # random current package feature indexes of the whole feature list
         self._curr_package_feature_indexes = []
         # label2path
-        self._raw2path = raw2path
+        self._raw2path = labelnet.raw2path()
         self._raw2weight = pickle.load(open(raw2weight_path, 'rb'))
 
         # roidb
@@ -118,7 +119,14 @@ class MyDataset():
             fid = self._curr_package_feature_indexes[self._curr_package_cursor]
             feature_file, offset = self._feature_indexes[fid]
             vfs[v] = self._curr_package[feature_file][offset]
-            all_nls = list(set(range(self._label_num)) - set(self._raw2path[self._label_indexes[fid][1]]))
+
+            l_node = self._labelnet.get_node_by_index(self._label_indexes[fid][0])
+            l_hypers = set(l_node.trans_hyper_inds())
+            gt_node = self._labelnet.get_node_by_index(self._label_indexes[fid][1])
+            gt_hypers = set(gt_node.trans_hyper_inds())
+            all_pls = (gt_hypers - l_hypers)
+            all_pls.add(l_node.index())
+            all_nls = list(set(range(self._label_num)) - all_pls)
             p_n_ls[v] = [self._label_indexes[fid][0]] + random.sample(all_nls, self._negative_label_num)
             pws[v] = self._raw2weight[self._label_indexes[fid][1]]
             self._curr_package_cursor += 1
