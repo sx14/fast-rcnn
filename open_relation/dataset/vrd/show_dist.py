@@ -8,13 +8,24 @@ from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 
 
 dataset_config = DatasetConfig('vrd')
-target = 'predicate'   # TODO modify
+target = 'object'
 
 
 if target == 'object':
     labelnet = objnet
 elif target == 'predicate':
     labelnet = prenet
+
+# parent-children
+p2c = dict()
+for i in range(labelnet.label_sum()):
+    n = labelnet.get_node_by_index(i)
+    p2c[n.name()] = {}
+for i in range(labelnet.label_sum()):
+    n = labelnet.get_node_by_index(i)
+    hypers = n.hypers()
+    for h in hypers:
+        p2c[h.name()][n.name()] = 0
 
 # label maps
 
@@ -36,26 +47,31 @@ for img_id in box_labels:
     img_box_labels = box_labels[img_id]
     for box_label in img_box_labels:
         raw_label = box_label[4]
-        raw_counter[label2index[raw_label]] += 1
-        label_path = raw2path[label2index[raw_label]]
+        raw_counter[raw_label] += 1
+        label_path = raw2path[raw_label]
         for l in label_path:
             label_counter[l] += 1
 
 
 show_counter = label_counter
 
-ranked_counts = np.sort(show_counter).tolist()
-ranked_counts.reverse()
-ranked_counts = np.array(ranked_counts)
+ranked_counts = np.sort(show_counter)[::-1]
 ranked_counts = ranked_counts[ranked_counts > 0]
 
-rank = np.argsort(show_counter).tolist()
-rank.reverse()
+rank = np.argsort(show_counter)[::-1]
 rank = rank[:len(ranked_counts)]
 
 for i in range(len(rank)):
+    node = labelnet.get_node_by_index(rank[i])
+    node.weight = ranked_counts[i]
     print(index2label[rank[i]] + ' : ' + str(ranked_counts[i]))
 
+for p in p2c:
+    children = p2c[p]
+    for c in children:
+        ci = label2index[c]
+        ccount = label_counter[ci]
+        p2c[p][c] = ccount
 
 ranked_labels = [index2label[i] for i in rank]
 
