@@ -123,9 +123,9 @@ class MyDataset():
             l_node = self._labelnet.get_node_by_index(self._label_indexes[fid][0])
             l_hypers = set(l_node.trans_hyper_inds())
             gt_node = self._labelnet.get_node_by_index(self._label_indexes[fid][1])
-            gt_hypers = set(gt_node.trans_hyper_inds())
-            all_pls = (gt_hypers - l_hypers)
-            all_pls.add(l_node.index())
+            all_pls = set(gt_node.trans_hyper_inds())
+            # all_pls = (all_pls - l_hypers)
+            # all_pls.add(l_node.index())
             all_nls = list(set(range(self._label_num)) - all_pls)
             p_n_ls[v] = [self._label_indexes[fid][0]] + random.sample(all_nls, self._negative_label_num)
             pws[v] = self._raw2weight[self._label_indexes[fid][1]]

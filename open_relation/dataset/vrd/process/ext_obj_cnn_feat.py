@@ -15,7 +15,6 @@ from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet
-from open_relation.dataset.lib.ext_cnn_feat import ext_cnn_feat
 
 
 def cal_sample_ratio(label2index, vrd2path, box_labels):
@@ -31,11 +30,34 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
             for l in label_path:
                 label_ins_cnt[l] += 1
 
-    # sample at most 1000 instance
+    # parent-children
+    p2c = dict()
+    for i in range(len(label2index.keys())):
+        p2c[i] = {}
+    for i in range(len(label2index.keys())):
+        n = objnet.get_node_by_index(i)
+        hypers = n.hypers()
+        for h in hypers:
+            p2c[h.index()][n.index()] = label_ins_cnt[n.index()]
+
+    # sample at most 500 instance
+    label_max_num = 500.0
     label_sample_ratio = np.ones(label_ins_cnt.shape)
-    for i, ins_num in enumerate(label_ins_cnt):
-        if ins_num > 1000:
-            label_sample_ratio[i] = 1000.0 / ins_num
+    for p in p2c:
+        c_count_sum = 0.0
+        for c in p2c[p]:
+            c_count_sum += p2c[p][c]
+        c_count_mean = c_count_sum / len(p2c[p].keys())
+        c_count_target = min(c_count_mean, label_max_num)
+        for c in p2c[p]:
+            c_ratio = c_count_target / p2c[p][c]
+            label_sample_ratio[c] = c_ratio
+
+    # # old version
+    # label_sample_ratio = np.ones(label_ins_cnt.shape)
+    # for i, ins_num in enumerate(label_ins_cnt):
+    #     if ins_num > 1000:
+    #         label_sample_ratio[i] = 1000.0 / ins_num
     return label_sample_ratio
 
 
@@ -95,11 +117,9 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         if not os.path.exists(feature_path):
             # extract fc7
             img_path = os.path.join(img_root, image_id+'.jpg')
-            fc7s = ext_cnn_feat(net, img_path, curr_img_boxes)
-
-            # img = cv2.imread(img_path)
-            # im_detect(net, img, curr_img_boxes[:, :4])
-            # fc7s = np.array(net.blobs['fc7'].data)
+            img = cv2.imread(img_path)
+            im_detect(net, img, curr_img_boxes[:, :4])
+            fc7s = np.array(net.blobs['fc7'].data)
 
             # dump feature file
             with open(feature_path, 'w') as feature_file:
@@ -114,18 +134,17 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
             if dataset == 'test':
                 continue
 
-            vrd_label = objnet.get_node_by_index(vrd_label_ind).name()
-            wn_leaf_label = vrd2wn[vrd_label][0]
-            wn_leaf_ind = label2index[wn_leaf_label]
-            label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(vrd_label_ind)+'\n')
-
             label_inds = vrd2path[vrd_label_ind]
             for label_ind in label_inds:
                 sample_prob = sample_ratio[label_ind]
-                p = np.array([sample_prob, 1-sample_prob])
-                sample = np.random.choice([True, False], p=p.ravel())
-                if sample:
-                    label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+                if sample_prob < 0:
+                    p = np.array([sample_prob, 1-sample_prob])
+                    sample = np.random.choice([True, False], p=p.ravel())
+                    if sample:
+                        label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+                else:
+                    for s in range(int(sample_prob)):
+                        label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
 
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
