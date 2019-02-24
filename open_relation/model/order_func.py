@@ -18,12 +18,14 @@ def order_softmax_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func)
 
     loss_scores = Variable(torch.zeros(len(batch_scores), len(pos_neg_inds[0]))).float().cuda()
     for i in range(len(batch_scores)):
-        scores = batch_scores[i] * punish_v
+        # scores = batch_scores[i] * punish_v
+        scores = batch_scores[i]
         loss_scores[i] = scores[pos_neg_inds[i]]
 
     y = Variable(torch.zeros(len(batch_scores))).long().cuda()
     loss = loss_func(loss_scores, y)
-    loss = torch.mean(loss * weights)
+    # loss = torch.mean(loss * weights)
+    loss = torch.mean(loss)
     acc = 0.0
     for scores in loss_scores:
         p_score = scores[0]
