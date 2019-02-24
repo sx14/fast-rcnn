@@ -63,7 +63,7 @@ class TreeNode:
         return self._name
 
 
-def construct_tree(label_hier, ranked_inds, ind2rank):
+def construct_tree(label_hier, ranked_inds):
     ind2node = dict()
     for label in label_hier.get_all_labels():
         hnode = label_hier.get_node_by_name(label)
@@ -81,7 +81,6 @@ def construct_tree(label_hier, ranked_inds, ind2rank):
 
     for r, ind in enumerate(ranked_inds):
         rank = r + 1  # 1 based
-        ind2rank[ind] = rank
         tnode = ind2node[ind]
         tnode.set_rank(rank)
 
@@ -125,7 +124,7 @@ def bottom_up(tree, label_hier, top2_raw, thr):
         return top2_raw[0]
 
 
-def my_infer(label_hier, scores, rank_scores, target):
+def my_infer(label_hier, scores, target):
     obj_thr = {'b_u': 0.75,
                't_d': 0.5,
                'min_dis': label_hier.label_sum() / 7,
@@ -140,14 +139,14 @@ def my_infer(label_hier, scores, rank_scores, target):
     threshold = thr[target]
 
     # label_ind 2 rank
-    ind2rank = [0] * label_hier.label_sum()
     ranked_inds = np.argsort(scores).tolist()
     ranked_inds.reverse()  # descending
 
     # top2 raw label as default predictions
     raw_top2 = []
     for r, ind in enumerate(ranked_inds):
-        if label_hier.get_node_by_index(ind).is_raw() and len(raw_top2) < 2:
+        node = label_hier.get_node_by_index(ind)
+        if node.is_raw() and len(raw_top2) < 2:
             raw_top2.append([ind, r+1])
 
     # confident part
@@ -155,15 +154,15 @@ def my_infer(label_hier, scores, rank_scores, target):
     if raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) > threshold['min_dis']:
         cands = raw_top2
     elif raw_top2[0][1] < half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= threshold['min_dis']:
-        ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
+        ind2node = construct_tree(label_hier, ranked_inds)
         cands = [bottom_up(ind2node, label_hier, raw_top2, threshold['b_u']), raw_top2[0]]
     elif raw_top2[0][1] >= half_rank and (raw_top2[1][1] - raw_top2[0][1]) <= threshold['min_dis']:
-        ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
+        ind2node = construct_tree(label_hier, ranked_inds)
         cands = [bottom_up(ind2node, label_hier, raw_top2, threshold['t_d']), raw_top2[0]]
         if cands[0][0] == raw_top2[0][0]:
             cands = [top_down(ind2node, label_hier), raw_top2[0]]
     else:
-        ind2node = construct_tree(label_hier, ranked_inds, ind2rank)
+        ind2node = construct_tree(label_hier, ranked_inds)
         cands = [top_down(ind2node, label_hier), raw_top2[0]]
     return cands
 

@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import torch
 from nltk.corpus import wordnet as wn
-from open_relation.infer import tree_infer2
+from open_relation.infer.tree_infer3 import my_infer
 from open_relation.model.object import model
 from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
@@ -86,6 +86,8 @@ for feature_file_id in test_box_label:
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
+        if counter == 6:
+            m = 1
         vf = features[i]
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
@@ -93,8 +95,8 @@ for feature_file_id in test_box_label:
         org_label_ind = box_label[4]
         org_label = objnet.get_node_by_index(org_label_ind).name()
         scores, _ = net(vf_v)
-        scores = scores.cpu().data[0]
-        top2pred = tree_infer2.my_infer(objnet, scores, None, 'obj')
+        scores = scores.cpu().data[0].numpy()
+        top2pred = my_infer(objnet, scores, 'obj')
         pred_ind = top2pred[0][0]
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
@@ -107,7 +109,7 @@ for feature_file_id in test_box_label:
             result = str(counter).ljust(5) + ' F: '
 
         pred_str = (result + org_label + ' -> ' + index2label[pred_ind]).ljust(40) + ' %.2f | ' % pred_score
-        cand_str = ' [%s(%d) , %s(%d)]' % (index2label[top2pred[0][0]], top2pred[0][1], index2label[top2pred[1][0]], top2pred[1][1])
+        cand_str = ' [%s(%.2f) , %s(%.2f)]' % (index2label[top2pred[0][0]], top2pred[0][1], index2label[top2pred[1][0]], top2pred[1][1])
         print(pred_str + cand_str)
 
 print('\n=========================================')

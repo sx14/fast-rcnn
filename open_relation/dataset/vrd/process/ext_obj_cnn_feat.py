@@ -41,17 +41,16 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
             p2c[h.index()][n.index()] = label_ins_cnt[n.index()]
 
     # sample at most 500 instance
-    label_max_num = 500.0
+    label_max_num = float('+Inf')
     label_sample_ratio = np.ones(label_ins_cnt.shape)
     for p in p2c:
-        c_count_sum = 0.0
-        for c in p2c[p]:
-            c_count_sum += p2c[p][c]
-        c_count_mean = c_count_sum / len(p2c[p].keys())
+        c_count_sum = sum(p2c[p].values())
+        c_count_mean = c_count_sum / max(len(p2c[p].keys()), 1)
         c_count_target = min(c_count_mean, label_max_num)
         for c in p2c[p]:
             c_ratio = c_count_target / p2c[p][c]
             label_sample_ratio[c] = c_ratio
+    label_sample_ratio[1] = label_max_num / label_ins_cnt[1]
 
     # # old version
     # label_sample_ratio = np.ones(label_ins_cnt.shape)
@@ -62,6 +61,8 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
 
 
 def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
+    if os.path.exists(box_label_path):
+        return
     objs = dict()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
@@ -129,22 +130,21 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         # format: img_id.bin offset label_ind vrd_label_ind
         for box_id in range(0, len(curr_img_boxes)):
             vrd_label_ind = curr_img_boxes[box_id, 4]
-            label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
 
             if dataset == 'test':
-                continue
-
-            label_inds = vrd2path[vrd_label_ind]
-            for label_ind in label_inds:
-                sample_prob = sample_ratio[label_ind]
-                if sample_prob < 0:
-                    p = np.array([sample_prob, 1-sample_prob])
-                    sample = np.random.choice([True, False], p=p.ravel())
-                    if sample:
-                        label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
-                else:
-                    for s in range(int(sample_prob)):
-                        label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+                label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
+            else:
+                label_inds = vrd2path[vrd_label_ind]
+                for label_ind in label_inds:
+                    sample_prob = sample_ratio[label_ind]
+                    if sample_prob < 1:
+                        p = np.array([sample_prob, 1-sample_prob])
+                        sample = np.random.choice([True, False], p=p.ravel())
+                        if sample:
+                            label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+                    else:
+                        for s in range(int(sample_prob)):
+                            label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
 
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
