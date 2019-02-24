@@ -71,12 +71,14 @@ class ObjNet(LabelHier):
                 # raw label node
                 hyper_wn_label = raw2wn[node.name()][0]
                 node.append_hyper(self._label2node[hyper_wn_label])
+                self._label2node[hyper_wn_label].append_children(node)
             else:
                 # wn label node
                 w = wn.synset(node.name())
                 for h in w.hypernyms() + w.instance_hypernyms():
                     if h.name() in self._label2node:
                         node.append_hyper(self._label2node[h.name()])
+                        self._label2node[h.name()].append_children(node)
 
     def __init__(self, raw_label_path):
         LabelHier.__init__(self, raw_label_path)

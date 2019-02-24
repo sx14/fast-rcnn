@@ -5,7 +5,7 @@ from tensorboardX import SummaryWriter
 from open_relation.dataset.MyDataset import MyDataset
 from open_relation.model.object.model import HypernymVisual
 from open_relation.model.predicate.model import PredicateVisual
-from open_relation.model.order_func import order_softmax_test
+from open_relation.model.order_func import order_softmax_loss, order_split_loss
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet as vrd_objnet
 from open_relation.dataset.vrd.label_hier.pre_hier import prenet as vrd_prenet
 # from open_relation.dataset.vg.label_hier.obj_hier import objnet as vg_objnet
@@ -31,9 +31,7 @@ def eval(dataset, model):
             vfs, pos_neg_inds, weights = dataset.minibatch()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             all_scores, _ = model(batch_vf)
-            batch_acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds, labelnet.depth_punish())
-            batch_loss = loss_func(loss_scores, y)
-            batch_loss = torch.mean(batch_loss * weights)
+            batch_acc, batch_loss = order_split_loss(all_scores, pos_neg_inds, labelnet, weights, loss_func)
             acc_sum += batch_acc
             loss_sum += batch_loss
             batch_sum += 1
@@ -124,12 +122,8 @@ for e in range(0, config['epoch']):
 
         # forward
         all_scores, _ = net(vfs)
-
         # cal acc, loss
-        acc, loss_scores, y = order_softmax_test(all_scores, pos_neg_inds, labelnet.depth_punish())
-        loss = loss_func(loss_scores, y)
-        loss = torch.mean(loss * weights)
-
+        acc, loss = order_split_loss(all_scores, pos_neg_inds, labelnet, weights, loss_func)
         if batch_counter % config['print_freq'] == 0:
             # logging
             sw.add_scalars('acc', {'train': acc}, batch_counter)

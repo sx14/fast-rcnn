@@ -14,7 +14,6 @@ from lib.fast_rcnn.test import im_detect
 from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
-from open_relation.dataset.vrd.label_hier.pre_hier import prenet
 
 
 def cal_sample_ratio(label2index, vrd2path, box_labels):
@@ -50,7 +49,6 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
         for c in p2c[p]:
             c_ratio = c_count_target / p2c[p][c]
             label_sample_ratio[c] = c_ratio
-    label_sample_ratio[1] = label_max_num / label_ins_cnt[1]
 
     # # old version
     # label_sample_ratio = np.ones(label_ins_cnt.shape)
@@ -130,21 +128,22 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
         # format: img_id.bin offset label_ind vrd_label_ind
         for box_id in range(0, len(curr_img_boxes)):
             vrd_label_ind = curr_img_boxes[box_id, 4]
+            label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
 
-            if dataset == 'test':
-                label_list.append(feature_id+' '+str(box_id)+' '+str(vrd_label_ind)+' '+str(vrd_label_ind)+'\n')
-            else:
-                label_inds = vrd2path[vrd_label_ind]
-                for label_ind in label_inds:
-                    sample_prob = sample_ratio[label_ind]
-                    if sample_prob < 1:
-                        p = np.array([sample_prob, 1-sample_prob])
-                        sample = np.random.choice([True, False], p=p.ravel())
-                        if sample:
-                            label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
-                    else:
-                        for s in range(int(sample_prob)):
-                            label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+            # if dataset == 'test':
+            #     pass
+            # else:
+            #     label_inds = vrd2path[vrd_label_ind]
+            #     for label_ind in label_inds:
+            #         sample_prob = sample_ratio[label_ind]
+            #         if sample_prob < 1:
+            #             p = np.array([sample_prob, 1-sample_prob])
+            #             sample = np.random.choice([True, False], p=p.ravel())
+            #             if sample:
+            #                 label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
+            #         else:
+            #             for s in range(int(sample_prob)):
+            #                 label_list.append(feature_id + ' ' + str(box_id) + ' ' + str(label_ind) + ' ' + str(vrd_label_ind) + '\n')
 
         if (i+1) % 10000 == 0 or (i+1) == len(image_list):
             with open(label_list_path, 'a') as label_file:
