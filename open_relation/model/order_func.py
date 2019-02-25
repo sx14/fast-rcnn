@@ -49,6 +49,7 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
     # acc = acc / len(batch_scores)
     # y = Variable(torch.zeros(len(batch_scores))).long().cuda()
     # loss_vec = loss_func(loss_scores, y)
+    # loss1 = torch.mean(loss_vec)
 
     loss_vec = Variable(torch.zeros(1)).float().cuda()
     for b in range(batch_scores.size()[0]):
@@ -82,7 +83,10 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
                 # print(sib_pos_ind)
                 sib_pos_ind_v = Variable(torch.zeros(1)).long().cuda()
                 sib_pos_ind_v[0] = sib_pos_ind
+                weight = max(10 - node.depth(), 1)
                 loss = loss_func(sib_scores_v, sib_pos_ind_v)
-                loss_vec = torch.cat((loss_vec, loss), 0)
-    # print(loss_vec.cpu().data.numpy().tolist())
-    return acc, torch.mean(loss_vec[1:])
+                loss_vec = torch.cat((loss_vec, loss * weight), 0)
+    loss2 = torch.mean(loss_vec[1:])
+    # lamda = 0.4
+    # return acc, loss1 * lamda + loss2 * (1-lamda)
+    return acc, loss2

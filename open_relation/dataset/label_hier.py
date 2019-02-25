@@ -6,8 +6,8 @@ class LabelNode(object):
         self.weight = 0
         self._index = index
         self._name = name
-        self._hypers = []
-        self._children = []
+        self._hypers = set()
+        self._children = set()
         self._is_raw = is_raw
 
     def __str__(self):
@@ -42,17 +42,17 @@ class LabelNode(object):
         return self._name
 
     def hypers(self):
-        return self._hypers
+        return list(self._hypers)
 
     def append_hyper(self, hyper):
-        self._hypers.append(hyper)
+        self._hypers.add(hyper)
 
     def children(self):
-        return self._children
+        return list(self._children)
 
     def append_children(self, child):
         if child not in self._children:
-            self._children.append(child)
+            self._children.add(child)
 
     def index(self):
         return self._index
