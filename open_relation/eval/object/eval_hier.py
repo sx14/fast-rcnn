@@ -86,8 +86,6 @@ for feature_file_id in test_box_label:
     features = pickle.load(open(feature_file_path, 'rb'))
     for i, box_label in enumerate(test_box_label[feature_file_id]):
         counter += 1
-        if counter == 6:
-            m = 1
         vf = features[i]
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()

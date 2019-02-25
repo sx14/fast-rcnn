@@ -56,8 +56,8 @@ def infer(topk, labelnet, gt_ind):
 
 dataset = 'vrd'
 
-# show = 'score'
-show = 'rank'
+show = 'score'
+# show = 'rank'
 # show = 'top20'
 
 dataset_config = DatasetConfig(dataset)
