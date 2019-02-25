@@ -111,11 +111,11 @@ class LabelHier:
         return i2l
 
     def get_raw_indexes(self):
-        raw_ind_set = set()
-        for node in self._index2node:
-            if node.is_raw():
-                raw_ind_set.add(node.index())
-        return raw_ind_set
+        raw_inds = []
+        for raw_label in self._raw_labels:
+            raw_node = self.get_node_by_name(raw_label)
+            raw_inds.append(raw_node.index())
+        return raw_inds
 
     def raw2path(self):
         if self._raw2path is None:

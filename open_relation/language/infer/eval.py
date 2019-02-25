@@ -37,7 +37,7 @@ batch_num = 0
 acc_sum = 0
 
 gt_vecs = test_set.get_gt_vecs().float().cuda()
-raw_inds = prenet.get_raw_indexes()
+raw_inds = set(prenet.get_raw_indexes())
 acc = 0.0
 for batch in test_dl:
     batch_num += 1
