@@ -41,15 +41,13 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
     loss_vec = Variable(torch.zeros(1)).float().cuda()
     for b in range(batch_scores.size()[0]):
         gt_ind = pos_neg_inds[b][0]
-        gt_pathes = labelnet.get_node_by_index(gt_ind).hyper_paths()
-        gt_path_nodes = set()
+        gt_path = labelnet.get_node_by_index(gt_ind).hyper_paths()
         gt_path_inds = set()
-        for gt_path in gt_pathes:
-            for n in gt_path:
-                gt_path_nodes.add(n)
-                gt_path_inds.add(n.index())
+        for n in gt_path:
+            gt_path_inds.add(n.index())
         scores = batch_scores[b]
-        for node in gt_path_nodes:
+        success = 1
+        for node in gt_path:
             siblings = node.children()
             if len(siblings) > 1:
                 # split
@@ -62,10 +60,16 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
                         sib_pos_ind = i
                 sib_pos_ind_v = Variable(torch.zeros(1)).long().cuda()
                 sib_pos_ind_v[0] = sib_pos_ind
+
+                if sib_scores_v[sib_pos_ind] != sib_scores_v.max():
+                    success = 0
+
                 # weight = siblings[sib_pos_ind].weight()
                 loss = loss_func(sib_scores_v, sib_pos_ind_v)
                 loss_vec = torch.cat((loss_vec, loss), 0)
+        acc += success
     loss = torch.mean(loss_vec[1:])
+    acc = acc / batch_scores.size()[0]
     return acc, loss
 
 
