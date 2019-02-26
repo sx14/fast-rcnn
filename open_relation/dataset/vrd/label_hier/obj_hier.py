@@ -60,8 +60,6 @@ class ObjNet(LabelHier):
             'pot': 1,
             'paper': 1,
             'tie': 1,
-
-
         }
 
         next_label_index = 1
@@ -117,7 +115,7 @@ dataset_config = DatasetConfig('vrd')
 label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
 weight_path = dataset_config.extra_config['object'].config['ind2weight_path']
 objnet = ObjNet(label_path, weight_path)
-
+a = 1
 # if __name__ == '__main__':
 #     a = ObjNet(label_path)
 #     n = a.get_node_by_name('road')
