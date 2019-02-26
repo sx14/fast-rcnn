@@ -1,4 +1,5 @@
 import os
+import pickle
 from nltk.corpus import wordnet as wn
 from open_relation.dataset.label_hier import LabelHier
 from open_relation.dataset.label_hier import LabelNode
@@ -98,13 +99,25 @@ class ObjNet(LabelHier):
         raw2wn = self._raw_to_wn()
         self._create_label_nodes(raw2wn)
 
-    def __init__(self, raw_label_path):
+    def _fill_weights(self, weight_path):
+        if os.path.exists(weight_path):
+            ind2weight = pickle.load(open(weight_path, 'rb'))
+            for ind in range(len(ind2weight)):
+                node = self.get_node_by_index(ind)
+                node.set_weight(ind2weight[ind])
+        else:
+            print('ObjNet: ind2weight not exists.')
+
+    def __init__(self, raw_label_path, weight_path):
         LabelHier.__init__(self, raw_label_path)
+        self._fill_weights(weight_path)
 
 
 dataset_config = DatasetConfig('vrd')
 label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
-objnet = ObjNet(label_path)
+weight_path = dataset_config.extra_config['object'].config['ind2weight_path']
+objnet = ObjNet(label_path, weight_path)
+
 # if __name__ == '__main__':
 #     a = ObjNet(label_path)
 #     n = a.get_node_by_name('road')

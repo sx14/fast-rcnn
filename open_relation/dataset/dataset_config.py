@@ -13,7 +13,8 @@ class ExtraConfig:
             'raw_label_list': os.path.join(self.prepare_root, 'raw_labels.txt'),
             'label_vec_path': os.path.join(open_relation.global_config.project_root, 'open_relation',
                                            'label_embedding', target, 'label_vec_'+dataset_name+'.h5'),
-            'raw2weight_path': os.path.join(self.prepare_root, 'raw2weight.bin')
+            'raw2weight_path': os.path.join(self.prepare_root, 'raw2weight.bin'),
+            'ind2weight_path': os.path.join(self.prepare_root, 'ind2weight.bin'),
         }
 
 

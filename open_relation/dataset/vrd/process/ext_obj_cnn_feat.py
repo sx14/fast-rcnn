@@ -16,24 +16,25 @@ from open_relation import global_config
 from open_relation.dataset.vrd.label_hier.obj_hier import objnet
 
 
-def cal_sample_ratio(label2index, vrd2path, box_labels):
+def cal_sample_ratio(objnet, box_labels):
     # instance counter
-    label_ins_cnt = np.zeros(len(label2index.keys()))
+    label_ins_cnt = np.zeros(objnet.label_sum())
 
     # counting
     for img_id in box_labels:
         img_box_labels = box_labels[img_id]
         for box_label in img_box_labels:
             vrd_label_ind = box_label[4]
-            label_path = vrd2path[vrd_label_ind]
+            vrd_node = objnet.get_node_by_index(vrd_label_ind)
+            label_path = vrd_node.trans_hyper_inds()
             for l in label_path:
                 label_ins_cnt[l] += 1
 
     # parent-children
     p2c = dict()
-    for i in range(len(label2index.keys())):
+    for i in range(objnet.label_sum()):
         p2c[i] = {}
-    for i in range(len(label2index.keys())):
+    for i in range(objnet.label_sum()):
         n = objnet.get_node_by_index(i)
         hypers = n.hypers()
         for h in hypers:
@@ -59,8 +60,8 @@ def cal_sample_ratio(label2index, vrd2path, box_labels):
 
 
 def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
-    if os.path.exists(box_label_path):
-        return
+    # if os.path.exists(box_label_path):
+    #     return
     objs = dict()
     with open(anno_list_path, 'r') as anno_list_file:
         anno_list = anno_list_file.read().splitlines()
@@ -204,10 +205,14 @@ def gen_cnn_feat():
         raw2path = labelnet.raw2path()
 
         # cal sample ratio
-        sample_ratio = cal_sample_ratio(label2index, raw2path, box_label)
+        sample_ratio = cal_sample_ratio(objnet, box_label)
 
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root,
                              label_save_path, label2index, raw2wn, raw2path, sample_ratio, d)
+
+        if d == 'train':
+            ind2weight_path = dataset_config.extra_config['object'].config['ind2weight_path']
+            pickle.dump(sample_ratio, open(ind2weight_path, 'wb'))
 
     # split a small val list for quick evaluation
     small_val_path = os.path.join(label_save_root, 'val.txt')

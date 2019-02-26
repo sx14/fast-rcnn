@@ -3,7 +3,7 @@ import os
 
 class LabelNode(object):
     def __init__(self, name, index, is_raw):
-        self.weight = 0
+        self._weight = 0
         self._index = index
         self._name = name
         self._hypers = set()
@@ -91,6 +91,11 @@ class LabelNode(object):
             str = str[:-1]
             print(' '.join(str))
 
+    def weight(self):
+        return self._weight
+
+    def set_weight(self, w):
+        self._weight = w
 
 class LabelHier:
 

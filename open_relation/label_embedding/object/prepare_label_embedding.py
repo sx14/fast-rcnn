@@ -17,8 +17,9 @@ def generate_direct_hypernyms(labelnet, hypernym_save_path):
         hyper = nodes.pop()
         hypos = hyper.children()
         for hypo in hypos:
+            print('%s -> %s' % (hypo.name(), hyper.name()))
             hypernyms.append([hypo.index(), hyper.index()])
-            nodes = hypo.children() + nodes
+            nodes.insert(0, hypo)
 
     # save hypernym dataset
     hypernyms = np.array(hypernyms)
