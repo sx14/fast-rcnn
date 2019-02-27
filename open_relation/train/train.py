@@ -31,7 +31,8 @@ def eval(dataset, model):
             vfs, pos_neg_inds, weights = dataset.minibatch()
             batch_vf = torch.autograd.Variable(vfs).cuda()
             all_scores, _ = model(batch_vf)
-            batch_acc, batch_loss = order_loss(all_scores, pos_neg_inds, labelnet, weights, loss_func)
+            batch_acc, batch_loss = order_loss(all_scores, pos_neg_inds,
+                                               labelnet, weights, loss_func)
             acc_sum += batch_acc
             loss_sum += batch_loss
             batch_sum += 1
@@ -80,7 +81,8 @@ else:
     obj_config = hyper_params[dataset]['object']
     pre_config = config
     net = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
-                          obj_config['embedding_d'], obj_config['label_vec_path'], obj_config['best_weight_path'],
+                          obj_config['embedding_d'], obj_config['label_vec_path'],
+                          obj_config['best_weight_path'],
 
                           pre_config['visual_d'], pre_config['hidden_d'],
                           pre_config['embedding_d'], pre_config['label_vec_path'])
@@ -103,8 +105,9 @@ for name, p in net.named_parameters():
 
 # optimizer
 loss_func = torch.nn.CrossEntropyLoss(reduce=False)
-optim = torch.optim.SGD([{'params': weight_p, 'weight_decay': 1e-5},
-                         {'params': bias_p, 'weight_decay': 0}], lr=config['lr'])
+optim = torch.optim.SGD([{'params': weight_p,   'weight_decay': 1e-5},
+                         {'params': bias_p,     'weight_decay': 0}],
+                        lr=config['lr'])
 
 # recorders
 shutil.rmtree('runs')

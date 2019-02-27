@@ -59,7 +59,7 @@ def prepare_object_boxes_and_labels(anno_root, anno_list_path, box_label_path):
 
 
 def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
-                         label_list_path, label2index, raw2wn, raw2path,
+                         label_list_path, raw2path,
                          sample_ratio, dataset):
     # check output file existence
     if os.path.exists(label_list_path):
@@ -107,10 +107,6 @@ def extract_fc7_features(net, img_box_label, img_root, list_path, feature_root,
 
             if dataset == 'test':
                 continue
-
-            wn_leaf_label = raw2wn[raw_label][0]
-            wn_leaf_ind = label2index[wn_leaf_label]
-            label_list.append(feature_id+' '+str(box_id)+' '+str(wn_leaf_ind)+' '+str(raw_label_ind)+'\n')
 
             label_inds = raw2path[raw_label_ind]
             for label_ind in label_inds:
@@ -173,11 +169,10 @@ def gen_cnn_feat():
         # extract cnn feature
         box_label = pickle.load(open(box_label_path, 'rb'))
         label2index = labelnet.label2index()
-        raw2wn = labelnet.raw2wn()
         raw2path = labelnet.raw2path()
 
         # cal sample ratio
         sample_ratio = cal_sample_ratio(label2index, raw2path, box_label)
 
         extract_fc7_features(net, box_label, img_root, anno_list, fc7_save_root,
-                             label_save_path, label2index, raw2wn, raw2path, sample_ratio, d)
+                             label_save_path, raw2path, sample_ratio, d)

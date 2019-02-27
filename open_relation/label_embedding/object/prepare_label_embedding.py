@@ -39,8 +39,6 @@ if __name__ == '__main__':
     else:
         from open_relation.dataset.vg.label_hier.obj_hier import objnet
 
-    raw2wn = objnet.raw2wn()
-
     label2index = objnet.label2index()
 
     hypernym_save_path = os.path.join(global_config.project_root,

@@ -10,19 +10,19 @@ from open_relation.dataset.dataset_config import DatasetConfig
 from open_relation.train.train_config import hyper_params
 
 
-def score_pred(pred_ind, org_label_ind, pred_label, wn_label, org2path):
-    if pred_ind == org_label_ind:
+def score_pred(pred_ind, gt_ind, labelnet):
+    raw2path = labelnet.raw2path()
+    if pred_ind == gt_ind:
         return 1
-    elif pred_ind not in org2path[org_label_ind]:
+    elif pred_ind not in raw2path[gt_ind]:
         return 0
     else:
-        wn_node = wn.synset(wn_label)
-        hyper_paths = wn_node.hypernym_paths()
+        hyper_paths = labelnet.get_node_by_index(gt_ind).hyper_paths()
         best_ratio = 0
         for h_path in hyper_paths:
             for i, node in enumerate(h_path):
-                if node.name() == pred_label:
-                    best_ratio = max((i+1) * 1.0 / (len(h_path)+1), best_ratio)
+                if node.index() == pred_ind:
+                    best_ratio = max((i+1) * 1.0 / (len(h_path)), best_ratio)
                     break
         return best_ratio
 
@@ -50,11 +50,9 @@ label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
 
-org2wn = objnet.raw2wn()
 org2path = objnet.raw2path()
 label2index = objnet.label2index()
 index2label = objnet.index2label()
-org_indexes = [label2index[i] for i in org2wn.keys()]
 
 # load model with best weights
 best_weights_path = config['latest_weight_path']
@@ -90,15 +88,15 @@ for feature_file_id in test_box_label:
         vf = vf[np.newaxis, :]
         vf_v = torch.autograd.Variable(torch.from_numpy(vf).float()).cuda()
         lfs_v = torch.autograd.Variable(torch.from_numpy(label_vecs).float()).cuda()
-        org_label_ind = box_label[4]
-        org_label = objnet.get_node_by_index(org_label_ind).name()
+        gt_ind = box_label[4]
+        org_label = objnet.get_node_by_index(gt_ind).name()
         scores, _ = net(vf_v)
         scores = scores.cpu().data[0].numpy()
         top2pred = my_infer(objnet, scores, 'obj')
         pred_ind = top2pred[0][0]
         # pred_ind, cands = tree_infer.my_infer(scores, org2path, org2pw, label2index, index2label, rank_scores)
         # pred_ind, cands = simple_infer.simple_infer(scores, org2path, label2index)
-        pred_score = score_pred(pred_ind, org_label_ind, index2label[pred_ind], org2wn[org_label][0], org2path)
+        pred_score = score_pred(pred_ind, gt_ind, objnet)
         T += pred_score
         if pred_score > 0:
             T_C += 1

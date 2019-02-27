@@ -19,7 +19,7 @@ def score_pred(pred_ind, gt_ind, labelnet):
         for h_path in gt_paths:
             for i, h_node in enumerate(h_path):
                 if h_node.index() == pred_ind:
-                    best_ratio = max((i+1) * 1.0 / (len(h_path)+1), best_ratio)
+                    best_ratio = max((i+1) * 1.0 / (len(h_path)), best_ratio)
                     break
         return best_ratio
 
@@ -77,7 +77,6 @@ label_vecs = np.array(label_embedding_file['label_vec'])
 
 # prepare label maps
 
-org2wn = objnet.raw2wn()
 org2path = objnet.raw2path()
 label2index = objnet.label2index()
 index2label = objnet.index2label()
@@ -145,7 +144,7 @@ for feature_file_id in test_box_label:
 
         # ====== score =====
         elif show == 'score':
-            org_indexes = set([label2index[l] for l in org2wn.keys()])
+            org_indexes = set(objnet.get_raw_indexes())
             org_pred_counter = 0
             print('\n===== ' + gt_label + ' =====')
             for j, pred in enumerate(ranked_inds):

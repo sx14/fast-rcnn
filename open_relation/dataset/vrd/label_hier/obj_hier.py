@@ -33,9 +33,6 @@ class ObjNet(LabelHier):
         raw2wn['post'] = ['post.n.04']
         return raw2wn
 
-    def raw2wn(self):
-        return self._raw_to_wn()
-
     def _create_label_nodes(self, raw2wn):
         path_choice = {
             'person': 1,
@@ -80,8 +77,8 @@ class ObjNet(LabelHier):
                     self._index2node.append(node)
                     next_label_index += 1
                 if i > 0:
-                    node.append_hyper(last_node)
-                    last_node.append_children(node)
+                    node.add_hyper(last_node)
+                    last_node.add_child(node)
                 last_node = node
 
             # raw label is unique
@@ -90,8 +87,8 @@ class ObjNet(LabelHier):
             self._index2node.append(raw_node)
             next_label_index += 1
             wn_node = self.get_node_by_name(raw2wn[raw_label][0])
-            raw_node.append_hyper(wn_node)
-            wn_node.append_children(raw_node)
+            raw_node.add_hyper(wn_node)
+            wn_node.add_child(raw_node)
 
     def _construct_hier(self):
         raw2wn = self._raw_to_wn()
@@ -115,7 +112,7 @@ dataset_config = DatasetConfig('vrd')
 label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
 weight_path = dataset_config.extra_config['object'].config['ind2weight_path']
 objnet = ObjNet(label_path, weight_path)
-a = 1
+# raw2path = objnet.raw2path()
 # if __name__ == '__main__':
 #     a = ObjNet(label_path)
 #     n = a.get_node_by_name('road')

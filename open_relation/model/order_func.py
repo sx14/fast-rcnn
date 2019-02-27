@@ -41,7 +41,7 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
     loss_vec = Variable(torch.zeros(1)).float().cuda()
     for b in range(batch_scores.size()[0]):
         gt_ind = pos_neg_inds[b][0]
-        gt_path = labelnet.get_node_by_index(gt_ind).hyper_paths()
+        gt_path = labelnet.get_node_by_index(gt_ind).hyper_paths()[0]
         gt_path_inds = set()
         for n in gt_path:
             gt_path_inds.add(n.index())
@@ -61,7 +61,7 @@ def order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
                 sib_pos_ind_v = Variable(torch.zeros(1)).long().cuda()
                 sib_pos_ind_v[0] = sib_pos_ind
 
-                if sib_scores_v[sib_pos_ind] != sib_scores_v.max():
+                if sib_scores_v[0][sib_pos_ind] != sib_scores_v.max():
                     success = 0
 
                 # weight = siblings[sib_pos_ind].weight()
@@ -77,6 +77,6 @@ def order_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func):
     acc1, loss1 = order_softmax_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func)
     acc2, loss2 = order_split_loss(batch_scores, pos_neg_inds, labelnet, weights, loss_func)
     acc = (acc1 + acc2) / 2
-    lamda = 0.6
+    lamda = 0.4
     loss = loss1 * lamda + loss2 * (1-lamda)
     return acc, loss

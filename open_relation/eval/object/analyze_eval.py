@@ -9,7 +9,6 @@ else:
 
 
 # prepare label maps
-org2wn = objnet.raw2wn()
 label2index = objnet.label2index()
 index2label = objnet.index2label()
 
@@ -23,7 +22,7 @@ e_freq = dict()
 e_acc = dict()
 
 # prediction matrix : expected -> prediction
-mat2org = [label2index[i] for i in org2wn.keys()]
+mat2org = [i for i in objnet.get_raw_indexes()]
 org2mat = dict()
 for i, org in enumerate(mat2org):
     org2mat[org] = i
