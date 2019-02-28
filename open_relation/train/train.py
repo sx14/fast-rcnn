@@ -126,7 +126,7 @@ for e in range(0, config['epoch']):
         # forward
         all_scores, _ = net(vfs)
         # cal acc, loss
-        acc, loss = order_loss(all_scores, pos_neg_inds, labelnet, weights, loss_func)
+        acc, loss = order_softmax_loss(all_scores, pos_neg_inds, labelnet, weights, loss_func)
         if batch_counter % config['print_freq'] == 0:
             # logging
             sw.add_scalars('acc', {'train': acc}, batch_counter)

@@ -40,7 +40,7 @@ def eval2(label_vecs, labelnet):
         pred = np.argsort(E)[:20]
         print('\n===== '+vg_label+' =====')
         print('---answer---')
-        gt_node = labelnet.get_node_by_label(vg_label)
+        gt_node = labelnet.get_node_by_name(vg_label)
         for hyper_path in gt_node.hyper_paths():
             for w in hyper_path:
                 print(w.name())

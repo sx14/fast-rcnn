@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
 import copy
-from math import exp
+from math import exp, log
 import numpy as np
 import torch
 from torch import Tensor
 from torch.autograd import Variable
 from torch.nn.functional import softmax
+
 
 class TreeNode:
     def __init__(self, name, index):
@@ -74,6 +75,21 @@ def construct_tree(label_hier, scores):
     return ind2node
 
 
+def depth_thresh(depth):
+    return min(exp(depth - 10), 0.9)
+
+
+def entropy_thresh(scores):
+    entropy = 0
+    for score in scores:
+        entropy += (-log(score, 2)) * score
+
+
+def good_thresh(n_children, depth):
+    thresh = 0.6 * exp(-max(7-depth, 0)/7)
+    return thresh
+
+
 def top_down_search(root, threshold):
     node = root
     while len(node.children()) > 0:
@@ -84,7 +100,8 @@ def top_down_search(root, threshold):
         c_scores_s = softmax(c_scores_v, 0)
         pred_c_ind = torch.argmax(c_scores_s)
         pred_c_scr = c_scores_s[pred_c_ind]
-        threshold = min(exp(node.depth() - 10), 0.9)
+
+        threshold = good_thresh(len(c_scores), node.depth())
         if pred_c_scr < threshold:
             break
         node = node.children()[pred_c_ind]
