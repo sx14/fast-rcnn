@@ -56,16 +56,17 @@ def get_objs(img_root, anno_root, img_name):
     return im, cls, boxes
 
 
-# if __name__ == '__main__':
-#     dataset_config = DatasetConfig('vg')
-#     target = 'object'
-#
-#     img_root = dataset_config.data_config['img_root']
-#     anno_root = dataset_config.data_config['clean_anno_root']
-#     img_id = '1'
-#     for img_name in os.listdir(img_root):
-#         if target == 'object':
-#             im, cls, boxes = get_objs(img_root, anno_root, img_name)
-#         else:
-#             im, cls, boxes = get_pres(img_root, anno_root, img_name)
-#         show_boxes(im, boxes, cls)
+if __name__ == '__main__':
+    dataset_config = DatasetConfig('vrd')
+    target = 'predicate'
+
+    img_root = dataset_config.data_config['img_root']
+    anno_root = dataset_config.data_config['clean_anno_root']
+    img_id = '1'
+    for img_name in os.listdir(img_root):
+        if target == 'object':
+            im, cls, boxes = get_objs(img_root, anno_root, img_name)
+        else:
+            im, cls, boxes = get_pres(img_root, anno_root, img_name)
+        if 'in' in cls:
+            show_boxes(im, boxes, cls)

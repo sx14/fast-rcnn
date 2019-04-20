@@ -18,13 +18,14 @@ class LabelNode(object):
 
     def score(self, pred_ind):
         if not self._is_raw:
+            print('[sunx] ATTENTION: class index error !!!')
             return -1
         best_score = 0
         gt_paths = self.hyper_paths()
         for h_path in gt_paths:
             for i, h_node in enumerate(h_path):
                 if h_node.index() == pred_ind:
-                    best_score = max((i+1) * 1.0 / (len(h_path)), best_score)
+                    best_score = max((i+1.0) / (len(h_path)), best_score)
                     break
         return best_score
 
@@ -147,7 +148,8 @@ class LabelHier:
         return len(self._index2node)
 
     def get_all_labels(self):
-        return sorted(self._label2node.keys())
+        all_labels = [node.name() for node in self._index2node]
+        return all_labels
 
     def get_raw_labels(self):
         return self._raw_labels
@@ -164,16 +166,8 @@ class LabelHier:
         else:
             return None
 
-    def depth_punish(self):
-        # y = 1/196(x - 15)^2 + 1
-        punish = []
-        max_punish = 2.0
-        min_punish = 1.0
-        for i in range(self.label_sum()):
-            d = self.get_node_by_index(i).depth()
-            p = (max_punish - min_punish) / (1 - self.max_depth) ** 2 * (d - self.max_depth) ** 2 + min_punish
-            punish.append(1/p)
-        return punish
+    def neg_num(self):
+        return self.label_sum() - self.max_depth
 
     def _load_raw_label(self, raw_label_path):
         labels = []
@@ -188,6 +182,7 @@ class LabelHier:
 
     def _compress(self):
         self._dfs_compress(self.root())
+
         # reindex nodes
         new_index = 0
         new_index2node = []
@@ -244,5 +239,3 @@ class LabelHier:
         self.max_depth = 0
         for n in self._index2node:
             self.max_depth = max(self.max_depth, n.depth())
-
-

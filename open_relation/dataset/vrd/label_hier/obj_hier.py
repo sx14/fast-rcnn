@@ -112,8 +112,3 @@ dataset_config = DatasetConfig('vrd')
 label_path = os.path.join(dataset_config.dataset_root, 'object_labels.txt')
 weight_path = dataset_config.extra_config['object'].config['ind2weight_path']
 objnet = ObjNet(label_path, weight_path)
-# raw2path = objnet.raw2path()
-# if __name__ == '__main__':
-#     a = ObjNet(label_path)
-#     n = a.get_node_by_name('road')
-#     n.show_hyper_paths()

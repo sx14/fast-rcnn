@@ -79,7 +79,7 @@ if target == 'object':
                          obj_config['embedding_d'], obj_config['label_vec_path'])
 else:
     obj_config = hyper_params[dataset]['object']
-    pre_config = config
+    pre_config = hyper_params[dataset]['predicate']
     net = PredicateVisual(obj_config['visual_d'], obj_config['hidden_d'],
                           obj_config['embedding_d'], obj_config['label_vec_path'],
                           obj_config['best_weight_path'],

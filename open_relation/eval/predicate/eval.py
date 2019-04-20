@@ -231,7 +231,7 @@ for feature_file_id in test_box_label:
 
             else:
                 raw_top2 = top2(ranked_inds, raw_indexes)
-                top2_pred = tree_infer2.my_infer(prenet, pre_scores.cpu().data, None, 'pre')
+                top2_pred = tree_infer2.my_infer(prenet, pre_scores.cpu().data, 'pre')
                 pred_ind = top2_pred[0][0]
                 pred_label = index2label[pred_ind]
                 pred_score = score_pred(pred_ind, gt_pre_ind, pred_label, gt_pre_label, prenet)

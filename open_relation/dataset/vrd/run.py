@@ -4,8 +4,8 @@ from open_relation.dataset.vrd.process import ext_pre_cnn_feat, ext_obj_cnn_feat
 from open_relation.dataset.vrd.process.gen_label_weights import gen_label_weigths
 
 if __name__ == '__main__':
-    # split_anno_pkg()
-    # reformat_anno()
+    split_anno_pkg()
+    reformat_anno()
     ext_obj_cnn_feat.gen_cnn_feat()
     # ext_pre_cnn_feat.gen_cnn_feat()
     # gen_label_weigths('object')
